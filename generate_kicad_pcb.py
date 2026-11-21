@@ -6,13 +6,23 @@ instance UUIDs from `envelope_follower.kicad_sch`, places panel-mounted controls
 `F.Cu` and SMD/power/test-point hardware on `B.Cu`, pre-routes critical IC/decoupling
 and GND stitching vias, routes all remaining nets on a 0.25 mm A* grid, pours F.Cu/B.Cu
 GND planes, and applies collision-free silkscreen & fabrication notes.
+
+Silkscreen iteration workflows (`silk_layout.json`):
+- Edit `silk_layout.json` and run `--silk-only` (~1 s) to restamp silkscreen in place.
+- Edit `envelope_follower.kicad_pcb` visually in KiCad, Save, and run `--sync-silk` to
+  capture moved/rotated entries back into `silk_layout.json`.
+- Inspect coordinates and nearby obstacles with `--show-silk [REF ...]`, verify with
+  `--check-silk`, override path with `--silk-layout PATH`, or bypass with `--auto-silk`.
 """
 
 from __future__ import annotations
 
+import argparse
+import json
 import math
 import os
 import pathlib
+import re
 import sys
 
 KICAD_PYTHON = pathlib.Path(
@@ -50,11 +60,18 @@ from pcbnew_layout_template import (
 )
 from silk_annotator import (
     SilkGrid,
+    _bbox_tuple,
+    _configure_ref_field,
     add_silk_dot,
     add_silk_rect,
+    add_silk_seg,
     add_silk_text,
     add_standard_fab_notes,
+    box_edge_distance,
     compact_passive_value,
+    footprint_bbox,
+    inspect_board_silk,
+    is_fiducial_ref,
     place_ref_val_pair,
 )
 
@@ -71,6 +88,7 @@ BOARD_Y1 = BOARD_Y0 + BOARD_H
 NET_PATH = ROOT / "envelope_follower.net"
 SCH_PATH = ROOT / "envelope_follower.kicad_sch"
 PCB_PATH = ROOT / "envelope_follower.kicad_pcb"
+SILK_LAYOUT_PATH = ROOT / "silk_layout.json"
 CUSTOM_FP_DIR = ROOT / "footprints"
 
 TRACK_WIDTH = 0.25
@@ -968,16 +986,497 @@ def _prune_disconnected_stitching_vias(
 
 
 # ---------------------------------------------------------------------------
-# Silkscreen & Fabrication Notes
+# Silkscreen & Fabrication Notes (+ silk_layout.json Round-Trip Helpers)
 # ---------------------------------------------------------------------------
+_SILK_LAYER_TO_NAME = {
+    pcbnew.F_SilkS: "F.SilkS",
+    pcbnew.B_SilkS: "B.SilkS",
+}
+
+
+def _parse_silk_layer(name: str) -> tuple[int, int, bool]:
+    """Return (side_idx, layer_id, mirrored) for a F.SilkS/B.SilkS layer string."""
+    if name in ("F.SilkS", "F.Silkscreen"):
+        return (0, pcbnew.F_SilkS, False)
+    if name in ("B.SilkS", "B.Silkscreen"):
+        return (1, pcbnew.B_SilkS, True)
+    raise ValueError(f"Unsupported silkscreen layer: {name!r}")
+
+
+def _ref_sort_key(ref: str) -> tuple[str, int, str]:
+    """Natural sort key for component reference designators (R1, R2, ..., R10)."""
+    match = re.match(r"^([A-Za-z_]+?)(\d+)$", ref)
+    if match:
+        return (match.group(1), int(match.group(2)), ref)
+    return (ref, -1, ref)
+
+
+def _norm_angle(deg: float) -> float:
+    """Normalize rotation degrees into [0.0, 360.0) without signed -0.0."""
+    angle = round(deg % 360.0, 2)
+    return 0.0 if angle in (0.0, 360.0) else angle
+
+
+def _round_mm(nm_val: int, offset_mm: float = 0.0) -> float:
+    """Convert KiCad nm coordinate to mm minus board offset, avoiding -0.0."""
+    val = round(pcbnew.ToMM(nm_val) - offset_mm, 3)
+    return 0.0 if val == 0.0 else val
+
+
+def _to_local_box(
+    box: tuple[float, float, float, float],
+) -> tuple[float, float, float, float]:
+    """Convert a global mm (x0, y0, x1, y1) bbox to board-local mm."""
+    return (
+        round(box[0] - BOARD_X0, 2),
+        round(box[1] - BOARD_Y0, 2),
+        round(box[2] - BOARD_X0, 2),
+        round(box[3] - BOARD_Y0, 2),
+    )
+
+
+def _text_item_to_dict(
+    item: pcbnew.PCB_TEXT | pcbnew.PCB_FIELD,
+    *,
+    include_text: bool,
+) -> dict:
+    """Serialize a PCB_TEXT or PCB_FIELD item in board-local mm using bbox center."""
+    ctr = item.GetBoundingBox().GetCenter()
+    out: dict[str, object] = {"layer": _SILK_LAYER_TO_NAME[item.GetLayer()]}
+    if include_text:
+        out["text"] = item.GetText()
+    out["x"] = _round_mm(ctr.x, BOARD_X0)
+    out["y"] = _round_mm(ctr.y, BOARD_Y0)
+    out["deg"] = _norm_angle(float(item.GetTextAngleDegrees()))
+    out["height"] = _round_mm(item.GetTextHeight())
+    out["thickness"] = _round_mm(item.GetTextThickness())
+    return out
+
+
+def extract_silk_layout(board: pcbnew.BOARD) -> dict:
+    """Extract all silkscreen items from `board` into board-local schema dict."""
+    qr_rects: list[dict] = []
+    dots: list[dict] = []
+    segments: list[dict] = []
+    board_texts: list[dict] = []
+
+    for d in board.GetDrawings():
+        layer_id = d.GetLayer()
+        layer_name = _SILK_LAYER_TO_NAME.get(layer_id)
+        if layer_name is None:
+            continue
+        if isinstance(d, pcbnew.PCB_TEXT):
+            if d.IsVisible():
+                board_texts.append(_text_item_to_dict(d, include_text=True))
+        elif isinstance(d, pcbnew.PCB_SHAPE):
+            shape_t = d.GetShape()
+            width = _round_mm(d.GetWidth())
+            if shape_t == pcbnew.SHAPE_T_RECT:
+                s, e = d.GetStart(), d.GetEnd()
+                qr_rects.append(
+                    {
+                        "layer": layer_name,
+                        "x0": _round_mm(s.x, BOARD_X0),
+                        "y0": _round_mm(s.y, BOARD_Y0),
+                        "x1": _round_mm(e.x, BOARD_X0),
+                        "y1": _round_mm(e.y, BOARD_Y0),
+                        "filled": bool(d.IsSolidFill()),
+                        "width": width,
+                    }
+                )
+            elif shape_t == pcbnew.SHAPE_T_CIRCLE:
+                c = d.GetCenter()
+                dots.append(
+                    {
+                        "layer": layer_name,
+                        "x": _round_mm(c.x, BOARD_X0),
+                        "y": _round_mm(c.y, BOARD_Y0),
+                        "radius": _round_mm(d.GetRadius()),
+                        "filled": bool(d.IsSolidFill()),
+                        "width": width,
+                    }
+                )
+            elif shape_t == pcbnew.SHAPE_T_SEGMENT:
+                s, e = d.GetStart(), d.GetEnd()
+                segments.append(
+                    {
+                        "layer": layer_name,
+                        "x0": _round_mm(s.x, BOARD_X0),
+                        "y0": _round_mm(s.y, BOARD_Y0),
+                        "x1": _round_mm(e.x, BOARD_X0),
+                        "y1": _round_mm(e.y, BOARD_Y0),
+                        "width": width,
+                    }
+                )
+
+    qr_rects.sort(key=lambda r: (r["layer"], r["x0"], r["y0"], r["x1"], r["y1"]))
+    dots.sort(key=lambda d: (d["layer"], d["x"], d["y"], d["radius"]))
+    segments.sort(key=lambda s: (s["layer"], s["x0"], s["y0"], s["x1"], s["y1"]))
+    board_texts.sort(key=lambda t: (t["layer"], t["text"], t["x"], t["y"]))
+
+    footprints_map: dict[str, dict] = {}
+    for fp in sorted(
+        board.GetFootprints(), key=lambda f: _ref_sort_key(f.GetReference())
+    ):
+        ref = fp.GetReference()
+        if is_fiducial_ref(ref):
+            continue
+        vf = fp.Value()
+        if vf.IsVisible() and vf.GetLayer() in _SILK_LAYER_TO_NAME:
+            print(
+                f"WARNING: {ref} Value field is visible on silk; keep Value hidden on "
+                ".Fab and move its silk text item instead."
+            )
+        rf = fp.Reference()
+        ref_entry = (
+            _text_item_to_dict(rf, include_text=False)
+            if rf.IsVisible() and rf.GetLayer() in _SILK_LAYER_TO_NAME
+            else None
+        )
+        texts = [
+            _text_item_to_dict(gi, include_text=True)
+            for gi in fp.GraphicalItems()
+            if isinstance(gi, pcbnew.PCB_TEXT)
+            and gi.IsVisible()
+            and gi.GetLayer() in _SILK_LAYER_TO_NAME
+        ]
+        texts.sort(key=lambda t: (t["layer"], t["text"], t["x"], t["y"]))
+        footprints_map[ref] = {"ref": ref_entry, "texts": texts}
+
+    return {
+        "version": 1,
+        "coordinate_system": (
+            f"board-local mm relative to (BOARD_X0={BOARD_X0}, BOARD_Y0={BOARD_Y0}); "
+            "matches KiCad Grid/Aux origin"
+        ),
+        "qr_rects": qr_rects,
+        "dots": dots,
+        "segments": segments,
+        "board_texts": board_texts,
+        "footprints": footprints_map,
+    }
+
+
+def _format_silk_layout_json(layout: dict) -> str:
+    """Format silk_layout.json with compact single-line leaf items for crisp diffs."""
+    lines: list[str] = [
+        "{",
+        f'  "version": {json.dumps(layout["version"])},',
+        f'  "coordinate_system": {json.dumps(layout["coordinate_system"], ensure_ascii=False)},',
+    ]
+    for key in ("qr_rects", "dots", "segments", "board_texts"):
+        items = layout.get(key, [])
+        if not items:
+            lines.append(f'  "{key}": [],')
+            continue
+        lines.append(f'  "{key}": [')
+        for idx, item in enumerate(items):
+            comma = "," if idx < len(items) - 1 else ""
+            lines.append(f"    {json.dumps(item, ensure_ascii=False)}{comma}")
+        lines.append("  ],")
+
+    fps = layout.get("footprints", {})
+    lines.append('  "footprints": {')
+    fp_keys = sorted(fps, key=_ref_sort_key)
+    for idx, ref in enumerate(fp_keys):
+        entry = fps[ref]
+        comma = "," if idx < len(fp_keys) - 1 else ""
+        ref_key = json.dumps(ref, ensure_ascii=False)
+        if entry == "auto":
+            lines.append(f'    {ref_key}: "auto"{comma}')
+            continue
+        ref_s = json.dumps(entry.get("ref"), ensure_ascii=False)
+        texts = entry.get("texts", [])
+        if entry.get("ref") is None and len(texts) <= 1:
+            texts_s = f"[{json.dumps(texts[0], ensure_ascii=False)}]" if texts else "[]"
+            lines.append(f'    {ref_key}: {{"ref": null, "texts": {texts_s}}}{comma}')
+        elif not texts:
+            lines.append(f'    {ref_key}: {{"ref": {ref_s}, "texts": []}}{comma}')
+        else:
+            lines.append(f"    {ref_key}: {{")
+            lines.append(f'      "ref": {ref_s},')
+            lines.append('      "texts": [')
+            for tidx, txt in enumerate(texts):
+                tcomma = "," if tidx < len(texts) - 1 else ""
+                lines.append(f"        {json.dumps(txt, ensure_ascii=False)}{tcomma}")
+            lines.append("      ]")
+            lines.append(f"    }}{comma}")
+    lines.append("  }")
+    lines.append("}")
+    return "\n".join(lines) + "\n"
+
+
+def _load_silk_layout(path: pathlib.Path) -> dict:
+    """Load and minimally validate `silk_layout.json`."""
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(data, dict) or not isinstance(data.get("footprints"), dict):
+        raise TypeError(f"Invalid silk layout file: {path}")
+    return data
+
+
+def _fmt_pos(item: dict) -> str:
+    """Compact position string for diff summaries."""
+    return f"({item['x']}, {item['y']}, {item['deg']}°)"
+
+
+def _summarize_silk_diff(old_layout: dict | None, new_layout: dict) -> list[str]:
+    """Return human-readable summary lines describing changes between two layouts."""
+    if old_layout is None:
+        summary = (
+            "Initialized layout: "
+            f"{len(new_layout.get('footprints', {}))} footprints, "
+            f"{len(new_layout.get('board_texts', []))} board_texts, "
+            f"{len(new_layout.get('qr_rects', []))} qr_rects, "
+            f"{len(new_layout.get('dots', []))} dots."
+        )
+        return [summary]
+
+    changes: list[str] = []
+    for key in ("qr_rects", "dots", "segments", "board_texts"):
+        old_items = old_layout.get(key, [])
+        new_items = new_layout.get(key, [])
+        if old_items != new_items:
+            changes.append(
+                f"{key}: updated ({len(old_items)} -> {len(new_items)} items)"
+            )
+
+    old_fps = old_layout.get("footprints", {})
+    new_fps = new_layout.get("footprints", {})
+    for ref in sorted(set(old_fps) | set(new_fps), key=_ref_sort_key):
+        if ref not in old_fps:
+            changes.append(f"{ref}: added")
+            continue
+        if ref not in new_fps:
+            changes.append(f"{ref}: removed")
+            continue
+        old_e, new_e = old_fps[ref], new_fps[ref]
+        if old_e == new_e:
+            continue
+        if not isinstance(old_e, dict) or not isinstance(new_e, dict):
+            changes.append(f"{ref}: updated ({old_e!r} -> {new_e!r})")
+            continue
+        parts: list[str] = []
+        if old_e.get("ref") != new_e.get("ref"):
+            or_d, nr_d = old_e.get("ref"), new_e.get("ref")
+            if isinstance(or_d, dict) and isinstance(nr_d, dict):
+                parts.append(f"REF {_fmt_pos(or_d)} -> {_fmt_pos(nr_d)}")
+            else:
+                parts.append(f"REF {or_d} -> {nr_d}")
+        if old_e.get("texts") != new_e.get("texts"):
+            ot_list, nt_list = old_e.get("texts", []), new_e.get("texts", [])
+            if len(ot_list) == len(nt_list) == 1:
+                ot, nt = ot_list[0], nt_list[0]
+                if ot.get("text") == nt.get("text"):
+                    parts.append(f"'{nt['text']}' {_fmt_pos(ot)} -> {_fmt_pos(nt)}")
+                else:
+                    parts.append(f"text '{ot.get('text')}' -> '{nt.get('text')}'")
+            else:
+                parts.append(f"texts ({len(ot_list)} -> {len(nt_list)} items)")
+        changes.append(f"{ref}: {', '.join(parts) if parts else 'updated'}")
+    return changes
+
+
+def _strip_board_silkscreen(board: pcbnew.BOARD) -> None:
+    """Remove generated silkscreen text/shapes cleanly using Delete() (never Remove())."""
+    for d in list(board.GetDrawings()):
+        if d.GetLayer() in _SILK_LAYER_TO_NAME and isinstance(
+            d, (pcbnew.PCB_TEXT, pcbnew.PCB_SHAPE)
+        ):
+            board.Delete(d)
+    for fp in list(board.GetFootprints()):
+        for gi in list(fp.GraphicalItems()):
+            if isinstance(gi, pcbnew.PCB_TEXT) and gi.GetLayer() in _SILK_LAYER_TO_NAME:
+                fp.Delete(gi)
+
+
+def _place_fixed_board_silk(board: pcbnew.BOARD, grid: SilkGrid, layout: dict) -> None:
+    """Draw and reserve board-level silkscreen items defined in `silk_layout.json`."""
+    for rect in layout.get("qr_rects", []):
+        side, layer_id, _ = _parse_silk_layer(rect["layer"])
+        gx0, gy0 = _g(rect["x0"], rect["y0"])
+        gx1, gy1 = _g(rect["x1"], rect["y1"])
+        add_silk_rect(
+            board,
+            layer_id,
+            gx0,
+            gy0,
+            gx1,
+            gy1,
+            filled=bool(rect.get("filled", True)),
+            width=float(rect.get("width", 0.15)),
+        )
+        grid.reserve(
+            side,
+            min(gx0, gx1) - 0.15,
+            min(gy0, gy1) - 0.15,
+            max(gx0, gx1) + 0.15,
+            max(gy0, gy1) + 0.15,
+        )
+
+    for dot in layout.get("dots", []):
+        side, layer_id, _ = _parse_silk_layer(dot["layer"])
+        gx, gy = _g(dot["x"], dot["y"])
+        r = float(dot.get("radius", 0.25))
+        shp = pcbnew.PCB_SHAPE(board)
+        shp.SetShape(pcbnew.SHAPE_T_CIRCLE)
+        shp.SetLayer(layer_id)
+        shp.SetCenter(pcbnew.VECTOR2I(pcbnew.FromMM(gx), pcbnew.FromMM(gy)))
+        shp.SetEnd(pcbnew.VECTOR2I(pcbnew.FromMM(gx + r), pcbnew.FromMM(gy)))
+        shp.SetWidth(pcbnew.FromMM(float(dot.get("width", 0.15))))
+        shp.SetFilled(bool(dot.get("filled", True)))
+        board.Add(shp)
+        grid.reserve(side, gx - r - 0.25, gy - r - 0.25, gx + r + 0.25, gy + r + 0.25)
+
+    for seg in layout.get("segments", []):
+        side, layer_id, _ = _parse_silk_layer(seg["layer"])
+        gx0, gy0 = _g(seg["x0"], seg["y0"])
+        gx1, gy1 = _g(seg["x1"], seg["y1"])
+        add_silk_seg(
+            board,
+            layer_id,
+            gx0,
+            gy0,
+            gx1,
+            gy1,
+            width=float(seg.get("width", 0.15)),
+        )
+        grid.reserve(
+            side,
+            min(gx0, gx1) - 0.15,
+            min(gy0, gy1) - 0.15,
+            max(gx0, gx1) + 0.15,
+            max(gy0, gy1) + 0.15,
+        )
+
+    for item in layout.get("board_texts", []):
+        side, layer_id, mirrored = _parse_silk_layer(item["layer"])
+        gx, gy = _g(item["x"], item["y"])
+        txt = add_silk_text(
+            board,
+            layer_id,
+            item["text"],
+            gx,
+            gy,
+            deg=float(item.get("deg", 0.0)),
+            height=float(item.get("height", 0.80)),
+            thickness=float(item.get("thickness", 0.15)),
+            mirrored=mirrored,
+        )
+        grid.reserve(side, *_bbox_tuple(txt))
+
+
+def _place_pinned_footprints(
+    footprints: dict[str, pcbnew.FOOTPRINT],
+    grid: SilkGrid,
+    layout: dict,
+) -> set[str]:
+    """Place pinned footprint references/texts from `layout` and reserve in `grid`."""
+    pinned_refs: set[str] = set()
+    for ref, entry in layout.get("footprints", {}).items():
+        if entry == "auto":
+            continue
+        fp = footprints.get(ref)
+        if fp is None:
+            print(f"WARNING: Skipping unknown ref {ref!r} in silk layout.")
+            continue
+        pinned_refs.add(ref)
+        ref_cfg = entry.get("ref")
+        if isinstance(ref_cfg, dict):
+            side, layer_id, mirrored = _parse_silk_layer(ref_cfg["layer"])
+            gx, gy = _g(ref_cfg["x"], ref_cfg["y"])
+            _configure_ref_field(
+                fp.Reference(),
+                layer_id,
+                gx,
+                gy,
+                float(ref_cfg.get("deg", 0.0)),
+                float(ref_cfg.get("height", 0.80)),
+                float(ref_cfg.get("thickness", 0.15)),
+                mirrored,
+            )
+            grid.reserve(side, *_bbox_tuple(fp.Reference()))
+        for txt_cfg in entry.get("texts", []):
+            side, layer_id, mirrored = _parse_silk_layer(txt_cfg["layer"])
+            gx, gy = _g(txt_cfg["x"], txt_cfg["y"])
+            txt = add_silk_text(
+                fp,
+                layer_id,
+                txt_cfg["text"],
+                gx,
+                gy,
+                deg=float(txt_cfg.get("deg", 0.0)),
+                height=float(txt_cfg.get("height", 0.80)),
+                thickness=float(txt_cfg.get("thickness", 0.15)),
+                mirrored=mirrored,
+            )
+            grid.reserve(side, *_bbox_tuple(txt))
+    return pinned_refs
+
+
+def _auto_place_component_silk(
+    grid: SilkGrid,
+    footprints: dict[str, pcbnew.FOOTPRINT],
+    components: dict[str, dict],
+    pinned_refs: set[str],
+) -> int:
+    """Auto-place remaining unpinned components around already-reserved items."""
+    ordered_refs = sorted(
+        (r for r in components if r not in pinned_refs and not is_fiducial_ref(r)),
+        key=lambda r: (
+            1 if r[0] in ("R", "C") and not r.startswith("RV") else 0,
+            PLACEMENTS[r][1],
+            PLACEMENTS[r][0],
+            r,
+        ),
+    )
+
+    failed_labels: list[str] = []
+    for ref in ordered_refs:
+        fp = footprints[ref]
+        comp = components[ref]
+        silk_prop = comp["fields"].get("Silkscreen", "").strip()
+        val_str = SILK_VALUE_OVERRIDES.get(ref) or silk_prop or comp["value"]
+        if ref.startswith(("R", "C")) and not ref.startswith("RV"):
+            val_str = SILK_VALUE_OVERRIDES.get(
+                ref, compact_passive_value(comp["value"])
+            )
+
+        is_tht = not any(p.GetAttribute() == pcbnew.PAD_ATTRIB_SMD for p in fp.Pads())
+        max_ed = 5.5 if is_tht else 3.5
+        res = place_ref_val_pair(
+            grid,
+            fp,
+            val_str,
+            gap=0.35,
+            step=0.30,
+            max_edge_distance=max_ed,
+            val_only="auto",
+        )
+        if res is None:
+            failed_labels.append(ref)
+
+    if failed_labels:
+        raise RuntimeError(
+            "Silkscreen placement failed within local tether bounds for: "
+            + ", ".join(failed_labels)
+        )
+    return len(ordered_refs)
+
+
 def _apply_silkscreen_and_fab(
     board: pcbnew.BOARD,
     footprints: dict[str, pcbnew.FOOTPRINT],
     components: dict[str, dict],
-) -> None:
-    """Apply QR placeholders, local tethered labels, polarity graphics, and B.Fab notes."""
+    *,
+    silk_layout: dict | None = None,
+    add_fab_notes: bool = True,
+) -> tuple[int, int]:
+    """Apply QR placeholders, silkscreen labels, polarity graphics, and B.Fab notes."""
     for fp in footprints.values():
+        fab_layer = pcbnew.B_Fab if fp.IsFlipped() else pcbnew.F_Fab
+        fp.Reference().SetLayer(fab_layer)
         fp.Reference().SetVisible(False)
+        fp.Value().SetLayer(fab_layer)
         fp.Value().SetVisible(False)
 
     grid = SilkGrid(
@@ -986,26 +1485,6 @@ def _apply_silkscreen_and_fab(
         board_bounds=(BOARD_X0, BOARD_Y0, BOARD_X1, BOARD_Y1),
         block_smd_fab=True,
     )
-
-    # 1. Reserve & draw 5.0 x 5.0 mm JLCPCB QR placeholders first
-    qr_rects = [
-        (0, pcbnew.F_SilkS, 23.80, 1.00, 28.80, 6.00),
-        (1, pcbnew.B_SilkS, 12.50, 65.00, 17.50, 70.00),
-    ]
-    for side, layer_id, lx0, ly0, lx1, ly1 in qr_rects:
-        gx0, gy0 = _g(lx0, ly0)
-        gx1, gy1 = _g(lx1, ly1)
-        add_silk_rect(board, layer_id, gx0, gy0, gx1, gy1, filled=True, width=0.15)
-        grid.reserve(side, gx0 - 0.15, gy0 - 0.15, gx1 + 0.15, gy1 + 0.15)
-
-    # Reserve & draw IC Pin-1 dots on B.SilkS before text placement so labels avoid them
-    for ic_ref in ("U1", "U2"):
-        p1 = footprints[ic_ref].FindPadByNumber("1").GetPosition()
-        p1x, p1y = pcbnew.ToMM(p1.x), pcbnew.ToMM(p1.y)
-        dx = -1.45 if ic_ref == "U1" else 1.45
-        dot_x, dot_y = p1x + dx, p1y
-        add_silk_dot(board, pcbnew.B_SilkS, dot_x, dot_y, radius=0.25)
-        grid.reserve(1, dot_x - 0.50, dot_y - 0.50, dot_x + 0.50, dot_y + 0.50)
 
     # Block J_PWR shroud interior on B.SilkS so adjacent labels stay outside the header body
     jp_fab = _layer_bbox(footprints["J_PWR"], pcbnew.B_Fab)
@@ -1044,116 +1523,352 @@ def _apply_silkscreen_and_fab(
             return True
         return False
 
-    # Place C1/C2 +/- polarity signs before passive values so C1/C2 labels never displace them
-    for lx, ly, sign in ((20.6, 26.8, "+"), (28.9, 35.0, "+"), (20.6, 35.0, "-")):
-        try_silk_text(1, pcbnew.B_SilkS, sign, lx, ly)
+    if silk_layout is not None:
+        _place_fixed_board_silk(board, grid, silk_layout)
+        pinned_refs = _place_pinned_footprints(footprints, grid, silk_layout)
+    else:
+        # 1. Reserve & draw 5.0 x 5.0 mm JLCPCB QR placeholders first
+        qr_rects = [
+            (0, pcbnew.F_SilkS, 23.80, 1.00, 28.80, 6.00),
+            (1, pcbnew.B_SilkS, 12.50, 65.00, 17.50, 70.00),
+        ]
+        for side, layer_id, lx0, ly0, lx1, ly1 in qr_rects:
+            gx0, gy0 = _g(lx0, ly0)
+            gx1, gy1 = _g(lx1, ly1)
+            add_silk_rect(board, layer_id, gx0, gy0, gx1, gy1, filled=True, width=0.15)
+            grid.reserve(side, gx0 - 0.15, gy0 - 0.15, gx1 + 0.15, gy1 + 0.15)
 
-    # 2. Place local Reference/Value (or concise passive value) for every component
-    # Order active, UI, and THT parts before dense SMDs so critical callouts get priority
-    ordered_refs = sorted(
-        components,
-        key=lambda r: (
-            1 if r[0] in ("R", "C") and not r.startswith("RV") else 0,
-            PLACEMENTS[r][1],
-            PLACEMENTS[r][0],
-            r,
-        ),
-    )
+        # Reserve & draw IC Pin-1 dots on B.SilkS before text placement so labels avoid them
+        for ic_ref in ("U1", "U2"):
+            p1 = footprints[ic_ref].FindPadByNumber("1").GetPosition()
+            p1x, p1y = pcbnew.ToMM(p1.x), pcbnew.ToMM(p1.y)
+            dx = -1.45 if ic_ref == "U1" else 1.45
+            dot_x, dot_y = p1x + dx, p1y
+            add_silk_dot(board, pcbnew.B_SilkS, dot_x, dot_y, radius=0.25)
+            grid.reserve(1, dot_x - 0.50, dot_y - 0.50, dot_x + 0.50, dot_y + 0.50)
 
-    failed_labels: list[str] = []
-    for ref in ordered_refs:
-        fp = footprints[ref]
-        comp = components[ref]
-        silk_prop = comp["fields"].get("Silkscreen", "").strip()
-        val_str = SILK_VALUE_OVERRIDES.get(ref) or silk_prop or comp["value"]
-        if ref.startswith(("R", "C")) and not ref.startswith("RV"):
-            val_str = SILK_VALUE_OVERRIDES.get(
-                ref, compact_passive_value(comp["value"])
+        # Place C1/C2 +/- polarity signs before passive values so C1/C2 labels never displace them
+        for lx, ly, sign in ((20.6, 26.8, "+"), (28.9, 35.0, "+"), (20.6, 35.0, "-")):
+            try_silk_text(1, pcbnew.B_SilkS, sign, lx, ly)
+        pinned_refs = set()
+
+    # 2. Auto-place remaining unpinned component labels
+    auto_count = _auto_place_component_silk(grid, footprints, components, pinned_refs)
+
+    if silk_layout is None:
+        # 3. Polarity cues & secondary-side cues (checked against SilkGrid so 0 collisions)
+        for rv_ref in ("RV1", "RV2", "RV3", "RV4"):
+            p1 = footprints[rv_ref].FindPadByNumber("1").GetPosition()
+            try_silk_text(
+                0,
+                pcbnew.F_SilkS,
+                "1",
+                pcbnew.ToMM(p1.x) - BOARD_X0 - 1.5,
+                pcbnew.ToMM(p1.y) - BOARD_Y0,
+                parent=footprints[rv_ref],
             )
 
-        is_tht = not any(p.GetAttribute() == pcbnew.PAD_ATTRIB_SMD for p in fp.Pads())
-        max_ed = 5.5 if is_tht else 3.5
-        res = place_ref_val_pair(
-            grid,
-            fp,
-            val_str,
-            gap=0.35,
-            step=0.30,
-            max_edge_distance=max_ed,
-            val_only="auto",
-        )
-        if res is None:
-            failed_labels.append(ref)
-
-    if failed_labels:
-        raise RuntimeError(
-            f"Silkscreen placement failed within local tether bounds for: {', '.join(failed_labels)}"
-        )
-
-    # 3. Polarity cues & secondary-side cues (checked against SilkGrid so 0 collisions)
-    for rv_ref in ("RV1", "RV2", "RV3", "RV4"):
-        p1 = footprints[rv_ref].FindPadByNumber("1").GetPosition()
+        led_p1 = footprints["LED1"].FindPadByNumber("1").GetPosition()
+        led_p2 = footprints["LED1"].FindPadByNumber("2").GetPosition()
         try_silk_text(
             0,
             pcbnew.F_SilkS,
-            "1",
-            pcbnew.ToMM(p1.x) - BOARD_X0 - 1.5,
-            pcbnew.ToMM(p1.y) - BOARD_Y0,
-            parent=footprints[rv_ref],
+            "+",
+            pcbnew.ToMM(led_p1.x) - BOARD_X0,
+            pcbnew.ToMM(led_p1.y) - BOARD_Y0 + 2.2,
+            parent=footprints["LED1"],
+        )
+        try_silk_text(
+            0,
+            pcbnew.F_SilkS,
+            "-",
+            pcbnew.ToMM(led_p2.x) - BOARD_X0,
+            pcbnew.ToMM(led_p2.y) - BOARD_Y0 + 2.2,
+            parent=footprints["LED1"],
         )
 
-    led_p1 = footprints["LED1"].FindPadByNumber("1").GetPosition()
-    led_p2 = footprints["LED1"].FindPadByNumber("2").GetPosition()
-    try_silk_text(
-        0,
-        pcbnew.F_SilkS,
-        "+",
-        pcbnew.ToMM(led_p1.x) - BOARD_X0,
-        pcbnew.ToMM(led_p1.y) - BOARD_Y0 + 2.2,
-        parent=footprints["LED1"],
-    )
-    try_silk_text(
-        0,
-        pcbnew.F_SilkS,
-        "-",
-        pcbnew.ToMM(led_p2.x) - BOARD_X0,
-        pcbnew.ToMM(led_p2.y) - BOARD_Y0 + 2.2,
-        parent=footprints["LED1"],
-    )
-
-    # J_PWR -12V RED stripe marker and polarity callouts on B.SilkS (outside J_PWR outline)
-    for text, candidates in (
-        (
-            "-12V RED",
+        # J_PWR -12V RED stripe marker and polarity callouts on B.SilkS (outside J_PWR outline)
+        for text, candidates in (
             (
-                (17.9, 22.0, 0.0),
-                (17.6, 20.8, 90.0),
-                (24.5, 24.0, 0.0),
-                (18.2, 21.0, 0.0),
+                "-12V RED",
+                (
+                    (17.9, 22.0, 0.0),
+                    (17.6, 20.8, 90.0),
+                    (24.5, 24.0, 0.0),
+                    (18.2, 21.0, 0.0),
+                ),
             ),
-        ),
-        ("+12V", ((17.5, 7.8, 0.0), (17.5, 9.0, 0.0), (24.5, 1.8, 0.0))),
-    ):
-        for lx, ly, deg in candidates:
-            if try_silk_text(1, pcbnew.B_SilkS, text, lx, ly, deg=deg):
-                break
+            ("+12V", ((17.5, 7.8, 0.0), (17.5, 9.0, 0.0), (24.5, 1.8, 0.0))),
+        ):
+            for lx, ly, deg in candidates:
+                if try_silk_text(1, pcbnew.B_SilkS, text, lx, ly, deg=deg):
+                    break
 
-    # Board title & revision on F.SilkS in open corridor between RV4 and LED1/SWs + B.Fab notes
-    for text, candidates, h in (
-        ("ENV FOLLOWER", ((15.0, 66.0), (15.0, 76.2), (15.0, 18.8)), 0.90),
-        ("6HP REV 1.0", ((15.0, 68.0), (15.0, 77.6), (15.0, 34.2)), 0.80),
-    ):
-        for lx, ly in candidates:
-            if try_silk_text(0, pcbnew.F_SilkS, text, lx, ly, height=h):
-                break
-    add_standard_fab_notes(board, BOARD_X0 + 15.0, BOARD_Y0 + 66.0)
+        # Board title & revision on F.SilkS in open corridor between RV4 and LED1/SWs
+        for text, candidates, h in (
+            ("ENV FOLLOWER", ((15.0, 66.0), (15.0, 76.2), (15.0, 18.8)), 0.90),
+            ("6HP REV 1.0", ((15.0, 68.0), (15.0, 77.6), (15.0, 34.2)), 0.80),
+        ):
+            for lx, ly in candidates:
+                if try_silk_text(0, pcbnew.F_SilkS, text, lx, ly, height=h):
+                    break
+
+    if add_fab_notes:
+        add_standard_fab_notes(board, BOARD_X0 + 15.0, BOARD_Y0 + 66.0)
+
+    return len(pinned_refs), auto_count
 
 
 # ---------------------------------------------------------------------------
-# Entrypoint
+# CLI Command Handlers
 # ---------------------------------------------------------------------------
-def main() -> None:
+def _cmd_sync_silk(layout_path: pathlib.Path) -> int:
+    """Extract current silkscreen positions from `envelope_follower.kicad_pcb` into JSON."""
+    if not PCB_PATH.exists():
+        print(f"ERROR: Missing PCB file: {PCB_PATH}")
+        return 1
+    board = pcbnew.LoadBoard(str(PCB_PATH))
+    new_layout = extract_silk_layout(board)
+    old_layout = _load_silk_layout(layout_path) if layout_path.exists() else None
+    changes = _summarize_silk_diff(old_layout, new_layout)
+    layout_path.write_text(_format_silk_layout_json(new_layout), encoding="utf-8")
+
+    print(f"Synced silkscreen from {PCB_PATH.name} -> {layout_path}")
+    if changes:
+        for line in changes:
+            print(f"  - {line}")
+    else:
+        print("  - No changes.")
+    inspect_board_silk(PCB_PATH)
+    return 0
+
+
+def _cmd_silk_only(layout_path: pathlib.Path) -> int:
+    """Restamp silkscreen directly onto existing `envelope_follower.kicad_pcb` (~1 s)."""
+    if not PCB_PATH.exists():
+        print(f"ERROR: Missing PCB file: {PCB_PATH}")
+        return 1
+    if not layout_path.exists():
+        print(f"ERROR: Missing silk layout file: {layout_path}")
+        return 1
+
+    components, _ = parse_netlist(NET_PATH, dnp_prefixes=("TP",))
+    layout = _load_silk_layout(layout_path)
+    board = pcbnew.LoadBoard(str(PCB_PATH))
+    footprints = {fp.GetReference(): fp for fp in board.GetFootprints()}
+
+    _strip_board_silkscreen(board)
+    pinned, auto = _apply_silkscreen_and_fab(
+        board,
+        footprints,
+        components,
+        silk_layout=layout,
+        add_fab_notes=False,
+    )
+    board.Save(str(PCB_PATH))
+    print(
+        f"Updated silkscreen in {PCB_PATH.name}: {pinned} pinned, {auto} auto-placed."
+    )
+    inspect_board_silk(PCB_PATH)
+    return 0
+
+
+def _collect_all_silk_boxes(
+    board: pcbnew.BOARD,
+) -> list[tuple[str, int, tuple[float, float, float, float]]]:
+    """Collect (label_name, side_idx, global_bbox) for all visible F.SilkS/B.SilkS text items."""
+    items: list[tuple[str, int, tuple[float, float, float, float]]] = []
+    for d in board.GetDrawings():
+        layer_id = d.GetLayer()
+        if (
+            layer_id in _SILK_LAYER_TO_NAME
+            and isinstance(d, pcbnew.PCB_TEXT)
+            and d.IsVisible()
+        ):
+            side = 0 if layer_id == pcbnew.F_SilkS else 1
+            items.append((f"BOARD:{d.GetText()}", side, _bbox_tuple(d)))
+
+    for fp in board.GetFootprints():
+        ref = fp.GetReference()
+        rf = fp.Reference()
+        if rf.IsVisible() and rf.GetLayer() in _SILK_LAYER_TO_NAME:
+            side = 0 if rf.GetLayer() == pcbnew.F_SilkS else 1
+            items.append((f"{ref}:REF", side, _bbox_tuple(rf)))
+        for gi in fp.GraphicalItems():
+            if (
+                isinstance(gi, pcbnew.PCB_TEXT)
+                and gi.IsVisible()
+                and gi.GetLayer() in _SILK_LAYER_TO_NAME
+            ):
+                side = 0 if gi.GetLayer() == pcbnew.F_SilkS else 1
+                items.append((f"{ref}:{gi.GetText()}", side, _bbox_tuple(gi)))
+    return items
+
+
+def _print_all_silk_overview(board: pcbnew.BOARD, layout: dict) -> None:
+    """Print compact summary of all board and component silkscreen entries."""
+    print(
+        f"Silkscreen overview for {PCB_PATH.name} "
+        f"(board-local mm relative to ({BOARD_X0}, {BOARD_Y0})):"
+    )
+    for key in ("qr_rects", "dots", "segments", "board_texts"):
+        items = layout.get(key, [])
+        if items:
+            print(f"  {key} ({len(items)}):")
+            for item in items:
+                print(f"    {json.dumps(item, ensure_ascii=False)}")
+
+    fps_by_ref = {fp.GetReference(): fp for fp in board.GetFootprints()}
+    for side_label, want_flipped in (("F.Cu", False), ("B.Cu", True)):
+        group_refs = [
+            ref
+            for ref in sorted(layout.get("footprints", {}), key=_ref_sort_key)
+            if ref in fps_by_ref and fps_by_ref[ref].IsFlipped() == want_flipped
+        ]
+        print(f"\n  Footprints on {side_label} ({len(group_refs)}):")
+        for ref in group_refs:
+            fp = fps_by_ref[ref]
+            pos = fp.GetPosition()
+            px, py = _round_mm(pos.x, BOARD_X0), _round_mm(pos.y, BOARD_Y0)
+            entry = layout["footprints"][ref]
+            ref_d = entry.get("ref")
+            ref_s = (
+                f"({ref_d['x']:6.2f},{ref_d['y']:6.2f},{ref_d['deg']:3.0f}°)"
+                if ref_d
+                else "(hidden)          "
+            )
+            txt_s = ", ".join(
+                f"{t['text']}@({t['x']:.2f},{t['y']:.2f},{t['deg']:.0f}°)"
+                for t in entry.get("texts", [])
+            )
+            print(f"    {ref:<6} part=({px:5.2f},{py:5.2f})  REF={ref_s}  TXT={txt_s}")
+
+
+def _print_ref_neighborhood(
+    board: pcbnew.BOARD,
+    fp: pcbnew.FOOTPRINT,
+    all_silk: list[tuple[str, int, tuple[float, float, float, float]]],
+) -> None:
+    """Print detailed silkscreen coordinates and <= 5.0 mm neighbors for `fp`."""
+    ref = fp.GetReference()
+    pos = fp.GetPosition()
+    lx, ly = _round_mm(pos.x, BOARD_X0), _round_mm(pos.y, BOARD_Y0)
+    rot = _norm_angle(float(fp.GetOrientationDegrees()))
+    side_str = "B.Cu" if fp.IsFlipped() else "F.Cu"
+    fp_box = footprint_bbox(fp)
+    lbox = _to_local_box(fp_box)
+    print(
+        f"{ref} ({side_str}) origin=({lx:.2f}, {ly:.2f}) rot={rot:.1f}° "
+        f"bbox=({lbox[0]:.2f}..{lbox[2]:.2f}, {lbox[1]:.2f}..{lbox[3]:.2f})"
+    )
+
+    label_sides: set[int] = {1 if fp.IsFlipped() else 0}
+    rf = fp.Reference()
+    if rf.IsVisible() and rf.GetLayer() in _SILK_LAYER_TO_NAME:
+        rd = _text_item_to_dict(rf, include_text=False)
+        rbox = _to_local_box(_bbox_tuple(rf))
+        label_sides.add(0 if rf.GetLayer() == pcbnew.F_SilkS else 1)
+        print(
+            f"  REF  {rd['layer']:<7} ({rd['x']:.3f}, {rd['y']:.3f}) "
+            f"deg={rd['deg']:.1f} h={rd['height']:.2f} "
+            f"bbox=({rbox[0]:.2f}..{rbox[2]:.2f}, {rbox[1]:.2f}..{rbox[3]:.2f})"
+        )
+    else:
+        print("  REF  (hidden on .Fab)")
+
+    texts_found = [
+        gi
+        for gi in fp.GraphicalItems()
+        if isinstance(gi, pcbnew.PCB_TEXT)
+        and gi.IsVisible()
+        and gi.GetLayer() in _SILK_LAYER_TO_NAME
+    ]
+    for gi in texts_found:
+        td = _text_item_to_dict(gi, include_text=True)
+        tbox = _to_local_box(_bbox_tuple(gi))
+        label_sides.add(0 if gi.GetLayer() == pcbnew.F_SilkS else 1)
+        print(
+            f"  TEXT {td['layer']:<7} {td['text']!r:<12} ({td['x']:.3f}, {td['y']:.3f}) "
+            f"deg={td['deg']:.1f} h={td['height']:.2f} "
+            f"bbox=({tbox[0]:.2f}..{tbox[2]:.2f}, {tbox[1]:.2f}..{tbox[3]:.2f})"
+        )
+
+    nearby_fps: list[tuple[float, str, str, tuple[float, float, float, float]]] = []
+    for other in board.GetFootprints():
+        oref = other.GetReference()
+        if oref == ref or is_fiducial_ref(oref):
+            continue
+        obox = footprint_bbox(other)
+        dist = box_edge_distance(fp_box, obox)
+        if dist <= 5.0:
+            oside = "B.Cu" if other.IsFlipped() else "F.Cu"
+            nearby_fps.append((dist, oref, oside, _to_local_box(obox)))
+    nearby_fps.sort(key=lambda x: (x[0], _ref_sort_key(x[1])))
+    if nearby_fps:
+        print("  Nearby footprints (<= 5.0 mm):")
+        for dist, oref, oside, olbox in nearby_fps:
+            print(
+                f"    {oref:<6} ({oside}) d={dist:.2f} mm  "
+                f"bbox=({olbox[0]:.2f}..{olbox[2]:.2f}, {olbox[1]:.2f}..{olbox[3]:.2f})"
+            )
+
+    nearby_labels: list[tuple[float, str, str, tuple[float, float, float, float]]] = []
+    for lname, lside, lbox_g in all_silk:
+        if lside not in label_sides or lname.startswith(f"{ref}:"):
+            continue
+        dist = box_edge_distance(fp_box, lbox_g)
+        if dist <= 5.0:
+            sname = "F.SilkS" if lside == 0 else "B.SilkS"
+            nearby_labels.append((dist, lname, sname, _to_local_box(lbox_g)))
+    nearby_labels.sort(key=lambda x: (x[0], x[1]))
+    if nearby_labels:
+        print("  Nearby silkscreen labels (<= 5.0 mm):")
+        for dist, lname, sname, llbox in nearby_labels:
+            print(
+                f"    {lname:<16} ({sname}) d={dist:.2f} mm  "
+                f"bbox=({llbox[0]:.2f}..{llbox[2]:.2f}, {llbox[1]:.2f}..{llbox[3]:.2f})"
+            )
+
+
+def _cmd_show_silk(refs: list[str]) -> int:
+    """Print board-local silkscreen coordinates and optional component neighborhoods."""
+    if not PCB_PATH.exists():
+        print(f"ERROR: Missing PCB file: {PCB_PATH}")
+        return 1
+    board = pcbnew.LoadBoard(str(PCB_PATH))
+    if not refs:
+        _print_all_silk_overview(board, extract_silk_layout(board))
+        return 0
+
+    by_upper = {fp.GetReference().upper(): fp for fp in board.GetFootprints()}
+    all_silk = _collect_all_silk_boxes(board)
+    rc = 0
+    for idx, req in enumerate(refs):
+        fp = by_upper.get(req.strip().upper())
+        if fp is None:
+            print(f"ERROR: Unknown footprint reference {req!r}")
+            rc = 1
+            continue
+        if idx > 0:
+            print()
+        _print_ref_neighborhood(board, fp, all_silk)
+    return rc
+
+
+def _cmd_check_silk() -> int:
+    """Run strict silkscreen inspection and return exit code 0 on pass, 1 on fail."""
+    if not PCB_PATH.exists():
+        print(f"ERROR: Missing PCB file: {PCB_PATH}")
+        return 1
+    return 0 if inspect_board_silk(PCB_PATH) else 1
+
+
+def _build_full_pcb(layout_path: pathlib.Path, *, auto_silk: bool) -> int:
     """Generate `envelope_follower.kicad_pcb` end-to-end."""
+    silk_layout: dict | None = None
+    if not auto_silk and layout_path.exists():
+        silk_layout = _load_silk_layout(layout_path)
+
     components, nets = parse_netlist(NET_PATH, dnp_prefixes=("TP",))
     sch_uuids = parse_schematic_unit1_uuids(SCH_PATH)
 
@@ -1199,14 +1914,91 @@ def main() -> None:
         clearance=CLEARANCE,
     )
     stitch_kept = _prune_disconnected_stitching_vias(board, stitch_vias)
-    _apply_silkscreen_and_fab(board, footprints, components)
+    pinned, auto = _apply_silkscreen_and_fab(
+        board,
+        footprints,
+        components,
+        silk_layout=silk_layout,
+        add_fab_notes=True,
+    )
 
     board.Save(str(PCB_PATH))
+    silk_desc = (
+        f"silk={pinned} pinned/{auto} auto"
+        if silk_layout is not None
+        else f"silk=0 pinned/{auto} auto"
+    )
     print(
         f"Generated {PCB_PATH.name}: {len(footprints)} footprints "
         f"({len(components)} netlist + {len(FIDUCIAL_PLACEMENTS)} fiducials), "
-        f"{len(nets)} nets, {len(gnd_vias)} SMD GND vias + {stitch_kept} stitching vias."
+        f"{len(nets)} nets, {len(gnd_vias)} SMD GND vias + {stitch_kept} stitching vias "
+        f"({silk_desc})."
     )
+    return 0
+
+
+# ---------------------------------------------------------------------------
+# Entrypoint
+# ---------------------------------------------------------------------------
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    """Parse CLI arguments for full PCB generation or silkscreen workflows."""
+    parser = argparse.ArgumentParser(
+        description=(
+            "Generate envelope_follower.kicad_pcb and iterate on silk_layout.json."
+        )
+    )
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument(
+        "--silk-only",
+        action="store_true",
+        help="Apply --silk-layout onto existing envelope_follower.kicad_pcb (~1 s).",
+    )
+    mode.add_argument(
+        "--sync-silk",
+        action="store_true",
+        help="Extract silkscreen positions from envelope_follower.kicad_pcb into JSON.",
+    )
+    mode.add_argument(
+        "--check-silk",
+        action="store_true",
+        help="Run strict silkscreen collision/keepout/tether inspection.",
+    )
+    mode.add_argument(
+        "--show-silk",
+        nargs="*",
+        metavar="REF",
+        default=None,
+        help="Show all silkscreen items, or local details/neighbors for REF...",
+    )
+    mode.add_argument(
+        "--auto-silk",
+        action="store_true",
+        help="Run full PCB generation ignoring silk_layout.json.",
+    )
+    parser.add_argument(
+        "--silk-layout",
+        type=pathlib.Path,
+        default=SILK_LAYOUT_PATH,
+        help=f"Path to silkscreen layout JSON (default: {SILK_LAYOUT_PATH.name}).",
+    )
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> None:
+    """CLI entrypoint."""
+    args = parse_args(argv)
+    if args.sync_silk:
+        rc = _cmd_sync_silk(args.silk_layout)
+    elif args.silk_only:
+        rc = _cmd_silk_only(args.silk_layout)
+    elif args.check_silk:
+        rc = _cmd_check_silk()
+    elif args.show_silk is not None:
+        rc = _cmd_show_silk(args.show_silk)
+    else:
+        rc = _build_full_pcb(args.silk_layout, auto_silk=args.auto_silk)
+    if rc != 0:
+        sys.exit(rc)
 
 
 if __name__ == "__main__":
