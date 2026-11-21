@@ -8,13 +8,14 @@ Building on [domesticmouse/EnvelopeFollower](https://github.com/domesticmouse/En
 | --- | --- |
 | [`README.md`](README.md) | Project overview and directory index (kept up to date as design files are added). |
 | [`EnvelopeFollower.webp`](EnvelopeFollower.webp) | Hand-drawn reference schematic image for the base Eurorack envelope follower circuit, used as the source for circuit extraction. |
+| [`EnvelopeFollower.md`](EnvelopeFollower.md) | Extracted Markdown circuit specification (BOM, stage-by-stage analysis, pin-level netlist, and build notes) derived from `EnvelopeFollower.webp`. |
 | [`.agents/skills/`](.agents/skills/) | Installed hardware design, layout, BOM, and manufacturing skills for agent workflows. |
 | [`skills-lock.json`](skills-lock.json) | Lockfile pinning the installed skills in `.agents/skills/` to their upstream GitHub commits (`aklofas/kicad-happy` and `domesticmouse/skills`). |
 | [`LICENSE`](LICENSE) | Apache License 2.0. |
 
 ## Reference Circuit
 
-The base envelope follower schematic is stored in [`EnvelopeFollower.webp`](EnvelopeFollower.webp):
+The base envelope follower schematic is stored in [`EnvelopeFollower.webp`](EnvelopeFollower.webp), and its extracted build specification (BOM, stage-by-stage calculations, pin-level netlist, and implementation notes) is documented in [`EnvelopeFollower.md`](EnvelopeFollower.md):
 
 ![Base Envelope Follower schematic](EnvelopeFollower.webp)
 
