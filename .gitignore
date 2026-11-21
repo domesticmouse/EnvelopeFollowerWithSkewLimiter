@@ -3,3 +3,8 @@ __pycache__/
 *.pyc
 .ruff_cache/
 .DS_Store
+.history/
+*.kicad_prl
+*-backups/
+fp-info-cache
+~*.lck
