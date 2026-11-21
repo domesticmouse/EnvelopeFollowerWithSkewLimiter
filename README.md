@@ -1,6 +1,6 @@
 # EnvelopeFollowerWithSkewLimiter
 
-Building on [domesticmouse/EnvelopeFollower](https://github.com/domesticmouse/EnvelopeFollower) with all the mod cons.
+Building on [domesticmouse/EnvelopeFollower](https://github.com/domesticmouse/EnvelopeFollower) with all the mod cons — this module is the result of loosely following the tutorial housed in that GitHub repository.
 
 ## Repository Structure
 
