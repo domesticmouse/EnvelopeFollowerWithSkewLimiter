@@ -1,0 +1,1285 @@
+<?xml version='1.0' encoding='utf-8'?>
+<export version="D">
+  <design>
+    <source>envelope_follower.py</source>
+    <date>11/22/2026 01:04 AM</date>
+    <tool>SKiDL (3.0.0)</tool>
+  </design>
+  <components>
+    <comp ref="C1">
+      <value>47uF 35V</value>
+      <footprint>Capacitor_THT:CP_Radial_D6.3mm_P2.50mm</footprint>
+      <fields>
+        <field name="MPN">A-7257</field>
+        <field name="Manufacturer">Tayda</field>
+        <field name="JLCPCB_Class">Manual THT</field>
+        <field name="Notes">6.3x11mm P2.5mm radial electrolytic (alt Tayda A-6764 5x11mm)</field>
+      </fields>
+      <libsource lib="Device" part="C_Polarized" />
+    </comp>
+    <comp ref="C2">
+      <value>47uF 35V</value>
+      <footprint>Capacitor_THT:CP_Radial_D6.3mm_P2.50mm</footprint>
+      <fields>
+        <field name="MPN">A-7257</field>
+        <field name="Manufacturer">Tayda</field>
+        <field name="JLCPCB_Class">Manual THT</field>
+        <field name="Notes">6.3x11mm P2.5mm radial electrolytic (alt Tayda A-6764 5x11mm); C2.+ to GND, C2.- to -12V</field>
+      </fields>
+      <libsource lib="Device" part="C_Polarized" />
+    </comp>
+    <comp ref="C3">
+      <value>100nF</value>
+      <footprint>Capacitor_SMD:C_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C14663</field>
+        <field name="MPN">CC0603KRX7R9BB104</field>
+        <field name="Manufacturer">YAGEO</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">50V X7R +/-10% local decoupling</field>
+      </fields>
+      <libsource lib="Device" part="C" />
+    </comp>
+    <comp ref="C4">
+      <value>100nF</value>
+      <footprint>Capacitor_SMD:C_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C14663</field>
+        <field name="MPN">CC0603KRX7R9BB104</field>
+        <field name="Manufacturer">YAGEO</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">50V X7R +/-10% local decoupling</field>
+      </fields>
+      <libsource lib="Device" part="C" />
+    </comp>
+    <comp ref="C5">
+      <value>100nF</value>
+      <footprint>Capacitor_SMD:C_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C14663</field>
+        <field name="MPN">CC0603KRX7R9BB104</field>
+        <field name="Manufacturer">YAGEO</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">50V X7R +/-10% local decoupling</field>
+      </fields>
+      <libsource lib="Device" part="C" />
+    </comp>
+    <comp ref="C6">
+      <value>100nF</value>
+      <footprint>Capacitor_SMD:C_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C14663</field>
+        <field name="MPN">CC0603KRX7R9BB104</field>
+        <field name="Manufacturer">YAGEO</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">50V X7R +/-10% local decoupling</field>
+      </fields>
+      <libsource lib="Device" part="C" />
+    </comp>
+    <comp ref="C7">
+      <value>470nF</value>
+      <footprint>Capacitor_THT:C_Rect_L7.2mm_W4.5mm_P5.00mm_FKS2_FKP2_MKS2_MKP2</footprint>
+      <fields>
+        <field name="MPN">WIMA MKS2 470nF 63V</field>
+        <field name="Manufacturer">WIMA</field>
+        <field name="JLCPCB_Class">Manual THT</field>
+        <field name="Notes">5mm box film AC coupling (fc = 3.72 Hz)</field>
+      </fields>
+      <libsource lib="Device" part="C" />
+    </comp>
+    <comp ref="C8">
+      <value>33pF</value>
+      <footprint>Capacitor_SMD:C_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C1663</field>
+        <field name="MPN">CL10C330JB8NNNC</field>
+        <field name="Manufacturer">Samsung</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">50V C0G +/-5% U1A feedback stabilization (482 kHz)</field>
+      </fields>
+      <libsource lib="Device" part="C" />
+    </comp>
+    <comp ref="C9">
+      <value>10uF</value>
+      <footprint>Capacitor_SMD:C_1206_3216Metric</footprint>
+      <fields>
+        <field name="LCSC">C13585</field>
+        <field name="MPN">CL31A106KBHNNNE</field>
+        <field name="Manufacturer">Samsung</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">50V X5R 1206 Basic (low DC-bias loss at +/-11.5V); compact 0805 Basic alt: C15850 (25V)</field>
+      </fields>
+      <libsource lib="Device" part="C" />
+    </comp>
+    <comp ref="C10">
+      <value>2.2nF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
+      <fields>
+        <field name="LCSC">C28260</field>
+        <field name="MPN">CL21C222JBFNNNE</field>
+        <field name="Manufacturer">Samsung</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">50V C0G +/-5% U1D local loop compensation (fz = 7.23 kHz)</field>
+      </fields>
+      <libsource lib="Device" part="C" />
+    </comp>
+    <comp ref="C11">
+      <value>470nF</value>
+      <footprint>Capacitor_THT:C_Rect_L7.2mm_W4.5mm_P5.00mm_FKS2_FKP2_MKS2_MKP2</footprint>
+      <fields>
+        <field name="MPN">WIMA MKS2 470nF 63V</field>
+        <field name="Manufacturer">WIMA</field>
+        <field name="JLCPCB_Class">Manual THT</field>
+        <field name="Notes">5mm box film permanent FAST hold cap</field>
+      </fields>
+      <libsource lib="Device" part="C" />
+    </comp>
+    <comp ref="C12">
+      <value>2.2uF</value>
+      <footprint>Capacitor_THT:C_Rect_L7.2mm_W7.2mm_P5.00mm_FKS2_FKP2_MKS2_MKP2</footprint>
+      <fields>
+        <field name="MPN">WIMA MKS2 2.2uF 50V</field>
+        <field name="Manufacturer">WIMA</field>
+        <field name="JLCPCB_Class">Manual THT</field>
+        <field name="Notes">5mm box film SLOW parallel hold cap 1/2</field>
+      </fields>
+      <libsource lib="Device" part="C" />
+    </comp>
+    <comp ref="C13">
+      <value>2.2uF</value>
+      <footprint>Capacitor_THT:C_Rect_L7.2mm_W7.2mm_P5.00mm_FKS2_FKP2_MKS2_MKP2</footprint>
+      <fields>
+        <field name="MPN">WIMA MKS2 2.2uF 50V</field>
+        <field name="Manufacturer">WIMA</field>
+        <field name="JLCPCB_Class">Manual THT</field>
+        <field name="Notes">5mm box film SLOW parallel hold cap 2/2</field>
+      </fields>
+      <libsource lib="Device" part="C" />
+    </comp>
+    <comp ref="C14">
+      <value>220nF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
+      <fields>
+        <field name="LCSC">C5378</field>
+        <field name="MPN">CL21B224KBFNNNE</field>
+        <field name="Manufacturer">Samsung</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">50V X7R +/-10% SMOOTH T-filter shunt cap</field>
+      </fields>
+      <libsource lib="Device" part="C" />
+    </comp>
+    <comp ref="C15">
+      <value>10uF</value>
+      <footprint>Capacitor_SMD:C_1206_3216Metric</footprint>
+      <fields>
+        <field name="LCSC">C13585</field>
+        <field name="MPN">CL31A106KBHNNNE</field>
+        <field name="Manufacturer">Samsung</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">50V X5R 1206 Basic (low DC-bias loss at +/-11.5V); compact 0805 Basic alt: C15850 (25V)</field>
+      </fields>
+      <libsource lib="Device" part="C" />
+    </comp>
+    <comp ref="C16">
+      <value>10uF</value>
+      <footprint>Capacitor_SMD:C_1206_3216Metric</footprint>
+      <fields>
+        <field name="LCSC">C13585</field>
+        <field name="MPN">CL31A106KBHNNNE</field>
+        <field name="Manufacturer">Samsung</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">50V X5R 1206 Basic (low DC-bias loss at +/-11.5V); compact 0805 Basic alt: C15850 (25V)</field>
+      </fields>
+      <libsource lib="Device" part="C" />
+    </comp>
+    <comp ref="D1">
+      <value>B5819W</value>
+      <footprint>Diode_SMD:D_SOD-123</footprint>
+      <fields>
+        <field name="LCSC">C8598</field>
+        <field name="MPN">B5819W SL</field>
+        <field name="Manufacturer">CJ</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">1=K, 2=A; compact alt: C191023 (SOD-323)</field>
+      </fields>
+      <libsource lib="Device" part="D_Schottky" />
+    </comp>
+    <comp ref="D2">
+      <value>B5819W</value>
+      <footprint>Diode_SMD:D_SOD-123</footprint>
+      <fields>
+        <field name="LCSC">C8598</field>
+        <field name="MPN">B5819W SL</field>
+        <field name="Manufacturer">CJ</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">1=K, 2=A; compact alt: C191023 (SOD-323)</field>
+      </fields>
+      <libsource lib="Device" part="D_Schottky" />
+    </comp>
+    <comp ref="D3">
+      <value>BAT54S</value>
+      <footprint>Package_TO_SOT_SMD:SOT-23</footprint>
+      <fields>
+        <field name="LCSC">C83935</field>
+        <field name="MPN">BAT54S</field>
+        <field name="Manufacturer">ST(Semtech)</field>
+        <field name="JLCPCB_Class">Extended</field>
+        <field name="Notes">Extended SKU 2/3; Pin1=A1, Pin2=K2, Pin3=K1/A2; alt: C181201</field>
+      </fields>
+      <libsource lib="Diode" part="BAT54S" />
+    </comp>
+    <comp ref="D4">
+      <value>1N4148W</value>
+      <footprint>Diode_SMD:D_SOD-123</footprint>
+      <fields>
+        <field name="LCSC">C81598</field>
+        <field name="MPN">1N4148W</field>
+        <field name="Manufacturer">ST(Semtech)</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">1=K, 2=A; D_atk low-leakage silicon only (never Schottky)</field>
+      </fields>
+      <libsource lib="Diode" part="1N4148W" />
+    </comp>
+    <comp ref="D5">
+      <value>1N4148W</value>
+      <footprint>Diode_SMD:D_SOD-123</footprint>
+      <fields>
+        <field name="LCSC">C81598</field>
+        <field name="MPN">1N4148W</field>
+        <field name="Manufacturer">ST(Semtech)</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">1=K, 2=A; D_rel low-leakage silicon only (never Schottky)</field>
+      </fields>
+      <libsource lib="Diode" part="1N4148W" />
+    </comp>
+    <comp ref="J1">
+      <value>IN</value>
+      <footprint>Connector_Audio:Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical_CircularHoles</footprint>
+      <fields>
+        <field name="MPN">WQP-PJ398SM</field>
+        <field name="Manufacturer">QingPu</field>
+        <field name="JLCPCB_Class">Manual THT</field>
+        <field name="Silkscreen">IN</field>
+        <field name="Notes">Switched 3.5mm Thonkiconn input normaled to GND</field>
+      </fields>
+      <libsource lib="Connector_Audio" part="AudioJack2_SwitchT" />
+    </comp>
+    <comp ref="J2">
+      <value>SLEW IN</value>
+      <footprint>Connector_Audio:Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical_CircularHoles</footprint>
+      <fields>
+        <field name="MPN">WQP-PJ398SM</field>
+        <field name="Manufacturer">QingPu</field>
+        <field name="JLCPCB_Class">Manual THT</field>
+        <field name="Silkscreen">SLEW IN</field>
+        <field name="Notes">Normaled to FWR out; patched = DC-coupled bipolar skew limiter</field>
+      </fields>
+      <libsource lib="Connector_Audio" part="AudioJack2_SwitchT" />
+    </comp>
+    <comp ref="J3">
+      <value>OUT</value>
+      <footprint>Connector_Audio:Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical_CircularHoles</footprint>
+      <fields>
+        <field name="MPN">WQP-PJ398SM</field>
+        <field name="Manufacturer">QingPu</field>
+        <field name="JLCPCB_Class">Manual THT</field>
+        <field name="Silkscreen">OUT</field>
+        <field name="Notes">Non-inverted +(V_env + V_off) output jack</field>
+      </fields>
+      <libsource lib="Connector_Audio" part="AudioJack2_SwitchT" />
+    </comp>
+    <comp ref="J4">
+      <value>INV_OUT</value>
+      <footprint>Connector_Audio:Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical_CircularHoles</footprint>
+      <fields>
+        <field name="MPN">WQP-PJ398SM</field>
+        <field name="Manufacturer">QingPu</field>
+        <field name="JLCPCB_Class">Manual THT</field>
+        <field name="Silkscreen">INV_OUT</field>
+        <field name="Notes">Inverted -(V_env + V_off) sidechain output jack</field>
+      </fields>
+      <libsource lib="Connector_Audio" part="AudioJack2_SwitchT" />
+    </comp>
+    <comp ref="J_PWR">
+      <value>EURORACK_PWR</value>
+      <footprint>Connector_IDC:IDC-Header_2x05_P2.54mm_Vertical</footprint>
+      <fields>
+        <field name="MPN">IDC 2x5P 2.54mm Shrouded</field>
+        <field name="Manufacturer">Tayda</field>
+        <field name="JLCPCB_Class">Manual THT</field>
+        <field name="Silkscreen">PWR</field>
+        <field name="Notes">1-2=-12V, 3-8=GND, 9-10=+12V</field>
+      </fields>
+      <libsource lib="Connector_Generic" part="Conn_02x05_Odd_Even" />
+    </comp>
+    <comp ref="LED1">
+      <value>A-1076</value>
+      <footprint>LED_THT:LED_D3.0mm</footprint>
+      <fields>
+        <field name="MPN">A-1076</field>
+        <field name="Manufacturer">Tayda</field>
+        <field name="JLCPCB_Class">Manual THT</field>
+        <field name="Silkscreen">OUT</field>
+        <field name="Notes">3mm 2-pin anti-parallel R/G LED; bench-check +V=Green (LED1.1=G anode)</field>
+      </fields>
+      <libsource lib="Device" part="LED_Dual_Bidirectional" />
+    </comp>
+    <comp ref="R1">
+      <value>10R</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C22859</field>
+        <field name="MPN">0603WAF100JT5E</field>
+        <field name="Manufacturer">UNI-ROYAL</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">+12V rail RC filter resistor</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R2">
+      <value>10R</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C22859</field>
+        <field name="MPN">0603WAF100JT5E</field>
+        <field name="Manufacturer">UNI-ROYAL</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">-12V rail RC filter resistor</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R3">
+      <value>1M</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C22935</field>
+        <field name="MPN">0603WAF1004T5E</field>
+        <field name="Manufacturer">UNI-ROYAL</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">J1 jack anti-pop bleed</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R4">
+      <value>10k 0.1%</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C95204</field>
+        <field name="MPN">RT0603BRD0710KL</field>
+        <field name="Manufacturer">YAGEO</field>
+        <field name="JLCPCB_Class">Extended</field>
+        <field name="Notes">Extended SKU 3/3; +/-0.1% +/-25ppm/C thin film</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R5">
+      <value>1M</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C22935</field>
+        <field name="MPN">0603WAF1004T5E</field>
+        <field name="Manufacturer">UNI-ROYAL</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">U1A.+ wiper-lift safety</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R6">
+      <value>10k 0.1%</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C95204</field>
+        <field name="MPN">RT0603BRD0710KL</field>
+        <field name="Manufacturer">YAGEO</field>
+        <field name="JLCPCB_Class">Extended</field>
+        <field name="Notes">Extended SKU 3/3; +/-0.1% +/-25ppm/C thin film</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R7">
+      <value>10k 0.1%</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C95204</field>
+        <field name="MPN">RT0603BRD0710KL</field>
+        <field name="Manufacturer">YAGEO</field>
+        <field name="JLCPCB_Class">Extended</field>
+        <field name="Notes">Extended SKU 3/3; +/-0.1% +/-25ppm/C thin film</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R8">
+      <value>10k 0.1%</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C95204</field>
+        <field name="MPN">RT0603BRD0710KL</field>
+        <field name="Manufacturer">YAGEO</field>
+        <field name="JLCPCB_Class">Extended</field>
+        <field name="Notes">Extended SKU 3/3; +/-0.1% +/-25ppm/C thin film</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R9">
+      <value>10k 0.1%</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C95204</field>
+        <field name="MPN">RT0603BRD0710KL</field>
+        <field name="Manufacturer">YAGEO</field>
+        <field name="JLCPCB_Class">Extended</field>
+        <field name="Notes">Extended SKU 3/3; +/-0.1% +/-25ppm/C thin film</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R10">
+      <value>10k 0.1%</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C95204</field>
+        <field name="MPN">RT0603BRD0710KL</field>
+        <field name="Manufacturer">YAGEO</field>
+        <field name="JLCPCB_Class">Extended</field>
+        <field name="Notes">Extended SKU 3/3; +/-0.1% +/-25ppm/C thin film</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R11">
+      <value>10k 0.1%</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C95204</field>
+        <field name="MPN">RT0603BRD0710KL</field>
+        <field name="Manufacturer">YAGEO</field>
+        <field name="JLCPCB_Class">Extended</field>
+        <field name="Notes">Extended SKU 3/3; +/-0.1% +/-25ppm/C thin film</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R12">
+      <value>10k 0.1%</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C95204</field>
+        <field name="MPN">RT0603BRD0710KL</field>
+        <field name="Manufacturer">YAGEO</field>
+        <field name="JLCPCB_Class">Extended</field>
+        <field name="Notes">Extended SKU 3/3; +/-0.1% +/-25ppm/C thin film</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R13">
+      <value>10k 0.1%</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C95204</field>
+        <field name="MPN">RT0603BRD0710KL</field>
+        <field name="Manufacturer">YAGEO</field>
+        <field name="JLCPCB_Class">Extended</field>
+        <field name="Notes">Extended SKU 3/3; +/-0.1% +/-25ppm/C thin film</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R14">
+      <value>10k 0.1%</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C95204</field>
+        <field name="MPN">RT0603BRD0710KL</field>
+        <field name="Manufacturer">YAGEO</field>
+        <field name="JLCPCB_Class">Extended</field>
+        <field name="Notes">Extended SKU 3/3; +/-0.1% +/-25ppm/C thin film</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R15">
+      <value>1k</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C21190</field>
+        <field name="MPN">0603WAF1001T5E</field>
+        <field name="Manufacturer">UNI-ROYAL</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">SLEW IN normal protection</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R16">
+      <value>1M</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C22935</field>
+        <field name="MPN">0603WAF1004T5E</field>
+        <field name="Manufacturer">UNI-ROYAL</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">J2 SLEW IN ground ref (1M)</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R17">
+      <value>10k 0.1%</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C95204</field>
+        <field name="MPN">RT0603BRD0710KL</field>
+        <field name="Manufacturer">YAGEO</field>
+        <field name="JLCPCB_Class">Extended</field>
+        <field name="Notes">Extended SKU 3/3; +/-0.1% +/-25ppm/C thin film</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R18">
+      <value>10k 0.1%</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C95204</field>
+        <field name="MPN">RT0603BRD0710KL</field>
+        <field name="Manufacturer">YAGEO</field>
+        <field name="JLCPCB_Class">Extended</field>
+        <field name="Notes">Extended SKU 3/3; +/-0.1% +/-25ppm/C thin film</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R19">
+      <value>1k</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C21190</field>
+        <field name="MPN">0603WAF1001T5E</field>
+        <field name="Manufacturer">UNI-ROYAL</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">R_atk_min linear-safe floor (1k)</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R20">
+      <value>1k</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C21190</field>
+        <field name="MPN">0603WAF1001T5E</field>
+        <field name="Manufacturer">UNI-ROYAL</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">R_rel_min linear-safe floor (1k)</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R21">
+      <value>49.9k</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C23184</field>
+        <field name="MPN">0603WAF4992T5E</field>
+        <field name="Manufacturer">UNI-ROYAL</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">1% 100mW; split-Renv SMOOTH T-filter</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R22">
+      <value>49.9k</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C23184</field>
+        <field name="MPN">0603WAF4992T5E</field>
+        <field name="Manufacturer">UNI-ROYAL</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">1% 100mW; split-Renv SMOOTH T-filter</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R23">
+      <value>100k</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C25803</field>
+        <field name="MPN">0603WAF1003T5E</field>
+        <field name="Manufacturer">UNI-ROYAL</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">U2B offset summing resistor</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R24">
+      <value>100k</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C25803</field>
+        <field name="MPN">0603WAF1003T5E</field>
+        <field name="Manufacturer">UNI-ROYAL</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">U2B virtual-ground feedback resistor</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R25">
+      <value>1k</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C21190</field>
+        <field name="MPN">0603WAF1001T5E</field>
+        <field name="Manufacturer">UNI-ROYAL</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">INV_OUT output protection</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R26">
+      <value>1k</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C21190</field>
+        <field name="MPN">0603WAF1001T5E</field>
+        <field name="Manufacturer">UNI-ROYAL</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">+12V OFFSET RC filter input</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R27">
+      <value>5.1k</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C23186</field>
+        <field name="MPN">0603WAF5101T5E</field>
+        <field name="Manufacturer">UNI-ROYAL</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">+OFFSET range resistor</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R28">
+      <value>1k</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C21190</field>
+        <field name="MPN">0603WAF1001T5E</field>
+        <field name="Manufacturer">UNI-ROYAL</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">-12V OFFSET RC filter input</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R29">
+      <value>5.1k</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C23186</field>
+        <field name="MPN">0603WAF5101T5E</field>
+        <field name="Manufacturer">UNI-ROYAL</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">-OFFSET range resistor</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R30">
+      <value>10k 0.1%</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C95204</field>
+        <field name="MPN">RT0603BRD0710KL</field>
+        <field name="Manufacturer">YAGEO</field>
+        <field name="JLCPCB_Class">Extended</field>
+        <field name="Notes">Extended SKU 3/3; +/-0.1% +/-25ppm/C thin film</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R31">
+      <value>10k 0.1%</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C95204</field>
+        <field name="MPN">RT0603BRD0710KL</field>
+        <field name="Manufacturer">YAGEO</field>
+        <field name="JLCPCB_Class">Extended</field>
+        <field name="Notes">Extended SKU 3/3; +/-0.1% +/-25ppm/C thin film</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R32">
+      <value>1k</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C21190</field>
+        <field name="MPN">0603WAF1001T5E</field>
+        <field name="Manufacturer">UNI-ROYAL</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">OUT output protection</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="R33">
+      <value>2.2k</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C4190</field>
+        <field name="MPN">0603WAF2201T5E</field>
+        <field name="Manufacturer">UNI-ROYAL</field>
+        <field name="JLCPCB_Class">Basic</field>
+        <field name="Notes">1% 100mW; 45mW max LED sense</field>
+      </fields>
+      <libsource lib="Device" part="R" />
+    </comp>
+    <comp ref="RV1">
+      <value>A100K</value>
+      <footprint>Potentiometer_THT:Potentiometer_Alpha_RD901F-40-00D_Single_Vertical</footprint>
+      <fields>
+        <field name="MPN">RD901F-40-15R1-A100K</field>
+        <field name="Manufacturer">Alpha (Tayda A-1855)</field>
+        <field name="JLCPCB_Class">Manual THT</field>
+        <field name="Silkscreen">GAIN</field>
+        <field name="Notes">Audio-taper input attenuator (.1 CCW=GND, .2 wiper, .3 CW=in)</field>
+      </fields>
+      <libsource lib="Device" part="R_Potentiometer" />
+    </comp>
+    <comp ref="RV2">
+      <value>A1M</value>
+      <footprint>Potentiometer_THT:Potentiometer_Alpha_RD901F-40-00D_Single_Vertical</footprint>
+      <fields>
+        <field name="MPN">RD901F-40-15R1-A1M</field>
+        <field name="Manufacturer">Alpha (Tayda A-1672)</field>
+        <field name="JLCPCB_Class">Manual THT</field>
+        <field name="Silkscreen">ATK</field>
+        <field name="Notes">Fail-safe attack rheostat (.1=R19.2, .2+.3=NET_ENV_CAP)</field>
+      </fields>
+      <libsource lib="Device" part="R_Potentiometer" />
+    </comp>
+    <comp ref="RV3">
+      <value>A1M</value>
+      <footprint>Potentiometer_THT:Potentiometer_Alpha_RD901F-40-00D_Single_Vertical</footprint>
+      <fields>
+        <field name="MPN">RD901F-40-15R1-A1M</field>
+        <field name="Manufacturer">Alpha (Tayda A-1672)</field>
+        <field name="JLCPCB_Class">Manual THT</field>
+        <field name="Silkscreen">REL</field>
+        <field name="Notes">Fail-safe release rheostat (.1=R20.2, .2+.3=NET_ENV_CAP)</field>
+      </fields>
+      <libsource lib="Device" part="R_Potentiometer" />
+    </comp>
+    <comp ref="RV4">
+      <value>B10K</value>
+      <footprint>Potentiometer_THT:Potentiometer_Alpha_RD901F-40-00D_Single_Vertical</footprint>
+      <fields>
+        <field name="MPN">RD901F-40-15R1-B10K-0CD</field>
+        <field name="Manufacturer">Alpha (Tayda A-8401)</field>
+        <field name="JLCPCB_Class">Manual THT</field>
+        <field name="Silkscreen">OFFSET</field>
+        <field name="Notes">Center-detent linear offset divider (.1=-V_off, .2=wiper, .3=+V_off)</field>
+      </fields>
+      <libsource lib="Device" part="R_Potentiometer" />
+    </comp>
+    <comp ref="SW1">
+      <value>SMOOTH</value>
+      <footprint>Eurorack_Custom:SW_Toggle_SPDT_Dailywell_2MS1</footprint>
+      <fields>
+        <field name="MPN">2MS1T1B1M2QES</field>
+        <field name="Manufacturer">Dailywell (Tayda A-6087)</field>
+        <field name="JLCPCB_Class">Manual THT</field>
+        <field name="Silkscreen">SMOOTH</field>
+        <field name="Notes">SPDT (2=common, 3=SMOOTH active, 1=NC); lever UP = SMOOTH</field>
+      </fields>
+      <libsource lib="Switch" part="SW_SPDT" />
+    </comp>
+    <comp ref="SW2">
+      <value>FAST/SLOW</value>
+      <footprint>Eurorack_Custom:SW_Toggle_SPDT_Dailywell_2MS1</footprint>
+      <fields>
+        <field name="MPN">2MS1T1B1M2QES</field>
+        <field name="Manufacturer">Dailywell (Tayda A-6087)</field>
+        <field name="JLCPCB_Class">Manual THT</field>
+        <field name="Silkscreen">FAST/SLOW</field>
+        <field name="Notes">SPDT (2=common, 3=SLOW active, 1=NC); lever UP = SLOW (4.87 uF)</field>
+      </fields>
+      <libsource lib="Switch" part="SW_SPDT" />
+    </comp>
+    <comp ref="TP1">
+      <value>GND</value>
+      <footprint>TestPoint:TestPoint_Keystone_5000-5004_Miniature</footprint>
+      <fields>
+        <field name="LCSC">C5199801</field>
+        <field name="MPN">RH-5001</field>
+        <field name="Manufacturer">Ronghe</field>
+        <field name="JLCPCB_Class">DNP THT</field>
+        <field name="Silkscreen">GND</field>
+        <field name="Notes">DNP B.Cu test point (1.0 mm drill / 2.0 mm pad)</field>
+      </fields>
+      <libsource lib="Connector" part="TestPoint" />
+      <property name="dnp" />
+      <property name="exclude_from_bom" />
+    </comp>
+    <comp ref="TP2">
+      <value>+12V</value>
+      <footprint>TestPoint:TestPoint_Keystone_5000-5004_Miniature</footprint>
+      <fields>
+        <field name="LCSC">C5199801</field>
+        <field name="MPN">RH-5001</field>
+        <field name="Manufacturer">Ronghe</field>
+        <field name="JLCPCB_Class">DNP THT</field>
+        <field name="Silkscreen">+12V</field>
+        <field name="Notes">DNP B.Cu test point (1.0 mm drill / 2.0 mm pad)</field>
+      </fields>
+      <libsource lib="Connector" part="TestPoint" />
+      <property name="dnp" />
+      <property name="exclude_from_bom" />
+    </comp>
+    <comp ref="TP3">
+      <value>-12V</value>
+      <footprint>TestPoint:TestPoint_Keystone_5000-5004_Miniature</footprint>
+      <fields>
+        <field name="LCSC">C5199801</field>
+        <field name="MPN">RH-5001</field>
+        <field name="Manufacturer">Ronghe</field>
+        <field name="JLCPCB_Class">DNP THT</field>
+        <field name="Silkscreen">-12V</field>
+        <field name="Notes">DNP B.Cu test point (1.0 mm drill / 2.0 mm pad)</field>
+      </fields>
+      <libsource lib="Connector" part="TestPoint" />
+      <property name="dnp" />
+      <property name="exclude_from_bom" />
+    </comp>
+    <comp ref="TP4">
+      <value>PRE</value>
+      <footprint>TestPoint:TestPoint_Keystone_5000-5004_Miniature</footprint>
+      <fields>
+        <field name="LCSC">C5199801</field>
+        <field name="MPN">RH-5001</field>
+        <field name="Manufacturer">Ronghe</field>
+        <field name="JLCPCB_Class">DNP THT</field>
+        <field name="Silkscreen">PRE</field>
+        <field name="Notes">DNP B.Cu test point (1.0 mm drill / 2.0 mm pad)</field>
+      </fields>
+      <libsource lib="Connector" part="TestPoint" />
+      <property name="dnp" />
+      <property name="exclude_from_bom" />
+    </comp>
+    <comp ref="TP5">
+      <value>RECT</value>
+      <footprint>TestPoint:TestPoint_Keystone_5000-5004_Miniature</footprint>
+      <fields>
+        <field name="LCSC">C5199801</field>
+        <field name="MPN">RH-5001</field>
+        <field name="Manufacturer">Ronghe</field>
+        <field name="JLCPCB_Class">DNP THT</field>
+        <field name="Silkscreen">RECT</field>
+        <field name="Notes">DNP B.Cu test point (1.0 mm drill / 2.0 mm pad)</field>
+      </fields>
+      <libsource lib="Connector" part="TestPoint" />
+      <property name="dnp" />
+      <property name="exclude_from_bom" />
+    </comp>
+    <comp ref="TP6">
+      <value>ENV</value>
+      <footprint>TestPoint:TestPoint_Keystone_5000-5004_Miniature</footprint>
+      <fields>
+        <field name="LCSC">C5199801</field>
+        <field name="MPN">RH-5001</field>
+        <field name="Manufacturer">Ronghe</field>
+        <field name="JLCPCB_Class">DNP THT</field>
+        <field name="Silkscreen">ENV</field>
+        <field name="Notes">DNP B.Cu test point (1.0 mm drill / 2.0 mm pad)</field>
+      </fields>
+      <libsource lib="Connector" part="TestPoint" />
+      <property name="dnp" />
+      <property name="exclude_from_bom" />
+    </comp>
+    <comp ref="TP7">
+      <value>INV</value>
+      <footprint>TestPoint:TestPoint_Keystone_5000-5004_Miniature</footprint>
+      <fields>
+        <field name="LCSC">C5199801</field>
+        <field name="MPN">RH-5001</field>
+        <field name="Manufacturer">Ronghe</field>
+        <field name="JLCPCB_Class">DNP THT</field>
+        <field name="Silkscreen">INV</field>
+        <field name="Notes">DNP B.Cu test point (1.0 mm drill / 2.0 mm pad)</field>
+      </fields>
+      <libsource lib="Connector" part="TestPoint" />
+      <property name="dnp" />
+      <property name="exclude_from_bom" />
+    </comp>
+    <comp ref="TP8">
+      <value>OUT</value>
+      <footprint>TestPoint:TestPoint_Keystone_5000-5004_Miniature</footprint>
+      <fields>
+        <field name="LCSC">C5199801</field>
+        <field name="MPN">RH-5001</field>
+        <field name="Manufacturer">Ronghe</field>
+        <field name="JLCPCB_Class">DNP THT</field>
+        <field name="Silkscreen">OUT</field>
+        <field name="Notes">DNP B.Cu test point (1.0 mm drill / 2.0 mm pad)</field>
+      </fields>
+      <libsource lib="Connector" part="TestPoint" />
+      <property name="dnp" />
+      <property name="exclude_from_bom" />
+    </comp>
+    <comp ref="TP9">
+      <value>HWR</value>
+      <footprint>TestPoint:TestPoint_Keystone_5000-5004_Miniature</footprint>
+      <fields>
+        <field name="LCSC">C5199801</field>
+        <field name="MPN">RH-5001</field>
+        <field name="Manufacturer">Ronghe</field>
+        <field name="JLCPCB_Class">DNP THT</field>
+        <field name="Silkscreen">HWR</field>
+        <field name="Notes">DNP B.Cu test point (1.0 mm drill / 2.0 mm pad)</field>
+      </fields>
+      <libsource lib="Connector" part="TestPoint" />
+      <property name="dnp" />
+      <property name="exclude_from_bom" />
+    </comp>
+    <comp ref="TP10">
+      <value>DRV</value>
+      <footprint>TestPoint:TestPoint_Keystone_5000-5004_Miniature</footprint>
+      <fields>
+        <field name="LCSC">C5199801</field>
+        <field name="MPN">RH-5001</field>
+        <field name="Manufacturer">Ronghe</field>
+        <field name="JLCPCB_Class">DNP THT</field>
+        <field name="Silkscreen">DRV</field>
+        <field name="Notes">DNP B.Cu test point (1.0 mm drill / 2.0 mm pad)</field>
+      </fields>
+      <libsource lib="Connector" part="TestPoint" />
+      <property name="dnp" />
+      <property name="exclude_from_bom" />
+    </comp>
+    <comp ref="TP11">
+      <value>OFF</value>
+      <footprint>TestPoint:TestPoint_Keystone_5000-5004_Miniature</footprint>
+      <fields>
+        <field name="LCSC">C5199801</field>
+        <field name="MPN">RH-5001</field>
+        <field name="Manufacturer">Ronghe</field>
+        <field name="JLCPCB_Class">DNP THT</field>
+        <field name="Silkscreen">OFF</field>
+        <field name="Notes">DNP B.Cu test point (1.0 mm drill / 2.0 mm pad)</field>
+      </fields>
+      <libsource lib="Connector" part="TestPoint" />
+      <property name="dnp" />
+      <property name="exclude_from_bom" />
+    </comp>
+    <comp ref="TP12">
+      <value>GND2</value>
+      <footprint>TestPoint:TestPoint_Keystone_5000-5004_Miniature</footprint>
+      <fields>
+        <field name="LCSC">C5199801</field>
+        <field name="MPN">RH-5001</field>
+        <field name="Manufacturer">Ronghe</field>
+        <field name="JLCPCB_Class">DNP THT</field>
+        <field name="Silkscreen">GND2</field>
+        <field name="Notes">DNP B.Cu test point (1.0 mm drill / 2.0 mm pad)</field>
+      </fields>
+      <libsource lib="Connector" part="TestPoint" />
+      <property name="dnp" />
+      <property name="exclude_from_bom" />
+    </comp>
+    <comp ref="U1">
+      <value>TL074HIDR</value>
+      <footprint>Package_SO:SOIC-14_3.9x8.7mm_P1.27mm</footprint>
+      <fields>
+        <field name="LCSC">C2878713</field>
+        <field name="MPN">TL074HIDR</field>
+        <field name="Manufacturer">Texas Instruments</field>
+        <field name="JLCPCB_Class">Extended</field>
+        <field name="Notes">Extended SKU 1/3; quad CMOS/FET-input op-amp</field>
+      </fields>
+      <libsource lib="Amplifier_Operational" part="TL074" />
+    </comp>
+    <comp ref="U2">
+      <value>TL074HIDR</value>
+      <footprint>Package_SO:SOIC-14_3.9x8.7mm_P1.27mm</footprint>
+      <fields>
+        <field name="LCSC">C2878713</field>
+        <field name="MPN">TL074HIDR</field>
+        <field name="Manufacturer">Texas Instruments</field>
+        <field name="JLCPCB_Class">Extended</field>
+        <field name="Notes">Extended SKU 1/3; quad CMOS/FET-input op-amp</field>
+      </fields>
+      <libsource lib="Amplifier_Operational" part="TL074" />
+    </comp>
+  </components>
+  <nets>
+    <net code="1" name="+12V">
+      <node ref="C1" pin="1" />
+      <node ref="C3" pin="1" />
+      <node ref="C5" pin="1" />
+      <node ref="R1" pin="2" />
+      <node ref="R26" pin="1" />
+      <node ref="TP2" pin="1" />
+      <node ref="U1" pin="4" />
+      <node ref="U2" pin="4" />
+    </net>
+    <net code="2" name="-12V">
+      <node ref="C2" pin="2" />
+      <node ref="C4" pin="1" />
+      <node ref="C6" pin="1" />
+      <node ref="R2" pin="2" />
+      <node ref="R28" pin="1" />
+      <node ref="TP3" pin="1" />
+      <node ref="U1" pin="11" />
+      <node ref="U2" pin="11" />
+    </net>
+    <net code="3" name="GND">
+      <node ref="C1" pin="2" />
+      <node ref="C2" pin="1" />
+      <node ref="C3" pin="2" />
+      <node ref="C4" pin="2" />
+      <node ref="C5" pin="2" />
+      <node ref="C6" pin="2" />
+      <node ref="C9" pin="2" />
+      <node ref="C11" pin="2" />
+      <node ref="C12" pin="2" />
+      <node ref="C13" pin="2" />
+      <node ref="C14" pin="2" />
+      <node ref="C15" pin="2" />
+      <node ref="C16" pin="2" />
+      <node ref="J1" pin="S" />
+      <node ref="J1" pin="TN" />
+      <node ref="J2" pin="S" />
+      <node ref="J3" pin="S" />
+      <node ref="J4" pin="S" />
+      <node ref="J_PWR" pin="3" />
+      <node ref="J_PWR" pin="4" />
+      <node ref="J_PWR" pin="5" />
+      <node ref="J_PWR" pin="6" />
+      <node ref="J_PWR" pin="7" />
+      <node ref="J_PWR" pin="8" />
+      <node ref="R3" pin="2" />
+      <node ref="R5" pin="2" />
+      <node ref="R16" pin="2" />
+      <node ref="R33" pin="2" />
+      <node ref="RV1" pin="1" />
+      <node ref="TP1" pin="1" />
+      <node ref="TP12" pin="1" />
+      <node ref="U1" pin="10" />
+      <node ref="U1" pin="5" />
+      <node ref="U2" pin="10" />
+      <node ref="U2" pin="5" />
+    </net>
+    <net code="4" name="NET_ATK_DIODE">
+      <node ref="D4" pin="1" />
+      <node ref="R19" pin="1" />
+    </net>
+    <net code="5" name="NET_ATK_MIN">
+      <node ref="R19" pin="2" />
+      <node ref="RV2" pin="1" />
+    </net>
+    <net code="6" name="NET_ENV_BUF">
+      <node ref="R18" pin="1" />
+      <node ref="R21" pin="1" />
+      <node ref="TP6" pin="1" />
+      <node ref="U2" pin="1" />
+      <node ref="U2" pin="2" />
+    </net>
+    <net code="7" name="NET_ENV_CAP">
+      <node ref="C11" pin="1" />
+      <node ref="RV2" pin="2" />
+      <node ref="RV2" pin="3" />
+      <node ref="RV3" pin="2" />
+      <node ref="RV3" pin="3" />
+      <node ref="SW2" pin="2" />
+      <node ref="U2" pin="3" />
+    </net>
+    <net code="8" name="NET_FF_MID">
+      <node ref="R11" pin="2" />
+      <node ref="R12" pin="1" />
+    </net>
+    <net code="9" name="NET_FWR_FB_MID">
+      <node ref="R13" pin="2" />
+      <node ref="R14" pin="1" />
+    </net>
+    <net code="10" name="NET_GAIN_WIPER">
+      <node ref="R4" pin="1" />
+      <node ref="RV1" pin="2" />
+    </net>
+    <net code="11" name="NET_INV_AMP">
+      <node ref="R24" pin="2" />
+      <node ref="R25" pin="1" />
+      <node ref="R30" pin="1" />
+      <node ref="TP7" pin="1" />
+      <node ref="U2" pin="7" />
+    </net>
+    <net code="12" name="NET_INV_OUT_JACK">
+      <node ref="J4" pin="T" />
+      <node ref="R25" pin="2" />
+    </net>
+    <net code="13" name="NET_IN_AC">
+      <node ref="C7" pin="2" />
+      <node ref="RV1" pin="3" />
+    </net>
+    <net code="14" name="NET_IN_JACK">
+      <node ref="C7" pin="1" />
+      <node ref="J1" pin="T" />
+      <node ref="R3" pin="1" />
+    </net>
+    <net code="15" name="NET_LED_DRV">
+      <node ref="LED1" pin="1" />
+      <node ref="U2" pin="14" />
+    </net>
+    <net code="16" name="NET_LED_SENSE">
+      <node ref="LED1" pin="2" />
+      <node ref="R33" pin="1" />
+      <node ref="U2" pin="13" />
+    </net>
+    <net code="17" name="NET_NEG_PROT">
+      <node ref="D2" pin="2" />
+      <node ref="R2" pin="1" />
+    </net>
+    <net code="18" name="NET_OFF_BOT">
+      <node ref="R29" pin="2" />
+      <node ref="RV4" pin="1" />
+    </net>
+    <net code="19" name="NET_OFF_NEG_FILT">
+      <node ref="C16" pin="1" />
+      <node ref="R28" pin="2" />
+      <node ref="R29" pin="1" />
+    </net>
+    <net code="20" name="NET_OFF_POS_FILT">
+      <node ref="C15" pin="1" />
+      <node ref="R26" pin="2" />
+      <node ref="R27" pin="1" />
+    </net>
+    <net code="21" name="NET_OFF_TOP">
+      <node ref="R27" pin="2" />
+      <node ref="RV4" pin="3" />
+    </net>
+    <net code="22" name="NET_OFF_WIPER">
+      <node ref="R23" pin="1" />
+      <node ref="RV4" pin="2" />
+      <node ref="TP11" pin="1" />
+    </net>
+    <net code="23" name="NET_OUT_AMP">
+      <node ref="R31" pin="2" />
+      <node ref="R32" pin="1" />
+      <node ref="TP8" pin="1" />
+      <node ref="U2" pin="12" />
+      <node ref="U2" pin="8" />
+    </net>
+    <net code="24" name="NET_OUT_JACK">
+      <node ref="J3" pin="T" />
+      <node ref="R32" pin="2" />
+    </net>
+    <net code="25" name="NET_POS_PROT">
+      <node ref="D1" pin="1" />
+      <node ref="R1" pin="1" />
+    </net>
+    <net code="26" name="NET_PREAMP_OUT">
+      <node ref="C8" pin="2" />
+      <node ref="R6" pin="2" />
+      <node ref="R8" pin="1" />
+      <node ref="R11" pin="1" />
+      <node ref="TP4" pin="1" />
+      <node ref="U1" pin="1" />
+    </net>
+    <net code="27" name="NET_PWR_NEG_RAW">
+      <node ref="D2" pin="1" />
+      <node ref="J_PWR" pin="1" />
+      <node ref="J_PWR" pin="2" />
+    </net>
+    <net code="28" name="NET_PWR_POS_RAW">
+      <node ref="D1" pin="2" />
+      <node ref="J_PWR" pin="10" />
+      <node ref="J_PWR" pin="9" />
+    </net>
+    <net code="29" name="NET_RECT_HALF">
+      <node ref="D3" pin="1" />
+      <node ref="R9" pin="2" />
+      <node ref="R10" pin="1" />
+      <node ref="TP9" pin="1" />
+    </net>
+    <net code="30" name="NET_RECT_OUT">
+      <node ref="R14" pin="2" />
+      <node ref="R15" pin="1" />
+      <node ref="TP5" pin="1" />
+      <node ref="U1" pin="8" />
+    </net>
+    <net code="31" name="NET_RECT_SUM">
+      <node ref="R10" pin="2" />
+      <node ref="R12" pin="2" />
+      <node ref="R13" pin="1" />
+      <node ref="U1" pin="9" />
+    </net>
+    <net code="32" name="NET_REL_DIODE">
+      <node ref="D5" pin="2" />
+      <node ref="R20" pin="1" />
+    </net>
+    <net code="33" name="NET_REL_MIN">
+      <node ref="R20" pin="2" />
+      <node ref="RV3" pin="1" />
+    </net>
+    <net code="34" name="NET_SLEW_JACK">
+      <node ref="J2" pin="T" />
+      <node ref="R16" pin="1" />
+      <node ref="R17" pin="1" />
+    </net>
+    <net code="35" name="NET_SLEW_NORM">
+      <node ref="J2" pin="TN" />
+      <node ref="R15" pin="2" />
+    </net>
+    <net code="36" name="NET_SLOW_CAPS">
+      <node ref="C12" pin="1" />
+      <node ref="C13" pin="1" />
+      <node ref="SW2" pin="3" />
+    </net>
+    <net code="37" name="NET_SMOOTH_MID">
+      <node ref="R21" pin="2" />
+      <node ref="R22" pin="1" />
+      <node ref="SW1" pin="2" />
+    </net>
+    <net code="38" name="NET_SMOOTH_SW">
+      <node ref="C14" pin="1" />
+      <node ref="SW1" pin="3" />
+    </net>
+    <net code="39" name="NET_U1A_CG">
+      <node ref="C9" pin="1" />
+      <node ref="R7" pin="2" />
+    </net>
+    <net code="40" name="NET_U1A_INV">
+      <node ref="C8" pin="1" />
+      <node ref="R6" pin="1" />
+      <node ref="R7" pin="1" />
+      <node ref="U1" pin="2" />
+    </net>
+    <net code="41" name="NET_U1A_POS">
+      <node ref="R4" pin="2" />
+      <node ref="R5" pin="1" />
+      <node ref="U1" pin="3" />
+    </net>
+    <net code="42" name="NET_U1B_INV">
+      <node ref="D3" pin="2" />
+      <node ref="R8" pin="2" />
+      <node ref="R9" pin="1" />
+      <node ref="U1" pin="6" />
+    </net>
+    <net code="43" name="NET_U1B_OUT">
+      <node ref="D3" pin="3" />
+      <node ref="U1" pin="7" />
+    </net>
+    <net code="44" name="NET_U1D_INV">
+      <node ref="C10" pin="1" />
+      <node ref="R18" pin="2" />
+      <node ref="U1" pin="13" />
+    </net>
+    <net code="45" name="NET_U1D_OUT">
+      <node ref="C10" pin="2" />
+      <node ref="D4" pin="2" />
+      <node ref="D5" pin="1" />
+      <node ref="TP10" pin="1" />
+      <node ref="U1" pin="14" />
+    </net>
+    <net code="46" name="NET_U1D_POS">
+      <node ref="R17" pin="2" />
+      <node ref="U1" pin="12" />
+    </net>
+    <net code="47" name="NET_U2B_INV">
+      <node ref="R22" pin="2" />
+      <node ref="R23" pin="2" />
+      <node ref="R24" pin="1" />
+      <node ref="U2" pin="6" />
+    </net>
+    <net code="48" name="NET_U2C_INV">
+      <node ref="R30" pin="2" />
+      <node ref="R31" pin="1" />
+      <node ref="U2" pin="9" />
+    </net>
+  </nets>
+</export>

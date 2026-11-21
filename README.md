@@ -11,6 +11,13 @@ Building on [domesticmouse/EnvelopeFollower](https://github.com/domesticmouse/En
 | [`EnvelopeFollower.md`](EnvelopeFollower.md) | Extracted Markdown circuit specification (BOM, stage-by-stage analysis, pin-level netlist, and build notes) derived from `EnvelopeFollower.webp`. |
 | [`EnvelopeFollowerImprovements.md`](EnvelopeFollowerImprovements.md) | Engineering review of the base circuit documenting electrical issues, quantitative analysis, prioritized fixes, and Eurorack skew-limiter upgrade architectures. |
 | [`DesignSpec.md`](DesignSpec.md) | Finalized 6 HP (`2× TL074H`) build specification, JLCPCB SMD / Tayda TH BOM, stage analysis, pin-level netlist, and front-panel layout. |
+| [`envelope_follower.py`](envelope_follower.py) | SKiDL Python circuit capture script implementing all 80 footprints, 48 nets, ERC assertions, and BOM/netlist exports. |
+| [`envelope_follower.net`](envelope_follower.net) | Exported KiCad 10 netlist (80 components, 48 active nets, `Power`/`HighImpedance` NetClasses, and DNP test-point properties). |
+| [`envelope_follower_bom.xml`](envelope_follower_bom.xml) | Well-formed KiCad XML BOM containing component values, footprints, LCSC/MPN/silkscreen fields, and net nodes. |
+| [`jlcpcb_bom.csv`](jlcpcb_bom.csv) | Grouped 4-column JLCPCB SMT PCBA BOM (50 SMD components across 17 rows, 3 Extended SKUs). |
+| [`envelope_follower_sklib.py`](envelope_follower_sklib.py) | Auto-generated SKiDL backup symbol library for offline/reproducible netlist builds. |
+| [`footprints/Eurorack_Custom.pretty/`](footprints/Eurorack_Custom.pretty/) | Project-local KiCad footprint library (`SW_Toggle_SPDT_Dailywell_2MS1.kicad_mod` for Tayda `A-6087` / Dailywell `2MS1` SPDT vertical toggles). |
+| [`fp-lib-table`](fp-lib-table) | Project-local KiCad footprint library table registering `Eurorack_Custom`. |
 | [`.agents/skills/`](.agents/skills/) | Installed hardware design, layout, BOM, and manufacturing skills for agent workflows. |
 | [`skills-lock.json`](skills-lock.json) | Lockfile pinning the installed skills in `.agents/skills/` to their upstream GitHub commits (`aklofas/kicad-happy` and `domesticmouse/skills`). |
 | [`LICENSE`](LICENSE) | Apache License 2.0. |
