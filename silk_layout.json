@@ -35,31 +35,31 @@
     "C15": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10uF", "x": 15.8, "y": 59.6, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
     "C16": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10uF", "x": 8.3, "y": 47.65, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
     "D1": {
-      "ref": {"layer": "B.SilkS", "x": 18.731, "y": 8.7, "deg": 0.0, "height": 0.8, "thickness": 0.15},
+      "ref": null,
       "texts": [
         {"layer": "B.SilkS", "text": "B5819W", "x": 14.869, "y": 8.7, "deg": 0.0, "height": 0.8, "thickness": 0.15}
       ]
     },
     "D2": {
-      "ref": {"layer": "B.SilkS", "x": 17.764, "y": 28.9, "deg": 90.0, "height": 0.8, "thickness": 0.15},
+      "ref": null,
       "texts": [
         {"layer": "B.SilkS", "text": "B5819W", "x": 19.636, "y": 28.9, "deg": 90.0, "height": 0.8, "thickness": 0.15}
       ]
     },
     "D3": {
-      "ref": {"layer": "B.SilkS", "x": 6.69, "y": 85.0, "deg": 0.0, "height": 0.8, "thickness": 0.15},
+      "ref": null,
       "texts": [
         {"layer": "B.SilkS", "text": "BAT54S", "x": 3.019, "y": 85.0, "deg": 0.0, "height": 0.8, "thickness": 0.15}
       ]
     },
     "D4": {
-      "ref": {"layer": "B.SilkS", "x": 10.1, "y": 29.564, "deg": 0.0, "height": 0.8, "thickness": 0.15},
+      "ref": null,
       "texts": [
         {"layer": "B.SilkS", "text": "1N4148W", "x": 10.1, "y": 31.436, "deg": 0.0, "height": 0.8, "thickness": 0.15}
       ]
     },
     "D5": {
-      "ref": {"layer": "B.SilkS", "x": 15.5, "y": 41.964, "deg": 0.0, "height": 0.8, "thickness": 0.15},
+      "ref": null,
       "texts": [
         {"layer": "B.SilkS", "text": "1N4148W", "x": 15.5, "y": 43.836, "deg": 0.0, "height": 0.8, "thickness": 0.15}
       ]
@@ -89,7 +89,7 @@
       ]
     },
     "J_PWR": {
-      "ref": {"layer": "B.SilkS", "x": 19.157, "y": 24.3, "deg": 0.0, "height": 0.8, "thickness": 0.15},
+      "ref": null,
       "texts": [
         {"layer": "B.SilkS", "text": "PWR", "x": 15.333, "y": 24.3, "deg": 0.0, "height": 0.8, "thickness": 0.15},
         {"layer": "F.SilkS", "text": "-12V", "x": 24.52, "y": 21.48, "deg": 0.0, "height": 0.8, "thickness": 0.15}
