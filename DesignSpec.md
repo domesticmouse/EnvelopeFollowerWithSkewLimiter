@@ -16,6 +16,7 @@
 - **Sourcing strategy:**
   - **JLCPCB PCBA (SMD):** `50` SMD parts total across `0603`/`0805`/`1206`, `SOD-123`, `SOT-23`, and `SOIC-14`. Uses **only 3 Extended SKUs** (`TL074HIDR`, `BAT54S`, and `10 kΩ ±0.1%` thin-film); all remaining resistors, C0G/X7R capacitors, and `1N4148W` / `B5819W` diodes are **JLCPCB Basic** parts.
   - **Tayda / Panel Hardware (Through-Hole):** `18` TH parts (`4×` Alpha `9 mm` vertical pots, `4×` switched Thonkiconn jacks, `2×` sub-mini toggles, `1×` 2-pin bi-color LED `A-1076`, `1×` shrouded 10-pin Eurorack power header, `2×` radial bulk electrolytics, and `4×` `5 mm` pitch box film capacitors).
+  - **DNP Test Points (Through-Hole, Optional):** `12` unpopulated test points (`TP1`–`TP12`, Ronghe `RH-5001` / LCSC `C5199801`, KiCad symbol `Connector:TestPoint`, footprint `TestPoint:TestPoint_Keystone_5000-5004_Miniature`, `1.0 mm` drill / `2.0 mm` pad, `B.Cu`-mounted). Marked `dnp=True` and `exclude_from_bom=True` for **`$0` JLCPCB assembly fee** (`3` Extended SMD SKUs unchanged); holes remain directly probeable or selectively hand-soldered during bring-up.
 - **Signal levels & musical focus:**
   - Dedicated **Eurorack `10 Vpp` (`±5 V` peak)** input staging (switchless `×2` non-inverting preamp reaches `±10.0 V` cleanly without clipping).
   - Optimized for **techno kick-drum sidechain ducking** (`INV_OUT` + zero-gain-drop `SMOOTH` filter + post-offset bi-color LED zero-crossing visual tuning), **snappy percussion / 303-style portamento glides** (`FAST` `470 nF` mode via `SLEW IN`), and **multi-second ambient swells** (`SLOW` `4.87 µF` mode up to `~3.0 s`).
@@ -81,9 +82,9 @@ Both `U1` and `U2` share `Pin 4 = +12V` (`+11.54 V` filtered internal) and `Pin 
 
 ---
 
-## 4. Complete Bill of Materials (68 Components Total)
+## 4. Complete Bill of Materials (80 Components Total — 68 Populated + 12 DNP)
 
-**Summary:** `2` ICs + `6` Diodes/LED + `33` Resistors + `16` Capacitors + `4` Potentiometers + `2` Switches + `5` Jacks/Header = **`68` components total** (`50` JLCPCB SMD + `18` Tayda / Panel Through-Hole).
+**Summary:** `2` ICs + `6` Diodes/LED + `33` Resistors + `16` Capacitors + `4` Potentiometers + `2` Switches + `5` Jacks/Header + `12` DNP Test Points = **`80` footprints total** (`50` JLCPCB SMD + `18` Tayda / Panel Through-Hole + `12` DNP Through-Hole Test Points).
 
 ### 4.1 Integrated Circuits (2 — JLCPCB Extended)
 
@@ -140,6 +141,25 @@ Value breakdown: **`14× 10 kΩ ±0.1%`** (Extended), **`7× 1 kΩ 1%`**, **`3×
 | `SW2` (`FAST/SLOW`) | Sub-miniature vertical PCB toggle (SPST or SPDT `.2`/`.3`) | Tayda | 1 | Parallels `C12 + C13` (`4.4 µF`) across `C11` (`470 nF` $\rightarrow$ `4.87 µF`) |
 | `J1`–`J4` | `3.5 mm` switched mono jack (Thonkiconn `WQP-PJ398SM`) | Thonk / Tayda | 4 | `J1` `IN` (`.Switch` $\rightarrow$ `GND`), `J2` `SLEW IN` (`.Switch` normal), `J3` `OUT`, `J4` `INV_OUT` |
 | `J_PWR` | Shrouded 10-pin (`2×5`) `2.54 mm` box header | Tayda | 1 | Eurorack power (`1–2` = `-12V`, `3–8` = `GND`, `9–10` = `+12V`) |
+
+### 4.6 Test Points (12 — All Through-Hole, DNP)
+
+All `12` test points share the same specification: **Ronghe `RH-5001`** (`2.5 mm` black through-board pin/loop), LCSC **`C5199801`**, KiCad symbol `Connector:TestPoint`, footprint `TestPoint:TestPoint_Keystone_5000-5004_Miniature` (`1.0 mm` drill, `2.0 mm` pad, `3.3 mm` courtyard), mounted on **`B.Cu`**, and marked **`DNP`** (`dnp=True`, `exclude_from_bom=True`).
+
+| RefDes | Silkscreen Label | Net | Verification Role |
+| :--- | :--- | :--- | :--- |
+| `TP1` | `GND` | `GND` | Lower/power-section scope ground clip reference |
+| `TP2` | `+12V` | `+12V` | Filtered `+11.54 V` internal rail (post-`D1`/`R1`) |
+| `TP3` | `-12V` | `-12V` | Filtered `-11.54 V` internal rail (post-`D2`/`R2`, `C2` polarity check) |
+| `TP4` | `PRE` | `NET_PREAMP_OUT` | `U1A.1` `×2` preamp output (`±10 V` headroom, `RV1` check) |
+| `TP5` | `RECT` | `NET_RECT_OUT` | `U1C.8` FWR output (`1.000×` gain, half-cycle symmetry) |
+| `TP6` | `ENV` | `NET_ENV_BUF` | `U2A.1` buffered `V_env` (zero loading on high-Z `NET_ENV_CAP`) |
+| `TP7` | `INV` | `NET_INV_AMP` | `U2B.7` inverted summer output (`SMOOTH` + `OFFSET` check) |
+| `TP8` | `OUT` | `NET_OUT_AMP` | `U2C.8` unity inverter output & `U2D` LED driver input |
+| `TP9` | `HWR` | `NET_RECT_HALF` | `D3.1`/`R9.2`/`R10.1` `U1B` half-wave rectifier isolation check |
+| `TP10` | `DRV` | `NET_U1D_OUT` | `U1D.14` active skew driver swing (`±11.5 V`) & `C10` loop stability |
+| `TP11` | `OFF` | `NET_OFF_WIPER` | `RV4.2` RC-filtered `±4.98 V` offset voltage & center-detent check |
+| `TP12` | `GND2` | `GND` | Upper-board scope ground clip reference for short dual-probe leads |
 
 ---
 
@@ -201,7 +221,7 @@ Value breakdown: **`14× 10 kΩ ±0.1%`** (Extended), **`7× 1 kΩ 1%`**, **`3×
 
 ## 6. Complete Pin-Level Netlist (48 Nets)
 
-All **68 BOM components** and every pin of `U1` (`1`–`14`), `U2` (`1`–`14`), `D3` (`1`–`3`), and `J_PWR` (`1`–`10`) are accounted for below with zero unconnected active pins. *(Output jack normal contacts `J3.Switch` and `J4.Switch` are intentionally left no-connect `NC`.)*
+All **80 components** (`68` populated + `12` DNP test points `TP1`–`TP12`) and every pin of `U1` (`1`–`14`), `U2` (`1`–`14`), `D3` (`1`–`3`), and `J_PWR` (`1`–`10`) are accounted for below with zero unconnected active pins. *(Output jack normal contacts `J3.Switch` and `J4.Switch` are intentionally left no-connect `NC`.)*
 
 | # | Net Name | Connected Component Pins |
 | :- | :--- | :--- |
@@ -209,52 +229,52 @@ All **68 BOM components** and every pin of `U1` (`1`–`14`), `U2` (`1`–`14`),
 | 2 | `NET_PWR_NEG_RAW` | `J_PWR.1`, `J_PWR.2`, `D2.K` |
 | 3 | `NET_POS_PROT` | `D1.K`, `R1.1` |
 | 4 | `NET_NEG_PROT` | `D2.A`, `R2.1` |
-| 5 | `+12V` | `R1.2`, `C1.+`, `C3.1`, `C5.1`, `U1.4 (V+)`, `U2.4 (V+)`, `R26.1` |
-| 6 | `-12V` | `R2.2`, `C2.-`, `C4.1`, `C6.1`, `U1.11 (V-)`, `U2.11 (V-)`, `R28.1` |
-| 7 | `GND` | `J_PWR.3`–`J_PWR.8`, `C1.-`, `C2.+`, `C3.2`, `C4.2`, `C5.2`, `C6.2`, `J1.Sleeve`, `J1.Switch`, `R3.2`, `RV1.1`, `R5.2`, `C9.2`, `U1B.+ (U1.5)`, `U1C.+ (U1.10)`, `J2.Sleeve`, `R16.2`, `C11.2`, `C12.2`, `C13.2`, `C14.2`, `U2B.+ (U2.5)`, `C15.2`, `C16.2`, `J4.Sleeve`, `U2C.+ (U2.10)`, `J3.Sleeve`, `R33.2` |
+| 5 | `+12V` | `R1.2`, `C1.+`, `C3.1`, `C5.1`, `U1.4 (V+)`, `U2.4 (V+)`, `R26.1`, `TP2.1` |
+| 6 | `-12V` | `R2.2`, `C2.-`, `C4.1`, `C6.1`, `U1.11 (V-)`, `U2.11 (V-)`, `R28.1`, `TP3.1` |
+| 7 | `GND` | `J_PWR.3`–`J_PWR.8`, `C1.-`, `C2.+`, `C3.2`, `C4.2`, `C5.2`, `C6.2`, `J1.Sleeve`, `J1.Switch`, `R3.2`, `RV1.1`, `R5.2`, `C9.2`, `U1B.+ (U1.5)`, `U1C.+ (U1.10)`, `J2.Sleeve`, `R16.2`, `C11.2`, `C12.2`, `C13.2`, `C14.2`, `U2B.+ (U2.5)`, `C15.2`, `C16.2`, `J4.Sleeve`, `U2C.+ (U2.10)`, `J3.Sleeve`, `R33.2`, `TP1.1`, `TP12.1` |
 | 8 | `NET_IN_JACK` | `J1.Tip`, `R3.1`, `C7.1` |
 | 9 | `NET_IN_AC` | `C7.2`, `RV1.3` |
 | 10 | `NET_GAIN_WIPER` | `RV1.2`, `R4.1` |
 | 11 | `NET_U1A_POS` | `R4.2`, `R5.1`, `U1A.+ (U1.3)` |
 | 12 | `NET_U1A_INV` | `U1A.- (U1.2)`, `R6.1`, `C8.1`, `R7.1` |
 | 13 | `NET_U1A_CG` | `R7.2`, `C9.1` |
-| 14 | `NET_PREAMP_OUT` | `U1A.OUT (U1.1)`, `R6.2`, `C8.2`, `R8.1`, `R11.1` |
+| 14 | `NET_PREAMP_OUT` | `U1A.OUT (U1.1)`, `R6.2`, `C8.2`, `R8.1`, `R11.1`, `TP4.1` |
 | 15 | `NET_FF_MID` | `R11.2`, `R12.1` |
 | 16 | `NET_U1B_INV` | `R8.2`, `U1B.- (U1.6)`, `R9.1`, `D3.2 (K2)` |
 | 17 | `NET_U1B_OUT` | `U1B.OUT (U1.7)`, `D3.3 (K1/A2)` |
-| 18 | `NET_RECT_HALF` | `D3.1 (A1)`, `R9.2`, `R10.1` |
+| 18 | `NET_RECT_HALF` | `D3.1 (A1)`, `R9.2`, `R10.1`, `TP9.1` |
 | 19 | `NET_RECT_SUM` | `R10.2`, `R12.2`, `U1C.- (U1.9)`, `R13.1` |
 | 20 | `NET_FWR_FB_MID` | `R13.2`, `R14.1` |
-| 21 | `NET_RECT_OUT` | `U1C.OUT (U1.8)`, `R14.2`, `R15.1` |
+| 21 | `NET_RECT_OUT` | `U1C.OUT (U1.8)`, `R14.2`, `R15.1`, `TP5.1` |
 | 22 | `NET_SLEW_NORM` | `R15.2`, `J2.Switch` |
 | 23 | `NET_SLEW_JACK` | `J2.Tip`, `R16.1`, `R17.1` |
 | 24 | `NET_U1D_POS` | `R17.2`, `U1D.+ (U1.12)` |
 | 25 | `NET_U1D_INV` | `R18.2`, `C10.1`, `U1D.- (U1.13)` |
-| 26 | `NET_U1D_OUT` | `U1D.OUT (U1.14)`, `C10.2`, `D4.A`, `D5.K` |
+| 26 | `NET_U1D_OUT` | `U1D.OUT (U1.14)`, `C10.2`, `D4.A`, `D5.K`, `TP10.1` |
 | 27 | `NET_ATK_DIODE` | `D4.K`, `R19.1` |
 | 28 | `NET_ATK_MIN` | `R19.2`, `RV2.1` |
 | 29 | `NET_REL_DIODE` | `D5.A`, `R20.1` |
 | 30 | `NET_REL_MIN` | `R20.2`, `RV3.1` |
 | 31 | `NET_ENV_CAP` | `RV2.2`, `RV2.3`, `RV3.2`, `RV3.3`, `C11.1`, `SW2.1`, `U2A.+ (U2.3)` |
 | 32 | `NET_SLOW_CAPS` | `SW2.2`, `C12.1`, `C13.1` |
-| 33 | `NET_ENV_BUF` | `U2A.OUT (U2.1)`, `U2A.- (U2.2)`, `R18.1`, `R21.1` |
+| 33 | `NET_ENV_BUF` | `U2A.OUT (U2.1)`, `U2A.- (U2.2)`, `R18.1`, `R21.1`, `TP6.1` |
 | 34 | `NET_SMOOTH_MID` | `R21.2`, `R22.1`, `SW1.1` |
 | 35 | `NET_SMOOTH_SW` | `SW1.2`, `C14.1` |
 | 36 | `NET_OFF_POS_FILT` | `R26.2`, `C15.1`, `R27.1` |
 | 37 | `NET_OFF_TOP` | `R27.2`, `RV4.3` |
 | 38 | `NET_OFF_NEG_FILT` | `R28.2`, `C16.1`, `R29.1` |
 | 39 | `NET_OFF_BOT` | `R29.2`, `RV4.1` |
-| 40 | `NET_OFF_WIPER` | `RV4.2`, `R23.1` |
+| 40 | `NET_OFF_WIPER` | `RV4.2`, `R23.1`, `TP11.1` |
 | 41 | `NET_U2B_INV` | `R22.2`, `R23.2`, `R24.1`, `U2B.- (U2.6)` |
-| 42 | `NET_INV_AMP` | `U2B.OUT (U2.7)`, `R24.2`, `R25.1`, `R30.1` |
+| 42 | `NET_INV_AMP` | `U2B.OUT (U2.7)`, `R24.2`, `R25.1`, `R30.1`, `TP7.1` |
 | 43 | `NET_INV_OUT_JACK` | `R25.2`, `J4.Tip` |
 | 44 | `NET_U2C_INV` | `R30.2`, `R31.1`, `U2C.- (U2.9)` |
-| 45 | `NET_OUT_AMP` | `U2C.OUT (U2.8)`, `R31.2`, `R32.1`, `U2D.+ (U2.12)` |
+| 45 | `NET_OUT_AMP` | `U2C.OUT (U2.8)`, `R31.2`, `R32.1`, `U2D.+ (U2.12)`, `TP8.1` |
 | 46 | `NET_OUT_JACK` | `R32.2`, `J3.Tip` |
 | 47 | `NET_LED_DRV` | `U2D.OUT (U2.14)`, `LED1.1` |
 | 48 | `NET_LED_SENSE` | `U2D.- (U2.13)`, `LED1.2`, `R33.1` |
 
-*(48 nets total; all 48 nets and 68 components accounted for.)*
+*(48 nets total; all 48 nets and 80 components — 68 populated + 12 DNP test points — accounted for.)*
 
 ---
 
@@ -287,3 +307,9 @@ Single-column knob alignment provides generous vertical and horizontal finger ro
 5. **Toggle switch routing:** `SW1` switches `NET_SMOOTH_MID` to `GND` (never directly touching the `U2B.6` virtual-ground summing pin), keeping the summing node shielded from switch lead capacitance.
 6. **`LED1` (`A-1076`) color orientation:** Bench-check `LED1` polarity with a `5 V` + `1 kΩ` test lead before soldering so `+V` on `OUT` lights **Green** (`LED1.1` = Green anode / Red cathode) and `−V` on `OUT` lights **Red** (`LED1.2` = Green cathode / Red anode).
 7. **Toggle switch pins (`SW1`, `SW2`):** If using 3-pin sub-mini SPDT (`ON-ON`) toggles instead of 2-pin SPST, wire `Pin 2` (common) and `Pin 1` or `Pin 3` (matching lever-up = `SMOOTH` / `SLOW`) and leave the unused outer pin floating (`NC`).
+8. **DNP test points (`TP1`–`TP12`, Ronghe `RH-5001` / LCSC `C5199801`):**
+   - Mount on `B.Cu` along the left/right margins flanking `RV1`–`RV4`, keeping THT pads/courtyards (`2.0 mm` pad / `3.3 mm` courtyard) clear of `F.Cu` pot casings, toggles, and jacks.
+   - Place `TP1` (`GND`) near the lower power/output zone and `TP12` (`GND2`) near the upper preamp/rectifier zone for short dual-probe ground leads.
+   - Set `dnp=True` and `exclude_from_bom=True` while preserving `LCSC="C5199801"` and `MPN="RH-5001"` fields.
+   - Keep the `TP10` (`NET_U1D_OUT`) stub short and well away from `NET_ENV_CAP`, and never place test points on `NET_ENV_CAP` or op-amp inverting/virtual-ground inputs.
+   - Verify `RH-5001` lead clearance in the `C5199801` datasheet against the `1.0 mm` finished drill before fab; `B.SilkS` labels (`GND`, `+12V`, `-12V`, `PRE`, `RECT`, `ENV`, `INV`, `OUT`, `HWR`, `DRV`, `OFF`, `GND2`) will be hand-optimized for tight 6 HP clearance.
