@@ -11,10 +11,15 @@ Building on [domesticmouse/EnvelopeFollower](https://github.com/domesticmouse/En
 | [`EnvelopeFollower.md`](EnvelopeFollower.md) | Extracted Markdown circuit specification (BOM, stage-by-stage analysis, pin-level netlist, and build notes) derived from `EnvelopeFollower.webp`. |
 | [`EnvelopeFollowerImprovements.md`](EnvelopeFollowerImprovements.md) | Engineering review of the base circuit documenting electrical issues, quantitative analysis, prioritized fixes, and Eurorack skew-limiter upgrade architectures. |
 | [`DesignSpec.md`](DesignSpec.md) | Finalized 6 HP (`2× TL074H`) build specification, JLCPCB SMD / Tayda TH BOM, stage analysis, pin-level netlist, and front-panel layout. |
+| [`checklists/`](checklists/) | Step-by-step markdown checklists for JLCPCB main board/PCBA ordering, 50-part PCBA alignment, Tayda ordering, hand assembly, and board bringup. |
 | [`envelope_follower.py`](envelope_follower.py) | SKiDL Python circuit capture script implementing all 80 footprints, 48 nets, ERC assertions, and BOM/netlist exports. |
 | [`generate_schematic.py`](generate_schematic.py) | Script that reads `envelope_follower.build_circuit()` and KiCad 10 symbols to generate the 9-section A3 schematic (`envelope_follower.kicad_sch`). |
 | [`envelope_follower.kicad_sch`](envelope_follower.kicad_sch) | Clean 9-section A3 KiCad 10 schematic ready to open directly in KiCad 10 Eeschema (`0` ERC errors, 100% netlist parity with `envelope_follower.net`). |
 | [`envelope_follower.pdf`](envelope_follower.pdf) | Printable A3 PDF version of the KiCad 10 schematic exported from `envelope_follower.kicad_sch`. |
+| [`generate_kicad_pcb.py`](generate_kicad_pcb.py) | Programmatic KiCad 10 PCB generator (`pcbnew`) placing all 80 circuit footprints + 3 `B.Cu` fiducials, routing all 48 nets, pouring `F.Cu`/`B.Cu` `GND` planes, and applying silkscreen/fab markup. |
+| [`envelope_follower.kicad_pcb`](envelope_follower.kicad_pcb) | Routed 2-layer `30.0 × 108.0 mm` (6 HP) KiCad 10 PCB (`F.Cu` panel controls + `B.Cu` SMD/power/test points, `0` DRC violations, `0` unconnected items, `0` schematic parity issues). |
+| [`envelope_follower.kicad_pro`](envelope_follower.kicad_pro) | KiCad 10 project configuration file for `envelope_follower.kicad_sch` and `envelope_follower.kicad_pcb`. |
+| [`silk_layout.json`](silk_layout.json) | Pinned board-local `F.SilkS`/`B.SilkS` layout manifest synced with `generate_kicad_pcb.py`. |
 | [`envelope_follower.net`](envelope_follower.net) | Exported KiCad 10 netlist (80 components, 48 active nets, `Power`/`HighImpedance` NetClasses, and DNP test-point properties). |
 | [`envelope_follower_bom.xml`](envelope_follower_bom.xml) | Well-formed KiCad XML BOM containing component values, footprints, LCSC/MPN/silkscreen fields, and net nodes. |
 | [`jlcpcb_bom.csv`](jlcpcb_bom.csv) | Grouped 4-column JLCPCB SMT PCBA BOM (50 SMD components across 17 rows, 3 Extended SKUs). |
@@ -57,6 +62,27 @@ The locked-in 6 HP module architecture is documented in [`DesignSpec.md`](Design
 kicad-cli sch export pdf --output envelope_follower.pdf envelope_follower.kicad_sch
 ```
 
+## PCB Layout
+
+- **2-layer 6 HP sandwich board ([`envelope_follower.kicad_pcb`](envelope_follower.kicad_pcb)):** `30.0 × 108.0 mm` FR4 layout placing the `11` front-panel controls (`RV1`–`RV4`, `SW1`–`SW2`, `LED1`, `J1`–`J4`) on `F.Cu` and all `50` JLCPCB SMDs, `7` non-panel THT parts (`J_PWR`, `C1`–`C2`, `C7`, `C11`–`C13`), `12` DNP test points (`TP1`–`TP12`), and `3` assembly fiducials (`FID1`–`FID3`) on `B.Cu`, with `F.Cu`/`B.Cu` `GND` planes (`0` DRC violations, `0` unconnected items, and `0` schematic parity issues).
+- **Programmatic layout & silkscreen iteration ([`generate_kicad_pcb.py`](generate_kicad_pcb.py) + [`silk_layout.json`](silk_layout.json)):** Generates the full routed board from [`envelope_follower.net`](envelope_follower.net) or restamps/syncs manual KiCad silkscreen refinements in place:
+
+```bash
+python3 generate_kicad_pcb.py
+python3 generate_kicad_pcb.py --silk-only
+python3 generate_kicad_pcb.py --sync-silk
+```
+
+## Build & Manufacturing Checklists
+
+Step-by-step checklists are organized in [`checklists/`](checklists/) ([`checklists/README.md`](checklists/README.md)) in build order:
+
+1. [`checklists/01-main-board-ordering.md`](checklists/01-main-board-ordering.md) — Gerber/CPL export, JLCPCB lead-free fabrication, `F.SilkS` QR code replacement, and Bottom-Side Economic PCBA ordering
+2. [`checklists/02-pcba-part-alignment.md`](checklists/02-pcba-part-alignment.md) — Placement & orientation verification for all `50` `B.Cu` SMD components in the JLCPCB viewer
+3. [`checklists/03-tayda-ordering.md`](checklists/03-tayda-ordering.md) — Tayda ordering list for all `18` THT/panel components, `<= 14.0 mm` knobs, hardware, and spares
+4. [`checklists/04-hand-assembly.md`](checklists/04-hand-assembly.md) — Mechanical assembly order (`B.Cu` THT parts, `LED1` polarity bench check, `F.Cu` front-panel dry-fit & soldering, IPA cleaning)
+5. [`checklists/05-board-bringup.md`](checklists/05-board-bringup.md) — Unpowered cold checks, current-limited first power-up, all `12` test points (`TP1`–`TP12`), signal verification, and troubleshooting
+
 ## Installed Skills
 
 The [`.agents/skills/`](.agents/skills/) directory includes the following hardware workflow skills:
@@ -65,6 +91,7 @@ The [`.agents/skills/`](.agents/skills/) directory includes the following hardwa
 - `kicad` — KiCad schematic, PCB, Gerber, and DRC/ERC analysis
 - `kicad-pcbnew-layout` — Programmatic KiCad 10 PCB placement, routing, and copper pours via `pcbnew`
 - `kicad-silkscreen-markup` — Collision-free silkscreen annotation and fabrication notes
+- `edit-silkscreen` — Interactive per-label silkscreen placement editing and `silk_layout.json` sync
 - `eurorack-panel` — Mated 3U Eurorack front panel generation from main PCB coordinates
 - `bom` — Unified BOM management and fabrication exports
 - `datasheets` — Structured component datasheet extraction and caching
