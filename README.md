@@ -12,6 +12,8 @@ Building on [domesticmouse/EnvelopeFollower](https://github.com/domesticmouse/En
 | [`EnvelopeFollowerImprovements.md`](EnvelopeFollowerImprovements.md) | Engineering review of the base circuit documenting electrical issues, quantitative analysis, prioritized fixes, and Eurorack skew-limiter upgrade architectures. |
 | [`DesignSpec.md`](DesignSpec.md) | Finalized 6 HP (`2× TL074H`) build specification, JLCPCB SMD / Tayda TH BOM, stage analysis, pin-level netlist, and front-panel layout. |
 | [`envelope_follower.py`](envelope_follower.py) | SKiDL Python circuit capture script implementing all 80 footprints, 48 nets, ERC assertions, and BOM/netlist exports. |
+| [`generate_schematic.py`](generate_schematic.py) | Script that reads `envelope_follower.build_circuit()` and KiCad 10 symbols to generate the 9-section A3 schematic (`envelope_follower.kicad_sch`). |
+| [`envelope_follower.kicad_sch`](envelope_follower.kicad_sch) | Clean 9-section A3 KiCad 10 schematic ready to open directly in KiCad 10 Eeschema (`0` ERC errors, 100% netlist parity with `envelope_follower.net`). |
 | [`envelope_follower.net`](envelope_follower.net) | Exported KiCad 10 netlist (80 components, 48 active nets, `Power`/`HighImpedance` NetClasses, and DNP test-point properties). |
 | [`envelope_follower_bom.xml`](envelope_follower_bom.xml) | Well-formed KiCad XML BOM containing component values, footprints, LCSC/MPN/silkscreen fields, and net nodes. |
 | [`jlcpcb_bom.csv`](jlcpcb_bom.csv) | Grouped 4-column JLCPCB SMT PCBA BOM (50 SMD components across 17 rows, 3 Extended SKUs). |
@@ -42,6 +44,16 @@ The locked-in 6 HP module architecture is documented in [`DesignSpec.md`](Design
 - **6 HP Eurorack (`2× TL074HIDR`, `0` unused sections, `0` trimmers):** Single-column `4`-knob layout (`GAIN` `A100K`, `ATK` `A1M`, `REL` `A1M`, `OFFSET` `B10K` center-detent), dual sub-mini toggles (`SMOOTH` & `FAST / SLOW`), post-offset `3 mm` 2-pin bi-color LED (`Tayda A-1076`), and a `2 × 2` jack grid (`IN`, normaled `SLEW IN`, `OUT`, `INV_OUT`).
 - **JLCPCB PCBA + Tayda TH split:** `50` SMD parts using only `3` JLCPCB Extended SKUs (`TL074HIDR`, `BAT54S`, `10 kΩ ±0.1%`) with all other SMD passives and `1N4148W` / `B5819W` diodes as JLCPCB Basic parts, paired with `18` Tayda/panel through-hole components (`47 µF / 35 V` radial bulk caps, `5 mm` box film timing/coupling caps, Alpha `9 mm` pots, toggles, and Thonkiconn jacks) plus `12` DNP through-hole test points (Ronghe `RH-5001` / LCSC `C5199801`).
 - **Tuned for techno & ambient:** Switchless `×2` Eurorack input (`Z_in = 90.9 kΩ`), zero-gain-drop split-resistor `SMOOTH` T-filter (`f_c = 29.0 Hz`, `−11.1 dB` at `100 Hz`), `1 kΩ` linear-safe skew floor, `FAST` (`470 nF`: `0.29–289 ms`) / `SLOW` (`4.87 µF`: `3.0 ms–3.00 s`), and `±4.98 V` RC-filtered `OFFSET` with visual kick-ducking zero-crossing readout.
+
+## Circuit Capture & KiCad Schematic
+
+- **Single source of truth ([`envelope_follower.py`](envelope_follower.py)):** Defines the complete SKiDL circuit (`80` footprints, `48` active nets, BOM/LCSC fields, `Power`/`HighImpedance` NetClasses, and ERC assertions) and exports [`envelope_follower.net`](envelope_follower.net), [`envelope_follower_bom.xml`](envelope_follower_bom.xml), and [`jlcpcb_bom.csv`](jlcpcb_bom.csv).
+- **Schematic visualization ([`generate_schematic.py`](generate_schematic.py)):** Reads `envelope_follower.build_circuit()` and KiCad 10 symbol libraries to build [`envelope_follower.kicad_sch`](envelope_follower.kicad_sch) — a 9-section A3 landscape schematic (`128` symbol instances, `236` wires, `4` no-connect markers, `0` ERC errors, 100% netlist parity with [`envelope_follower.net`](envelope_follower.net)) ready to open directly in KiCad 10 Eeschema.
+
+```bash
+.venv/bin/python envelope_follower.py
+.venv/bin/python generate_schematic.py
+```
 
 ## Installed Skills
 
