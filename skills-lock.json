@@ -17,10 +17,10 @@
     },
     "eurorack-panel": {
       "source": "domesticmouse/skills",
-      "commit": "a1d39cf98814376202edc2008757aec36ccba2fb",
+      "commit": "2056762863f699720041aff1f4dbf3a77b71fd2e",
       "sourceType": "github",
       "skillPath": "packs/hardware/eurorack-panel/SKILL.md",
-      "computedHash": "5cd190b5d001a0c7acb589bf1c3807d8dde8238ba78b81ce75059b1d98bb475a"
+      "computedHash": "fda4e915cfbc367b26c57894c74b4d37a4a7c36bbab5df1aab3161b4da1e647c"
     },
     "jlcpcb": {
       "source": "aklofas/kicad-happy",
@@ -38,17 +38,17 @@
     },
     "kicad-pcbnew-layout": {
       "source": "domesticmouse/skills",
-      "commit": "a1d39cf98814376202edc2008757aec36ccba2fb",
+      "commit": "2056762863f699720041aff1f4dbf3a77b71fd2e",
       "sourceType": "github",
       "skillPath": "packs/hardware/kicad-pcbnew-layout/SKILL.md",
-      "computedHash": "ffcd3bed60c5a2238883a454d313d7ee1b05a1e0723fcbd5daf03b3937bf4f3f"
+      "computedHash": "ab432ed89028011c2512efd2196cee9d8cd1201b202cc5866f1967562728a286"
     },
     "kicad-silkscreen-markup": {
       "source": "domesticmouse/skills",
-      "commit": "a1d39cf98814376202edc2008757aec36ccba2fb",
+      "commit": "2056762863f699720041aff1f4dbf3a77b71fd2e",
       "sourceType": "github",
       "skillPath": "packs/hardware/kicad-silkscreen-markup/SKILL.md",
-      "computedHash": "7c0aaba011159ae5c53403454fff399f93d299e9b5bcd49fc8820e6290c46dba"
+      "computedHash": "8ddaed7a721f6408983be20017d0c7e38ea487b0027009540a0353c9bb7d1c45"
     },
     "lcsc": {
       "source": "aklofas/kicad-happy",
@@ -59,10 +59,10 @@
     },
     "skidl": {
       "source": "domesticmouse/skills",
-      "commit": "a1d39cf98814376202edc2008757aec36ccba2fb",
+      "commit": "2056762863f699720041aff1f4dbf3a77b71fd2e",
       "sourceType": "github",
       "skillPath": "packs/hardware/skidl/SKILL.md",
-      "computedHash": "a6c1af33b809deaf5053d641c3ca72173f6f606040ff36588cbb5881dfe6db71"
+      "computedHash": "2f42bb3e6049f242f56c07fc97cf6fe46cec857efe852ee05d70491c1f22f783"
     }
   }
 }

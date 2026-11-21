@@ -30,7 +30,7 @@ Use this skill to move, rotate, restyle, or sync silkscreen entries on `envelope
 2. **Edit only the target entry in `silk_layout.json`**:
    - Keep `deg` at `0.0` or `90.0` (`B.SilkS` mirroring is handled automatically).
    - Keep `Value` hidden on `.Fab` (edit `texts` items, never unhide `fp.Value()`).
-   - Stay within `3.5 mm` SMD / `6.0 mm` THT tether bounds and `≤ 1.2 mm` gap between `<REF>` and its `<VAL>` text, clear of pads and SMD `.Fab` bodies.
+   - Stay within `3.5 mm` SMD / `6.0 mm` THT tether bounds and `≤ 1.2 mm` gap between `<REF>` and its `<VAL>` text, clear of mask-expanded pad keepouts (`+0.30 mm`), **both** SMD and THT `.Fab` package bodies (`block_tht_fab=True`), board-level silk shapes (e.g., `U1`/`U2` Pin-1 `dots`), and `5 × 5 mm` `qr_rects` via/track copper keepouts.
 3. **Restamp silkscreen fast (~1 s)** (preserves copper, zones, vias, and `B.Fab` notes):
    ```bash
    python3 generate_kicad_pcb.py --silk-only
