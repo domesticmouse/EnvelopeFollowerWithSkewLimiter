@@ -71,9 +71,11 @@
       ]
     },
     "LED1": {
-      "ref": {"layer": "F.SilkS", "x": 14.069, "y": 67.888, "deg": 90.0, "height": 0.8, "thickness": 0.15},
+      "ref": {"layer": "F.SilkS", "x": 13.432, "y": 66.6, "deg": 0.0, "height": 0.8, "thickness": 0.15},
       "texts": [
-        {"layer": "F.SilkS", "text": "OUT", "x": 15.931, "y": 68.212, "deg": 90.0, "height": 0.8, "thickness": 0.15}
+        {"layer": "F.SilkS", "text": "OUT", "x": 16.891, "y": 66.6, "deg": 0.0, "height": 0.8, "thickness": 0.15},
+        {"layer": "F.SilkS", "text": "2-PIN R/G", "x": 15.0, "y": 68.4, "deg": 0.0, "height": 0.8, "thickness": 0.15},
+        {"layer": "F.SilkS", "text": "TAYDA A-1076", "x": 15.0, "y": 75.45, "deg": 0.0, "height": 0.8, "thickness": 0.15}
       ]
     },
     "R1": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10R", "x": 13.0, "y": 18.75, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
@@ -140,9 +142,9 @@
       ]
     },
     "SW2": {
-      "ref": {"layer": "F.SilkS", "x": 18.8, "y": 75.716, "deg": 90.0, "height": 0.8, "thickness": 0.15},
+      "ref": {"layer": "F.SilkS", "x": 27.2, "y": 75.716, "deg": 90.0, "height": 0.8, "thickness": 0.15},
       "texts": [
-        {"layer": "F.SilkS", "text": "FAST/SLOW", "x": 18.8, "y": 70.436, "deg": 90.0, "height": 0.8, "thickness": 0.15}
+        {"layer": "F.SilkS", "text": "FAST/SLOW", "x": 27.2, "y": 70.436, "deg": 90.0, "height": 0.8, "thickness": 0.15}
       ]
     },
     "TP1": {
