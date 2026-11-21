@@ -14,6 +14,7 @@ Building on [domesticmouse/EnvelopeFollower](https://github.com/domesticmouse/En
 | [`envelope_follower.py`](envelope_follower.py) | SKiDL Python circuit capture script implementing all 80 footprints, 48 nets, ERC assertions, and BOM/netlist exports. |
 | [`generate_schematic.py`](generate_schematic.py) | Script that reads `envelope_follower.build_circuit()` and KiCad 10 symbols to generate the 9-section A3 schematic (`envelope_follower.kicad_sch`). |
 | [`envelope_follower.kicad_sch`](envelope_follower.kicad_sch) | Clean 9-section A3 KiCad 10 schematic ready to open directly in KiCad 10 Eeschema (`0` ERC errors, 100% netlist parity with `envelope_follower.net`). |
+| [`envelope_follower.pdf`](envelope_follower.pdf) | Printable A3 PDF version of the KiCad 10 schematic exported from `envelope_follower.kicad_sch`. |
 | [`envelope_follower.net`](envelope_follower.net) | Exported KiCad 10 netlist (80 components, 48 active nets, `Power`/`HighImpedance` NetClasses, and DNP test-point properties). |
 | [`envelope_follower_bom.xml`](envelope_follower_bom.xml) | Well-formed KiCad XML BOM containing component values, footprints, LCSC/MPN/silkscreen fields, and net nodes. |
 | [`jlcpcb_bom.csv`](jlcpcb_bom.csv) | Grouped 4-column JLCPCB SMT PCBA BOM (50 SMD components across 17 rows, 3 Extended SKUs). |
@@ -48,11 +49,12 @@ The locked-in 6 HP module architecture is documented in [`DesignSpec.md`](Design
 ## Circuit Capture & KiCad Schematic
 
 - **Single source of truth ([`envelope_follower.py`](envelope_follower.py)):** Defines the complete SKiDL circuit (`80` footprints, `48` active nets, BOM/LCSC fields, `Power`/`HighImpedance` NetClasses, and ERC assertions) and exports [`envelope_follower.net`](envelope_follower.net), [`envelope_follower_bom.xml`](envelope_follower_bom.xml), and [`jlcpcb_bom.csv`](jlcpcb_bom.csv).
-- **Schematic visualization ([`generate_schematic.py`](generate_schematic.py)):** Reads `envelope_follower.build_circuit()` and KiCad 10 symbol libraries to build [`envelope_follower.kicad_sch`](envelope_follower.kicad_sch) — a 9-section A3 landscape schematic (`128` symbol instances, `236` wires, `4` no-connect markers, `0` ERC errors, 100% netlist parity with [`envelope_follower.net`](envelope_follower.net)) ready to open directly in KiCad 10 Eeschema.
+- **Schematic visualization ([`generate_schematic.py`](generate_schematic.py)):** Reads `envelope_follower.build_circuit()` and KiCad 10 symbol libraries to build [`envelope_follower.kicad_sch`](envelope_follower.kicad_sch) — a 9-section A3 landscape schematic (`128` symbol instances, `236` wires, `4` no-connect markers, `0` ERC errors, 100% netlist parity with [`envelope_follower.net`](envelope_follower.net)) ready to open directly in KiCad 10 Eeschema, alongside a printable A3 PDF export in [`envelope_follower.pdf`](envelope_follower.pdf).
 
 ```bash
 .venv/bin/python envelope_follower.py
 .venv/bin/python generate_schematic.py
+kicad-cli sch export pdf --output envelope_follower.pdf envelope_follower.kicad_sch
 ```
 
 ## Installed Skills
