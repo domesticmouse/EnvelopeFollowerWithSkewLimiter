@@ -18,52 +18,27 @@
     {"layer": "F.SilkS", "text": "github.com/domesticmouse/", "x": 14.069, "y": 89.112, "deg": 90.0, "height": 0.8, "thickness": 0.15}
   ],
   "footprints": {
-    "C1": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "47uF", "x": 19.35, "y": 35.55, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "C2": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "47uF", "x": 19.45, "y": 32.45, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "C3": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "100nF", "x": 7.9, "y": 76.8, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "C4": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "100nF", "x": 22.1, "y": 76.8, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "C5": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "100nF", "x": 21.2, "y": 87.0, "deg": 90.0, "height": 0.8, "thickness": 0.15}]},
-    "C6": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "100nF", "x": 14.2, "y": 93.0, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "C7": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "470nF", "x": 3.2, "y": 12.4, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "C8": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "33pF", "x": 5.95, "y": 93.7, "deg": 90.0, "height": 0.8, "thickness": 0.15}]},
+    "C1": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "47uF", "x": 19.65, "y": 24.45, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "C2": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "47uF", "x": 19.65, "y": 32.05, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "C3": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "100nF", "x": 13.65, "y": 75.25, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "C4": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "100nF", "x": 18.5, "y": 75.25, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "C5": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "100nF", "x": 17.5, "y": 93.05, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "C6": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "100nF", "x": 11.5, "y": 93.05, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "C7": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "470nF", "x": 3.2, "y": 7.25, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "C8": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "33pF", "x": 3.55, "y": 95.3, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
     "C9": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10uF", "x": 3.8, "y": 103.3, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "C10": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "2.2nF", "x": 24.05, "y": 87.2, "deg": 90.0, "height": 0.8, "thickness": 0.15}]},
-    "C11": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "470nF", "x": 24.4, "y": 43.25, "deg": 90.0, "height": 0.8, "thickness": 0.15}]},
-    "C12": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "2.2uF", "x": 24.4, "y": 51.0, "deg": 90.0, "height": 0.8, "thickness": 0.15}]},
-    "C13": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "2.2uF", "x": 24.4, "y": 60.25, "deg": 90.0, "height": 0.8, "thickness": 0.15}]},
-    "C14": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "220nF", "x": 1.7, "y": 69.0, "deg": 90.0, "height": 0.8, "thickness": 0.15}]},
+    "C10": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "2.2nF", "x": 26.45, "y": 94.97, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "C11": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "470nF", "x": 24.8, "y": 46.45, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "C12": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "2.2uF", "x": 24.8, "y": 55.63, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "C13": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "2.2uF", "x": 24.8, "y": 65.0, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "C14": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "220nF", "x": 3.2, "y": 70.0, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
     "C15": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10uF", "x": 15.8, "y": 59.6, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "C16": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10uF", "x": 8.3, "y": 47.65, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "D1": {
-      "ref": null,
-      "texts": [
-        {"layer": "B.SilkS", "text": "B5819W", "x": 14.869, "y": 8.7, "deg": 0.0, "height": 0.8, "thickness": 0.15}
-      ]
-    },
-    "D2": {
-      "ref": null,
-      "texts": [
-        {"layer": "B.SilkS", "text": "B5819W", "x": 19.636, "y": 28.9, "deg": 90.0, "height": 0.8, "thickness": 0.15}
-      ]
-    },
-    "D3": {
-      "ref": null,
-      "texts": [
-        {"layer": "B.SilkS", "text": "BAT54S", "x": 3.019, "y": 85.0, "deg": 0.0, "height": 0.8, "thickness": 0.15}
-      ]
-    },
-    "D4": {
-      "ref": null,
-      "texts": [
-        {"layer": "B.SilkS", "text": "1N4148W", "x": 10.1, "y": 31.436, "deg": 0.0, "height": 0.8, "thickness": 0.15}
-      ]
-    },
-    "D5": {
-      "ref": null,
-      "texts": [
-        {"layer": "B.SilkS", "text": "1N4148W", "x": 15.5, "y": 43.836, "deg": 0.0, "height": 0.8, "thickness": 0.15}
-      ]
-    },
+    "C16": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10uF", "x": 6.8, "y": 49.75, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "D1": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "B5819W", "x": 16.0, "y": 12.8, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "D2": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "B5819W", "x": 16.0, "y": 28.6, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "D3": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "BAT54S", "x": 5.9, "y": 82.3, "deg": 90.0, "height": 0.8, "thickness": 0.15}]},
+    "D4": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "1N4148W", "x": 10.1, "y": 31.0, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "D5": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "1N4148W", "x": 10.15, "y": 37.55, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
     "J1": {
       "ref": {"layer": "F.SilkS", "x": 1.85, "y": 86.455, "deg": 90.0, "height": 0.8, "thickness": 0.15},
       "texts": [
@@ -91,7 +66,7 @@
     "J_PWR": {
       "ref": null,
       "texts": [
-        {"layer": "B.SilkS", "text": "PWR", "x": 15.333, "y": 24.3, "deg": 0.0, "height": 0.8, "thickness": 0.15},
+        {"layer": "B.SilkS", "text": "PWR", "x": 24.52, "y": 1.4, "deg": 0.0, "height": 0.8, "thickness": 0.15},
         {"layer": "F.SilkS", "text": "-12V", "x": 24.52, "y": 21.48, "deg": 0.0, "height": 0.8, "thickness": 0.15}
       ]
     },
@@ -101,39 +76,39 @@
         {"layer": "F.SilkS", "text": "OUT", "x": 15.931, "y": 68.212, "deg": 90.0, "height": 0.8, "thickness": 0.15}
       ]
     },
-    "R1": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10R", "x": 17.8, "y": 20.85, "deg": 90.0, "height": 0.8, "thickness": 0.15}]},
-    "R2": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10R", "x": 15.7, "y": 34.0, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "R3": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "1M", "x": 1.75, "y": 74.0, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "R4": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10k", "x": 10.7, "y": 8.8, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "R5": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "1M", "x": 12.8, "y": 12.5, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "R6": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10k", "x": 1.75, "y": 91.7, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "R7": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10k", "x": 1.75, "y": 98.7, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "R8": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10k", "x": 6.55, "y": 86.8, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "R9": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10k", "x": 1.75, "y": 88.2, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "R10": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10k", "x": 19.4, "y": 69.4, "deg": 90.0, "height": 0.8, "thickness": 0.15}]},
-    "R11": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10k", "x": 18.7, "y": 39.8, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "R12": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10k", "x": 15.7, "y": 40.2, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "R13": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10k", "x": 18.7, "y": 47.8, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "R14": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10k", "x": 16.3, "y": 49.7, "deg": 90.0, "height": 0.8, "thickness": 0.15}]},
-    "R15": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "1k", "x": 24.95, "y": 78.7, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "R16": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "1M", "x": 24.65, "y": 90.7, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "R17": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10k", "x": 24.65, "y": 83.7, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "R18": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10k", "x": 21.1, "y": 65.0, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "R19": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "1k", "x": 9.5, "y": 22.0, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "R20": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "1k", "x": 11.0, "y": 46.4, "deg": 90.0, "height": 0.8, "thickness": 0.15}]},
-    "R21": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "49.9k", "x": 10.1, "y": 66.3, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "R22": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "49.9k", "x": 10.1, "y": 70.3, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "R23": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "100k", "x": 8.6, "y": 62.0, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "R24": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "100k", "x": 23.15, "y": 99.2, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "R25": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "1k", "x": 22.7, "y": 103.2, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "R26": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "1k", "x": 17.2, "y": 55.5, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "R27": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "5.1k", "x": 19.0, "y": 60.1, "deg": 90.0, "height": 0.8, "thickness": 0.15}]},
-    "R28": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "1k", "x": 12.5, "y": 58.0, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "R29": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "5.1k", "x": 14.0, "y": 55.1, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "R30": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10k", "x": 24.65, "y": 101.2, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "R31": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10k", "x": 28.25, "y": 101.3, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
-    "R32": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "1k", "x": 11.2, "y": 103.8, "deg": 90.0, "height": 0.8, "thickness": 0.15}]},
-    "R33": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "2.2k", "x": 12.5, "y": 74.0, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R1": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10R", "x": 13.0, "y": 18.75, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R2": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10R", "x": 18.7, "y": 35.6, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R3": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "1M", "x": 3.55, "y": 73.9, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R4": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10k", "x": 11.0, "y": 8.6, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R5": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "1M", "x": 11.0, "y": 12.6, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R6": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10k", "x": 3.55, "y": 91.8, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R7": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10k", "x": 3.55, "y": 98.8, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R8": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10k", "x": 3.55, "y": 84.8, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R9": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10k", "x": 3.55, "y": 88.3, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R10": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10k", "x": 19.4, "y": 73.1, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R11": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10k", "x": 18.7, "y": 39.6, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R12": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10k", "x": 18.7, "y": 43.6, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R13": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10k", "x": 18.7, "y": 47.6, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R14": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10k", "x": 18.7, "y": 51.6, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R15": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "1k", "x": 26.45, "y": 78.8, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R16": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "1M", "x": 26.45, "y": 90.8, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R17": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10k", "x": 26.45, "y": 86.8, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R18": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10k", "x": 19.3, "y": 68.1, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R19": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "1k", "x": 11.0, "y": 25.1, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R20": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "1k", "x": 11.0, "y": 46.2, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R21": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "49.9k", "x": 10.4, "y": 66.1, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R22": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "49.9k", "x": 10.4, "y": 70.1, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R23": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "100k", "x": 11.0, "y": 62.1, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R24": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "100k", "x": 26.45, "y": 98.1, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R25": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "1k", "x": 18.8, "y": 107.12, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R26": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "1k", "x": 18.7, "y": 55.55, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R27": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "5.1k", "x": 18.7, "y": 64.1, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R28": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "1k", "x": 11.0, "y": 58.1, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R29": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "5.1k", "x": 11.0, "y": 54.9, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R30": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10k", "x": 26.45, "y": 101.25, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R31": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10k", "x": 23.65, "y": 102.8, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R32": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "1k", "x": 11.2, "y": 107.12, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
+    "R33": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "2.2k", "x": 10.0, "y": 74.05, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
     "RV1": {
       "ref": {"layer": "F.SilkS", "x": 5.4, "y": 14.888, "deg": 90.0, "height": 0.8, "thickness": 0.15},
       "texts": [
@@ -173,14 +148,14 @@
     "TP1": {
       "ref": null,
       "texts": [
-        {"layer": "B.SilkS", "text": "GND", "x": 18.2, "y": 104.0, "deg": 0.0, "height": 0.8, "thickness": 0.15},
+        {"layer": "B.SilkS", "text": "GND", "x": 11.95, "y": 104.0, "deg": 0.0, "height": 0.8, "thickness": 0.15},
         {"layer": "F.SilkS", "text": "GND", "x": 15.0, "y": 103.35, "deg": 0.0, "height": 0.8, "thickness": 0.15}
       ]
     },
     "TP2": {
       "ref": null,
       "texts": [
-        {"layer": "B.SilkS", "text": "+12V", "x": 20.2, "y": 1.5, "deg": 0.0, "height": 0.8, "thickness": 0.15},
+        {"layer": "B.SilkS", "text": "+12V", "x": 17.9, "y": 4.75, "deg": 0.0, "height": 0.8, "thickness": 0.15},
         {"layer": "F.SilkS", "text": "+12V", "x": 19.95, "y": 2.25, "deg": 0.0, "height": 0.8, "thickness": 0.15}
       ]
     },
