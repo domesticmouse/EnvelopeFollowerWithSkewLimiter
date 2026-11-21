@@ -75,7 +75,9 @@
       "texts": [
         {"layer": "F.SilkS", "text": "OUT", "x": 16.891, "y": 66.6, "deg": 0.0, "height": 0.8, "thickness": 0.15},
         {"layer": "F.SilkS", "text": "2-PIN R/G", "x": 15.0, "y": 68.4, "deg": 0.0, "height": 0.8, "thickness": 0.15},
-        {"layer": "F.SilkS", "text": "TAYDA A-1076", "x": 15.0, "y": 75.45, "deg": 0.0, "height": 0.8, "thickness": 0.15}
+        {"layer": "F.SilkS", "text": "TAYDA A-1076", "x": 15.0, "y": 75.45, "deg": 0.0, "height": 0.8, "thickness": 0.15},
+        {"layer": "F.SilkS", "text": "+", "x": 11.7, "y": 72.0, "deg": 0.0, "height": 0.8, "thickness": 0.15},
+        {"layer": "B.SilkS", "text": "+", "x": 13.73, "y": 69.85, "deg": 0.0, "height": 0.8, "thickness": 0.15}
       ]
     },
     "R1": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10R", "x": 13.0, "y": 18.75, "deg": 0.0, "height": 0.8, "thickness": 0.15}]},
