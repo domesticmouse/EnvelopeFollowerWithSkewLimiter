@@ -1289,6 +1289,13 @@ def _strip_board_silkscreen(board: pcbnew.BOARD) -> None:
                 fp.Delete(gi)
 
 
+def _strip_board_fab_notes(board: pcbnew.BOARD) -> None:
+    """Remove board-level B.Fab text notes cleanly using Delete() (never Remove())."""
+    for d in list(board.GetDrawings()):
+        if d.GetLayer() == pcbnew.B_Fab and isinstance(d, pcbnew.PCB_TEXT):
+            board.Delete(d)
+
+
 def _place_fixed_board_silk(board: pcbnew.BOARD, grid: SilkGrid, layout: dict) -> None:
     """Draw and reserve board-level silkscreen items defined in `silk_layout.json`."""
     for rect in layout.get("qr_rects", []):
@@ -1614,7 +1621,7 @@ def _apply_silkscreen_and_fab(
                     break
 
     if add_fab_notes:
-        add_standard_fab_notes(board, BOARD_X0 + 15.0, BOARD_Y0 + 66.0)
+        add_standard_fab_notes(board, BOARD_X0 + 15.0, BOARD_Y1 + 5.0)
 
     return len(pinned_refs), auto_count
 
@@ -1658,12 +1665,13 @@ def _cmd_silk_only(layout_path: pathlib.Path) -> int:
     footprints = {fp.GetReference(): fp for fp in board.GetFootprints()}
 
     _strip_board_silkscreen(board)
+    _strip_board_fab_notes(board)
     pinned, auto = _apply_silkscreen_and_fab(
         board,
         footprints,
         components,
         silk_layout=layout,
-        add_fab_notes=False,
+        add_fab_notes=True,
     )
     board.Save(str(PCB_PATH))
     print(
