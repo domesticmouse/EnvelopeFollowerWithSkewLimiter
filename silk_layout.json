@@ -2,7 +2,6 @@
   "version": 1,
   "coordinate_system": "board-local mm relative to (BOARD_X0=100.0, BOARD_Y0=40.0); matches KiCad Grid/Aux origin",
   "qr_rects": [
-    {"layer": "B.SilkS", "x0": 12.5, "y0": 65.0, "x1": 17.5, "y1": 70.0, "filled": true, "width": 0.15},
     {"layer": "F.SilkS", "x0": 23.8, "y0": 1.0, "x1": 28.8, "y1": 6.0, "filled": true, "width": 0.15}
   ],
   "dots": [
