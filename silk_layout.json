@@ -62,27 +62,27 @@
       ]
     },
     "J1": {
-      "ref": {"layer": "F.SilkS", "x": 10.1, "y": 78.084, "deg": 0.0, "height": 0.8, "thickness": 0.15},
+      "ref": {"layer": "F.SilkS", "x": 1.85, "y": 86.455, "deg": 90.0, "height": 0.8, "thickness": 0.15},
       "texts": [
-        {"layer": "F.SilkS", "text": "IN", "x": 10.1, "y": 79.956, "deg": 0.0, "height": 0.8, "thickness": 0.15}
+        {"layer": "F.SilkS", "text": "IN", "x": 1.85, "y": 84.469, "deg": 90.0, "height": 0.8, "thickness": 0.15}
       ]
     },
     "J2": {
-      "ref": {"layer": "F.SilkS", "x": 18.1, "y": 78.084, "deg": 0.0, "height": 0.8, "thickness": 0.15},
+      "ref": {"layer": "F.SilkS", "x": 28.15, "y": 88.283, "deg": 90.0, "height": 0.8, "thickness": 0.15},
       "texts": [
-        {"layer": "F.SilkS", "text": "SLEW IN", "x": 18.1, "y": 79.956, "deg": 0.0, "height": 0.8, "thickness": 0.15}
+        {"layer": "F.SilkS", "text": "SLEW IN", "x": 28.15, "y": 84.469, "deg": 90.0, "height": 0.8, "thickness": 0.15}
       ]
     },
     "J3": {
-      "ref": {"layer": "F.SilkS", "x": 5.3, "y": 93.084, "deg": 0.0, "height": 0.8, "thickness": 0.15},
+      "ref": {"layer": "F.SilkS", "x": 1.85, "y": 101.988, "deg": 90.0, "height": 0.8, "thickness": 0.15},
       "texts": [
-        {"layer": "F.SilkS", "text": "OUT", "x": 5.3, "y": 94.956, "deg": 0.0, "height": 0.8, "thickness": 0.15}
+        {"layer": "F.SilkS", "text": "OUT", "x": 1.85, "y": 99.469, "deg": 90.0, "height": 0.8, "thickness": 0.15}
       ]
     },
     "J4": {
-      "ref": {"layer": "F.SilkS", "x": 18.1, "y": 93.084, "deg": 0.0, "height": 0.8, "thickness": 0.15},
+      "ref": {"layer": "F.SilkS", "x": 28.15, "y": 103.245, "deg": 90.0, "height": 0.8, "thickness": 0.15},
       "texts": [
-        {"layer": "F.SilkS", "text": "INV_OUT", "x": 18.1, "y": 94.956, "deg": 0.0, "height": 0.8, "thickness": 0.15}
+        {"layer": "F.SilkS", "text": "INV_OUT", "x": 28.15, "y": 99.469, "deg": 90.0, "height": 0.8, "thickness": 0.15}
       ]
     },
     "J_PWR": {
@@ -92,9 +92,9 @@
       ]
     },
     "LED1": {
-      "ref": {"layer": "F.SilkS", "x": 12.194, "y": 68.4, "deg": 90.0, "height": 0.8, "thickness": 0.15},
+      "ref": {"layer": "F.SilkS", "x": 14.069, "y": 67.888, "deg": 90.0, "height": 0.8, "thickness": 0.15},
       "texts": [
-        {"layer": "F.SilkS", "text": "OUT", "x": 14.066, "y": 68.4, "deg": 90.0, "height": 0.8, "thickness": 0.15}
+        {"layer": "F.SilkS", "text": "OUT", "x": 15.931, "y": 68.212, "deg": 90.0, "height": 0.8, "thickness": 0.15}
       ]
     },
     "R1": {"ref": null, "texts": [{"layer": "B.SilkS", "text": "10R", "x": 17.8, "y": 20.85, "deg": 90.0, "height": 0.8, "thickness": 0.15}]},
@@ -155,15 +155,15 @@
       ]
     },
     "SW1": {
-      "ref": {"layer": "F.SilkS", "x": 3.1, "y": 76.85, "deg": 90.0, "height": 0.8, "thickness": 0.15},
+      "ref": {"layer": "F.SilkS", "x": 2.8, "y": 74.745, "deg": 90.0, "height": 0.8, "thickness": 0.15},
       "texts": [
-        {"layer": "F.SilkS", "text": "SMOOTH", "x": 3.1, "y": 72.531, "deg": 90.0, "height": 0.8, "thickness": 0.15}
+        {"layer": "F.SilkS", "text": "SMOOTH", "x": 2.8, "y": 70.436, "deg": 90.0, "height": 0.8, "thickness": 0.15}
       ]
     },
     "SW2": {
-      "ref": {"layer": "F.SilkS", "x": 18.8, "y": 75.721, "deg": 90.0, "height": 0.8, "thickness": 0.15},
+      "ref": {"layer": "F.SilkS", "x": 18.8, "y": 75.716, "deg": 90.0, "height": 0.8, "thickness": 0.15},
       "texts": [
-        {"layer": "F.SilkS", "text": "FAST/SLOW", "x": 18.8, "y": 70.431, "deg": 90.0, "height": 0.8, "thickness": 0.15}
+        {"layer": "F.SilkS", "text": "FAST/SLOW", "x": 18.8, "y": 70.436, "deg": 90.0, "height": 0.8, "thickness": 0.15}
       ]
     },
     "TP1": {
