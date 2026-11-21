@@ -141,8 +141,8 @@ PLACEMENTS: dict[str, tuple[float, float, float, bool]] = {
     "C7": (3.20, 14.50, 90.0, True),  # 470nF input AC coupling (1=bot, 2=top)
     # --- B.Cu DNP Test Points (12) ---
     "TP12": (3.20, 2.50, 0.0, True),  # GND2
-    "TP2": (11.20, 2.25, 0.0, True),  # +12V
-    "TP3": (16.70, 2.25, 0.0, True),  # -12V
+    "TP2": (16.70, 2.25, 0.0, True),  # +12V
+    "TP3": (11.20, 2.25, 0.0, True),  # -12V
     "TP4": (3.20, 20.00, 0.0, True),  # PRE
     "TP9": (3.20, 26.50, 0.0, True),  # HWR
     "TP5": (3.20, 33.00, 0.0, True),  # RECT
