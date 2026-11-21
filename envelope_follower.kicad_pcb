@@ -350,7 +350,7 @@
 		(fp_text user "OUT"
 			(at 2.201 -3.788 90)
 			(layer "F.SilkS")
-			(uuid "5be98037-3173-4320-beaf-eb00a1c95f14")
+			(uuid "3b583fa1-0853-4a49-aa90-6a0d8bf5fd7a")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -743,7 +743,7 @@
 		(fp_text user "SLEW IN"
 			(at 6.15 5.449 90)
 			(layer "F.SilkS")
-			(uuid "699ae620-59aa-4469-b4ff-229277bc7656")
+			(uuid "f3a727d9-114a-4e1e-a72c-3bb4a88fc004")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -1178,7 +1178,7 @@
 		(fp_text user "REL A1M"
 			(at -2.1 1.031 90)
 			(layer "F.SilkS")
-			(uuid "00b9b625-963b-4e35-b8f3-eba64fe3e815")
+			(uuid "5fe3eb02-bb34-4f66-9c87-9ab494951e39")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -1590,7 +1590,7 @@
 		(fp_text user "OUT"
 			(at -6.15 5.449 90)
 			(layer "F.SilkS")
-			(uuid "378877e1-30ac-40ee-969b-980fdb66c988")
+			(uuid "e11cd40b-3a6f-432c-a86f-3d4527560f68")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -2024,7 +2024,7 @@
 		(fp_text user "GAIN A100K"
 			(at -2.1 1.031 90)
 			(layer "F.SilkS")
-			(uuid "b9a7323b-89f1-4b6c-bb33-338ca9a6526c")
+			(uuid "5c4e6b5f-d271-48f0-9c34-f4f0df8fa762")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -2425,7 +2425,7 @@
 		(fp_text user "ATK A1M"
 			(at -2.1 1.031 90)
 			(layer "F.SilkS")
-			(uuid "b8f63d0a-febc-467e-b4e1-366364efcab0")
+			(uuid "0a884aac-9c4f-4f78-93ae-278d1dc3abe7")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -2699,7 +2699,7 @@
 		(fp_text user "SMOOTH"
 			(at -4.2 -1.564 90)
 			(layer "F.SilkS")
-			(uuid "ca31d911-3907-49fb-b246-8b31c499a6a4")
+			(uuid "29c5557b-dc06-4b73-b0bb-04aac9ed46cf")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -3073,7 +3073,7 @@
 		(fp_text user "OFFSET B10K"
 			(at -2.1 1.031 90)
 			(layer "F.SilkS")
-			(uuid "a8ef023f-6888-4168-8098-e53c790121f1")
+			(uuid "180a158c-3227-43f3-a5f9-2271a6b5b19a")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -3347,7 +3347,7 @@
 		(fp_text user "FAST/SLOW"
 			(at -4.2 -1.564 90)
 			(layer "F.SilkS")
-			(uuid "9be670bd-adfc-4ba3-9c72-429a13525d39")
+			(uuid "bf186c15-b056-4dc6-811c-cd50bb576e76")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -3732,7 +3732,7 @@
 		(fp_text user "IN"
 			(at -6.15 5.449 90)
 			(layer "F.SilkS")
-			(uuid "637279e0-41bc-4fcb-9c65-2a6e828f3264")
+			(uuid "27284c23-e83c-43ba-853a-4fb25139ee46")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -4178,7 +4178,7 @@
 		(fp_text user "INV_OUT"
 			(at 6.15 5.449 90)
 			(layer "F.SilkS")
-			(uuid "1a5a09b7-d3d9-47f1-9af1-f65447d8a25f")
+			(uuid "a91a4544-66e6-432d-88ab-48adc18ae75b")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -4487,7 +4487,7 @@
 		(fp_text user "1M"
 			(at 1.8 1.5 0)
 			(layer "B.SilkS")
-			(uuid "9b898c66-a17d-4183-8df0-235897119444")
+			(uuid "2e83ac03-3fd6-4724-921d-d2361d515a04")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -4738,7 +4738,7 @@
 		(fp_text user "1M"
 			(at -1.8 -1.5 0)
 			(layer "B.SilkS")
-			(uuid "7e1cac41-e29c-4564-9a20-d7c30d74ae67")
+			(uuid "6ac85021-b363-4ae2-80c4-8495ec37d2ef")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -4989,7 +4989,7 @@
 		(fp_text user "10k"
 			(at -0.3 1.8 0)
 			(layer "B.SilkS")
-			(uuid "d2818f33-0d88-4eff-9fce-ceae78ffff46")
+			(uuid "ab92096c-f40d-4b1a-87b7-771072c82094")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -5047,7 +5047,8 @@
 		(tags "Through Hole Mount Test Points")
 		(property "Reference" "TP2"
 			(at 0.45 2.7 0)
-			(layer "B.SilkS")
+			(layer "B.Fab")
+			(hide yes)
 			(uuid "a3657217-91d6-4ef1-873f-3043da697d41")
 			(effects
 				(font
@@ -5244,7 +5245,7 @@
 		(fp_text user "+12V"
 			(at -3.25 0 0)
 			(layer "F.SilkS")
-			(uuid "2e6d478c-af43-470c-b7f2-d96ac2c4fdf9")
+			(uuid "f1d38fa3-1b1a-48ce-9125-0a67a10f6f10")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -5253,9 +5254,9 @@
 			)
 		)
 		(fp_text user "+12V"
-			(at -2.936 2.7 0)
+			(at 0 2.5 0)
 			(layer "B.SilkS")
-			(uuid "a23a7959-9cb7-43e0-9d38-82f5e42c0b00")
+			(uuid "72df6ba7-da2f-4ef6-9795-8a04974de30b")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -5499,7 +5500,7 @@
 		(fp_text user "10k"
 			(at -3 -3.6 0)
 			(layer "B.SilkS")
-			(uuid "c9a92a60-6d03-425b-ba87-5b0c08ae3089")
+			(uuid "cb642e67-0717-4d90-9606-72cf448720c4")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -5993,7 +5994,7 @@
 		(fp_text user "1N4148W"
 			(at -0.9 3.936 0)
 			(layer "B.SilkS")
-			(uuid "c195b6ed-4880-42e3-b9ec-51a67d98969b")
+			(uuid "960aa0e7-0ed9-4b8e-83af-aaeff85bfb5b")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -6372,7 +6373,7 @@
 		(fp_text user "B5819W"
 			(at 1.131 2.1 0)
 			(layer "B.SilkS")
-			(uuid "3a34b804-cf03-4b10-9801-29cbb174bf02")
+			(uuid "426c0cdb-0c2b-4bc5-8c99-e58b4aad9866")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -6623,7 +6624,7 @@
 		(fp_text user "10k"
 			(at 0 -2.1 90)
 			(layer "B.SilkS")
-			(uuid "d0d6dc22-8b8f-4982-a8e0-7a22a026766b")
+			(uuid "c3970a21-6ed5-4d56-b2f1-8e998374ac56")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -6874,7 +6875,7 @@
 		(fp_text user "1k"
 			(at -1.5 -1.5 0)
 			(layer "B.SilkS")
-			(uuid "974e4bce-d3b8-4ba5-8d92-562f831ad3e0")
+			(uuid "ca1d6074-b0e0-4929-ab7f-11d75d66d29f")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -6932,7 +6933,8 @@
 		(tags "Through Hole Mount Test Points")
 		(property "Reference" "TP3"
 			(at 7.05 -0.9 0)
-			(layer "B.SilkS")
+			(layer "B.Fab")
+			(hide yes)
 			(uuid "e533b6cc-b314-4be7-b94a-a5f11fb0fd8b")
 			(effects
 				(font
@@ -7129,7 +7131,7 @@
 		(fp_text user "-12V"
 			(at 3.25 0 0)
 			(layer "F.SilkS")
-			(uuid "23575796-02c3-4e7e-b6bd-7681e8bea7ad")
+			(uuid "ae66bf53-3e89-48c0-a8e0-fc96eefd8973")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -7138,9 +7140,9 @@
 			)
 		)
 		(fp_text user "-12V"
-			(at 3.664 -0.9 0)
+			(at 3.5 -0.75 0)
 			(layer "B.SilkS")
-			(uuid "3f8f8b15-9be2-494b-afb0-bb71f86fe5b2")
+			(uuid "a7110ed5-470e-41c8-9c54-777cbf7530e0")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -7384,7 +7386,7 @@
 		(fp_text user "100nF"
 			(at -2.7 4.5 90)
 			(layer "B.SilkS")
-			(uuid "9536422a-3906-49d6-81ea-45b03e4e0362")
+			(uuid "d57cf84f-60e2-49ac-acc7-0a8067853c3f")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -7635,7 +7637,7 @@
 		(fp_text user "10k"
 			(at -1.8 1.5 0)
 			(layer "B.SilkS")
-			(uuid "193e0d7b-42ab-40c3-9a84-08d3b834df67")
+			(uuid "9be6b083-196c-4409-93a0-c389eff5232a")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -7886,7 +7888,7 @@
 		(fp_text user "49.9k"
 			(at -0.3 1.8 0)
 			(layer "B.SilkS")
-			(uuid "272a5e99-d347-41ec-bdbd-c3e5a22a750a")
+			(uuid "202c513d-d1c5-4526-af0e-bb96646ad9d3")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -7944,7 +7946,8 @@
 		(tags "Through Hole Mount Test Points")
 		(property "Reference" "TP11"
 			(at 3 -2.436 0)
-			(layer "B.SilkS")
+			(layer "B.Fab")
+			(hide yes)
 			(uuid "d28477cb-f833-4e9b-aba0-9a1ffe6e34ff")
 			(effects
 				(font
@@ -8141,7 +8144,7 @@
 		(fp_text user "OFF"
 			(at -0.4 -2.25 0)
 			(layer "F.SilkS")
-			(uuid "6e8aa749-e6c3-455d-8fe6-001e79e1bd29")
+			(uuid "9ce420cc-74d1-4ac3-b0cb-0f359d416e03")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -8150,9 +8153,9 @@
 			)
 		)
 		(fp_text user "OFF"
-			(at 3 -0.564 0)
+			(at 0 -2.5 0)
 			(layer "B.SilkS")
-			(uuid "8ca510be-88ff-4973-9fc2-a7951661b827")
+			(uuid "9acd1e50-21a0-48fe-a444-b8584da33dc2")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -8624,7 +8627,7 @@
 		(fp_text user "-12V"
 			(at 1.27 3.48 0)
 			(layer "F.SilkS")
-			(uuid "b6c41604-12d4-4260-9c4a-52d5c8ea7652")
+			(uuid "e5a4f3ca-eacc-482a-a80d-50ca4e797dea")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -8635,7 +8638,7 @@
 		(fp_text user "PWR"
 			(at -7.917 6.3 0)
 			(layer "B.SilkS")
-			(uuid "93261255-71d6-448b-980f-e6bc70e7e0c6")
+			(uuid "92ad066d-f10c-46db-b8fb-29fc18b2e84f")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -8961,7 +8964,7 @@
 		(fp_text user "10R"
 			(at 3 0 0)
 			(layer "B.SilkS")
-			(uuid "92921afa-d074-4ca5-8f6e-4247b73aef1d")
+			(uuid "5e3449f9-6d78-4a8c-9274-f7cd05eb607e")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -9019,7 +9022,8 @@
 		(tags "Through Hole Mount Test Points")
 		(property "Reference" "TP5"
 			(at 3 0.564 0)
-			(layer "B.SilkS")
+			(layer "B.Fab")
+			(hide yes)
 			(uuid "fa25cff7-4499-415d-b65c-8a3d4d9d3ee4")
 			(effects
 				(font
@@ -9216,7 +9220,7 @@
 		(fp_text user "RECT"
 			(at -0.4 -2.25 0)
 			(layer "F.SilkS")
-			(uuid "78a34387-1a87-4ec2-910e-f9c7fd1a9de1")
+			(uuid "3f3ec3e4-fe02-4fbd-8826-f790b01ba162")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -9225,9 +9229,9 @@
 			)
 		)
 		(fp_text user "RECT"
-			(at 3 2.436 0)
+			(at 0 -2.5 0)
 			(layer "B.SilkS")
-			(uuid "cd9f485a-4cb6-4b3b-8b20-d4a084b56ea0")
+			(uuid "7b18149f-7129-4d48-ac85-78637e288645")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -9471,7 +9475,7 @@
 		(fp_text user "10uF"
 			(at 0 -2.1 0)
 			(layer "B.SilkS")
-			(uuid "93e15ab8-ed50-42b1-8be6-f497d81bf8fb")
+			(uuid "1f5187b9-59dd-4cdc-a38e-5933ea423758")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -9722,7 +9726,7 @@
 		(fp_text user "1k"
 			(at 1.5 -1.5 0)
 			(layer "B.SilkS")
-			(uuid "1629ec6b-991e-479f-b2e8-26dd1e4e20ef")
+			(uuid "07fa341e-7c88-43e2-913c-87f2b6c8f78b")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -10134,7 +10138,7 @@
 		(fp_text user "TL074H"
 			(at 4.5 -1.15 90)
 			(layer "B.SilkS")
-			(uuid "720adf60-5dbf-49dd-ae0c-7af85453e81a")
+			(uuid "783785d6-e95e-4c33-b827-68a39f58bdbc")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -10481,7 +10485,7 @@
 		(fp_text user "10k"
 			(at 2.4 0.3 90)
 			(layer "B.SilkS")
-			(uuid "39a3c1c5-a80a-47b2-baac-f1e6cfda902b")
+			(uuid "a4366cd2-91d1-4f37-9a18-65b9b9394512")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -10732,7 +10736,7 @@
 		(fp_text user "2.2nF"
 			(at -2.4 -5.999999 90)
 			(layer "B.SilkS")
-			(uuid "f8af2ea0-531a-44c9-9425-353e130eda84")
+			(uuid "c0be0e3f-5573-4bc5-be70-d25bdb966288")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -10983,7 +10987,7 @@
 		(fp_text user "10k"
 			(at 0 1.8 0)
 			(layer "B.SilkS")
-			(uuid "40c4bfc8-ab62-4252-ba99-0b79f26a6632")
+			(uuid "09e7c327-1658-4b8f-af1f-35de9104f4c5")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -12593,7 +12597,7 @@
 		(fp_text user "47uF"
 			(at -4.2 7.8 0)
 			(layer "B.SilkS")
-			(uuid "2330c066-e62f-4ad3-a432-4ed94a40417e")
+			(uuid "d75c91b2-3634-4fb4-ada0-f05d29ae5deb")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -12847,7 +12851,7 @@
 		(fp_text user "1k"
 			(at 1.5 -1.5 0)
 			(layer "B.SilkS")
-			(uuid "4758a409-8bfa-49b5-af13-a7e2d8aa0439")
+			(uuid "994a96d8-b0cb-40e4-b2bc-ea56c753ba88")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -13098,7 +13102,7 @@
 		(fp_text user "10k"
 			(at 3 1.8 0)
 			(layer "B.SilkS")
-			(uuid "9cd7901a-11f3-4276-bf72-601a648306b3")
+			(uuid "6fb9f1bf-5d9e-45fb-bbe8-fab0227ab450")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -13349,7 +13353,7 @@
 		(fp_text user "5.1k"
 			(at 3 1.8 0)
 			(layer "B.SilkS")
-			(uuid "84efb720-3e98-4516-9a64-dfde0114c306")
+			(uuid "4cfe092f-55e7-46a8-99c3-8b5446c510b6")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -13600,7 +13604,7 @@
 		(fp_text user "49.9k"
 			(at -0.3 1.8 0)
 			(layer "B.SilkS")
-			(uuid "c923d3b5-83db-4779-a94d-b9a284ae14cd")
+			(uuid "4704d124-22d4-4410-96ce-816b7401493b")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -13851,7 +13855,7 @@
 		(fp_text user "1M"
 			(at -1.8 1.5 0)
 			(layer "B.SilkS")
-			(uuid "626855ac-d588-46d8-a7df-bab165d04754")
+			(uuid "0005491b-f188-4fd6-854a-e5c2d8ce97fd")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -13909,7 +13913,8 @@
 		(tags "Through Hole Mount Test Points")
 		(property "Reference" "TP6"
 			(at -0.936 -3 90)
-			(layer "B.SilkS")
+			(layer "B.Fab")
+			(hide yes)
 			(uuid "00ed1b45-ff08-4c06-94e9-df4c5ec55809")
 			(effects
 				(font
@@ -14106,7 +14111,7 @@
 		(fp_text user "ENV"
 			(at -0.4 -2.25 0)
 			(layer "F.SilkS")
-			(uuid "a291fad9-b20f-4f02-8177-6b505d218835")
+			(uuid "39b5b8d2-336b-4248-8344-5c4967749f75")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -14115,9 +14120,9 @@
 			)
 		)
 		(fp_text user "ENV"
-			(at 0.936 -3 90)
+			(at 0 -2.5 0)
 			(layer "B.SilkS")
-			(uuid "89d522b0-27ee-4da9-ad07-1ba044120349")
+			(uuid "c50a3a0f-94ab-4c9a-bc18-5bb7a37806e0")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -14168,7 +14173,8 @@
 		(tags "Through Hole Mount Test Points")
 		(property "Reference" "TP12"
 			(at -0.936 3.6 90)
-			(layer "B.SilkS")
+			(layer "B.Fab")
+			(hide yes)
 			(uuid "da234904-5b50-4a0d-8bd6-d8de35119efb")
 			(effects
 				(font
@@ -14365,7 +14371,7 @@
 		(fp_text user "GND2"
 			(at -0.4 2.25 0)
 			(layer "F.SilkS")
-			(uuid "993d4010-9ee7-4053-a354-210ec65ccfb9")
+			(uuid "786b6f53-3ad9-426e-984d-f3373cbef0b7")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -14374,9 +14380,9 @@
 			)
 		)
 		(fp_text user "GND2"
-			(at 0.936 3.6 90)
+			(at 0 2.5 0)
 			(layer "B.SilkS")
-			(uuid "9df52ed7-6034-4c66-9340-ffdc9de4b4d1")
+			(uuid "c0eb63d2-665c-4508-b1c9-44b6dc8fe4ab")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -14620,7 +14626,7 @@
 		(fp_text user "10k"
 			(at 1.8 1.5 0)
 			(layer "B.SilkS")
-			(uuid "060ca45f-bd0e-43f3-86d7-3bee17ac7df4")
+			(uuid "14d51c8a-03d6-4a19-9398-e823ecec7fba")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -14871,7 +14877,7 @@
 		(fp_text user "10k"
 			(at -1.8 1.5 0)
 			(layer "B.SilkS")
-			(uuid "74de82b0-5ac5-4d23-9476-581b148efab1")
+			(uuid "be38899c-a128-4823-96a6-842046a02a67")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -15122,7 +15128,7 @@
 		(fp_text user "1k"
 			(at -3.9 2.4 0)
 			(layer "B.SilkS")
-			(uuid "4cbd0465-2d28-43ab-a44b-2117b71bd0a5")
+			(uuid "4583e757-a4a0-457b-8eaf-f5300e9c1023")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -15373,7 +15379,7 @@
 		(fp_text user "10k"
 			(at -1.8 1.5 0)
 			(layer "B.SilkS")
-			(uuid "8c063a59-4107-4113-b7fb-5a0d152b1602")
+			(uuid "26d0c2a1-f701-4069-8712-cf6e41ecd9ee")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -16983,7 +16989,7 @@
 		(fp_text user "47uF"
 			(at 6.6 3.3 0)
 			(layer "B.SilkS")
-			(uuid "dd96bfb1-1780-4f8c-a531-da63c40ac2ec")
+			(uuid "256763b4-ca6f-4d2e-a7b1-a0192c1d0096")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -17237,7 +17243,7 @@
 		(fp_text user "10R"
 			(at -1.8 -2.1 90)
 			(layer "B.SilkS")
-			(uuid "1245f767-48bd-4fda-ac5e-14831773233f")
+			(uuid "93f91477-fc50-4f3b-b400-48525d20631d")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -17295,7 +17301,8 @@
 		(tags "Through Hole Mount Test Points")
 		(property "Reference" "TP4"
 			(at 3 -0.936 0)
-			(layer "B.SilkS")
+			(layer "B.Fab")
+			(hide yes)
 			(uuid "d5240475-cac5-4cc8-9528-9be0592f4e0a")
 			(effects
 				(font
@@ -17492,7 +17499,7 @@
 		(fp_text user "PRE"
 			(at -0.4 -2.25 0)
 			(layer "F.SilkS")
-			(uuid "e3dfb2cd-1c5f-4772-bce3-4221d0ee9a4e")
+			(uuid "6863042b-78bd-42a9-aefe-a48c805481a7")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -17501,9 +17508,9 @@
 			)
 		)
 		(fp_text user "PRE"
-			(at 3 0.936 0)
+			(at 0 -2.5 0)
 			(layer "B.SilkS")
-			(uuid "b1480662-4cd9-48cf-9966-b0820dd12ab8")
+			(uuid "c5872d79-484f-492e-8bf6-875f699d8d30")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -17554,7 +17561,8 @@
 		(tags "Through Hole Mount Test Points")
 		(property "Reference" "TP8"
 			(at 3 -0.936 0)
-			(layer "B.SilkS")
+			(layer "B.Fab")
+			(hide yes)
 			(uuid "ab268df3-4bf2-4dc7-926f-c0d61894ed32")
 			(effects
 				(font
@@ -17751,7 +17759,7 @@
 		(fp_text user "OUT"
 			(at -0.4 -2.25 0)
 			(layer "F.SilkS")
-			(uuid "1966edce-a3f2-4b78-95c1-9a513393107a")
+			(uuid "3cb4be95-704a-473a-acb7-50e1aab45c83")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -17760,9 +17768,9 @@
 			)
 		)
 		(fp_text user "OUT"
-			(at 3 0.936 0)
+			(at 0 -2.5 0)
 			(layer "B.SilkS")
-			(uuid "54788d57-fdeb-456c-b955-65f8a3cc7191")
+			(uuid "512f3c9d-a989-48da-9ad6-31f2869ecdf4")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -18006,7 +18014,7 @@
 		(fp_text user "100k"
 			(at -2.4 1.5 0)
 			(layer "B.SilkS")
-			(uuid "4886ba06-b72a-4525-8ef6-9af4e36563e8")
+			(uuid "6b407eb6-c834-475a-bb2a-f6691f0ff288")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -18257,7 +18265,7 @@
 		(fp_text user "2.2k"
 			(at 2.1 1.5 0)
 			(layer "B.SilkS")
-			(uuid "6a614a38-0e69-4084-9605-93d39e5010f0")
+			(uuid "362f1e68-22d6-4652-8c9e-5799599ce14a")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -18623,7 +18631,7 @@
 		(fp_text user "10uF"
 			(at -2.7 -2.1 0)
 			(layer "B.SilkS")
-			(uuid "b16b298a-6707-4240-b0d2-073d0fdfeaa8")
+			(uuid "f947efdb-1f36-45a3-9a1d-613bb919fe54")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -18681,7 +18689,8 @@
 		(tags "Through Hole Mount Test Points")
 		(property "Reference" "TP9"
 			(at -0.936 3.3 90)
-			(layer "B.SilkS")
+			(layer "B.Fab")
+			(hide yes)
 			(uuid "c689497a-c229-4321-9c8c-45a2ed7ad8cb")
 			(effects
 				(font
@@ -18878,7 +18887,7 @@
 		(fp_text user "HWR"
 			(at -0.4 -2.25 0)
 			(layer "F.SilkS")
-			(uuid "c5483358-8f40-474b-ba98-b3007addafbb")
+			(uuid "d156448e-8899-4de8-98eb-16b5d62043d2")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -18887,9 +18896,9 @@
 			)
 		)
 		(fp_text user "HWR"
-			(at 0.936 3.3 90)
+			(at 0 -2.5 0)
 			(layer "B.SilkS")
-			(uuid "504fe910-80c2-4fb8-b07a-aee7988911ab")
+			(uuid "8e656f8f-e3af-46bf-9221-cbed8fa8a774")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -19133,7 +19142,7 @@
 		(fp_text user "1k"
 			(at 0 1.8 90)
 			(layer "B.SilkS")
-			(uuid "14c85414-28a4-4f99-a89c-700166f7f614")
+			(uuid "5be01890-f6e7-4fd4-9067-cd70a62a5ee8")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -19384,7 +19393,7 @@
 		(fp_text user "10k"
 			(at -1.8 1.5 0)
 			(layer "B.SilkS")
-			(uuid "4008e7ac-fe30-4d07-8e2c-f875c4ff6d6f")
+			(uuid "ef6f4995-5da9-4002-87a3-75839476a1b2")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -19635,7 +19644,7 @@
 		(fp_text user "10uF"
 			(at 0 2.1 0)
 			(layer "B.SilkS")
-			(uuid "9ff25796-07d4-4bab-bd73-bd65858ea393")
+			(uuid "26a87b1f-9398-4e22-b494-6c3d266d9d27")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -19886,7 +19895,7 @@
 		(fp_text user "1k"
 			(at 0 -1.8 90)
 			(layer "B.SilkS")
-			(uuid "5cdfa884-94ed-410a-9bae-2d79ed1da45e")
+			(uuid "56e038ac-d672-404f-923e-396420eae52c")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -20137,7 +20146,7 @@
 		(fp_text user "33pF"
 			(at 2.4 0 90)
 			(layer "B.SilkS")
-			(uuid "03b19b4a-73b6-48d2-9917-d34ebcd9fb51")
+			(uuid "3036db14-6b6e-43ea-b361-f362449aa228")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -20388,7 +20397,7 @@
 		(fp_text user "10k"
 			(at 0 1.8 0)
 			(layer "B.SilkS")
-			(uuid "7dbbfabb-3e7b-492a-a05c-4aee0b9b9335")
+			(uuid "d807bfa8-f6c5-4164-93c5-deb9dbc5949e")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -20767,7 +20776,7 @@
 		(fp_text user "B5819W"
 			(at -3.636 -2.4 90)
 			(layer "B.SilkS")
-			(uuid "1ec901e8-2969-40af-a4ec-5211e571c368")
+			(uuid "fc5469d9-917d-4fcb-a683-cab0a6d22051")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -21026,7 +21035,7 @@
 		(fp_text user "470nF"
 			(at 2.1 0 0)
 			(layer "B.SilkS")
-			(uuid "f01ac44d-2ce2-4974-875e-d4e73261daf7")
+			(uuid "e0866a21-f060-48f5-88b3-a0249cb67ab2")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -21440,7 +21449,7 @@
 		(fp_text user "TL074H"
 			(at 0.35 5.699999 0)
 			(layer "B.SilkS")
-			(uuid "894c9552-1fef-41c1-836c-0b66ec34b818")
+			(uuid "4f4df5f2-6fc8-48d7-b430-6b3697627ba9")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -21787,7 +21796,7 @@
 		(fp_text user "10k"
 			(at 1.8 -1.5 0)
 			(layer "B.SilkS")
-			(uuid "9d769638-0744-4971-9d6d-b350880cc3c4")
+			(uuid "2a293174-8c48-41a1-a90f-4770ce441ed1")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -22046,7 +22055,7 @@
 		(fp_text user "470nF"
 			(at 2.1 0 90)
 			(layer "B.SilkS")
-			(uuid "f5d91724-af8d-4e71-a752-f40308f73943")
+			(uuid "516091a1-4f9a-4a99-ac98-bac5a85f6db4")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -22299,7 +22308,7 @@
 		(fp_text user "220nF"
 			(at -1.5 -3 90)
 			(layer "B.SilkS")
-			(uuid "c09cfd77-0f37-4bfd-b8ad-e18cd0fe67e8")
+			(uuid "419d7552-072a-46a1-be97-14a27bc4f5fc")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -22357,7 +22366,8 @@
 		(tags "Through Hole Mount Test Points")
 		(property "Reference" "TP7"
 			(at -0.936 -3 90)
-			(layer "B.SilkS")
+			(layer "B.Fab")
+			(hide yes)
 			(uuid "68bb2961-12e8-4220-9078-293233066d2a")
 			(effects
 				(font
@@ -22554,7 +22564,7 @@
 		(fp_text user "INV"
 			(at -0.4 -2.25 0)
 			(layer "F.SilkS")
-			(uuid "f003e37e-e622-4032-8623-4a2c782ba7a9")
+			(uuid "6b65235b-ecec-47cb-9683-f4c29642972e")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -22563,9 +22573,9 @@
 			)
 		)
 		(fp_text user "INV"
-			(at 0.936 -3 90)
+			(at 0 -2.5 0)
 			(layer "B.SilkS")
-			(uuid "6aee0885-d56c-4ae8-b396-88f2b14b3b10")
+			(uuid "34cc20f2-d3c0-433c-8d75-0b820a579f70")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -23020,7 +23030,7 @@
 		(fp_text user "BAT54S"
 			(at -0.531 5.7 0)
 			(layer "B.SilkS")
-			(uuid "c0702007-05b1-42bf-ab08-e1354c800e55")
+			(uuid "c5eb3170-d803-4611-bb8a-c51de8b456bc")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -23287,7 +23297,7 @@
 		(fp_text user "2.2uF"
 			(at 2.1 0 90)
 			(layer "B.SilkS")
-			(uuid "4e8cbaac-57b5-4a0a-bb09-f5ed89a1150c")
+			(uuid "7b6c866a-083a-4f35-ab54-af092755394b")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -23540,7 +23550,7 @@
 		(fp_text user "100k"
 			(at 3.3 -2.7 0)
 			(layer "B.SilkS")
-			(uuid "984e83b1-ad64-457e-9faa-8769ce8c2998")
+			(uuid "ce49023d-4295-4e48-b162-ed2342f88774")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -23791,7 +23801,7 @@
 		(fp_text user "1k"
 			(at 1.5 1.5 0)
 			(layer "B.SilkS")
-			(uuid "44b47e68-7839-4bc1-8715-464e688c46b7")
+			(uuid "7a2e9579-611a-401f-8015-ff4db04897ef")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -23964,7 +23974,8 @@
 		(tags "Through Hole Mount Test Points")
 		(property "Reference" "TP10"
 			(at 6.293 -2.1 0)
-			(layer "B.SilkS")
+			(layer "B.Fab")
+			(hide yes)
 			(uuid "ba021539-3995-4314-aaf7-23b1f44fd69a")
 			(effects
 				(font
@@ -24161,7 +24172,7 @@
 		(fp_text user "DRV"
 			(at -0.4 -2.25 0)
 			(layer "F.SilkS")
-			(uuid "cea6974f-8680-4f8d-8bfe-13c3daa6ae9e")
+			(uuid "79af1616-4f19-4543-bbfe-f67f99337133")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -24170,9 +24181,9 @@
 			)
 		)
 		(fp_text user "DRV"
-			(at 2.983 -2.1 0)
+			(at 0 -2.5 0)
 			(layer "B.SilkS")
-			(uuid "6b3d558d-47cc-4606-8397-cec11db7a826")
+			(uuid "2a492ecf-1d65-47aa-99a8-b072c0845755")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -24416,7 +24427,7 @@
 		(fp_text user "100nF"
 			(at 2.7 1.5 0)
 			(layer "B.SilkS")
-			(uuid "59a29d56-fe00-4dad-a7df-e490b37145f7")
+			(uuid "8651f7e4-8296-4838-8e6b-866b2846339f")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -24667,7 +24678,7 @@
 		(fp_text user "10k"
 			(at -1.8 1.499999 0)
 			(layer "B.SilkS")
-			(uuid "af0e1e0f-454f-408e-b5e6-fc62d0171fda")
+			(uuid "73e8b3fb-258e-4504-b935-5907d29d0ad6")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -24926,7 +24937,7 @@
 		(fp_text user "2.2uF"
 			(at 2.1 0 90)
 			(layer "B.SilkS")
-			(uuid "8282a803-ae06-495b-9d42-dd4834fa956d")
+			(uuid "1f876bcf-c0bf-438d-a46e-7985622856b2")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -24986,7 +24997,8 @@
 		(tags "Through Hole Mount Test Points")
 		(property "Reference" "TP1"
 			(at 5.1 -4.236 0)
-			(layer "B.SilkS")
+			(layer "B.Fab")
+			(hide yes)
 			(uuid "1698ab85-ca0c-4894-8bf6-797adbe0a582")
 			(effects
 				(font
@@ -25183,7 +25195,7 @@
 		(fp_text user "GND"
 			(at 0 -2.25 0)
 			(layer "F.SilkS")
-			(uuid "4650619f-0726-4810-a33d-f7886bfa3e44")
+			(uuid "804d9269-f87c-434f-b8d5-72530394ec51")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -25192,9 +25204,9 @@
 			)
 		)
 		(fp_text user "GND"
-			(at 5.1 -2.364 0)
+			(at 3.2 -1.6 0)
 			(layer "B.SilkS")
-			(uuid "fcd2c23a-6309-4cf7-b964-f51a8f80757c")
+			(uuid "f9887c9d-25ca-44be-a973-d0ecfc54d811")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -25438,7 +25450,7 @@
 		(fp_text user "5.1k"
 			(at -0.3 2.4 90)
 			(layer "B.SilkS")
-			(uuid "26a19e9a-b12f-4f17-9bfd-5f47399dcee4")
+			(uuid "dc549965-47b7-49b3-ae24-2b9a6351a063")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -25689,7 +25701,7 @@
 		(fp_text user "100nF"
 			(at -3.6 0 0)
 			(layer "B.SilkS")
-			(uuid "af0ed542-c62c-44de-ab39-560e7276b63b")
+			(uuid "2205d1f7-92c3-44fb-9dee-285dd5f000e9")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -26068,7 +26080,7 @@
 		(fp_text user "1N4148W"
 			(at -4.5 -3.036 0)
 			(layer "B.SilkS")
-			(uuid "ca76f58d-c90a-4ca5-8416-c2a72ae9d028")
+			(uuid "4dee986a-f852-4e96-a908-1b31415283db")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -26319,7 +26331,7 @@
 		(fp_text user "100nF"
 			(at -3.6 0 0)
 			(layer "B.SilkS")
-			(uuid "0e7fdc3b-b883-4e78-bd04-95a68dd73860")
+			(uuid "428390e9-6a17-401a-909d-ba521d548b8e")
 			(effects
 				(font
 					(size 0.8 0.8)
@@ -26377,7 +26389,7 @@
 			(type default)
 		)
 		(layer "F.SilkS")
-		(uuid "5e6aa73b-4c5e-4f56-96ab-7482fd119a89")
+		(uuid "85c5fa39-418c-48a0-9f3a-bee6845c91df")
 	)
 	(gr_rect
 		(start 123.8 41)
@@ -26388,7 +26400,7 @@
 		)
 		(fill yes)
 		(layer "F.SilkS")
-		(uuid "4cf0edda-7f43-470b-a52b-c737015b8bcb")
+		(uuid "ed5af8dd-2af8-4cf3-9bb0-e4001f070990")
 	)
 	(gr_circle
 		(center 111.075 127.31)
@@ -26399,7 +26411,7 @@
 		)
 		(fill yes)
 		(layer "B.SilkS")
-		(uuid "9657fd7a-f900-4818-89ce-b61fe65d542a")
+		(uuid "96aef410-4763-405a-9dc3-8c0741e5769a")
 	)
 	(gr_circle
 		(center 118.925 134.69)
@@ -26410,7 +26422,7 @@
 		)
 		(fill yes)
 		(layer "B.SilkS")
-		(uuid "4ff2aa38-afd1-4040-9e6a-aafd3514948a")
+		(uuid "fdcc7e0a-d298-4dd4-9119-fe3f56a99d66")
 	)
 	(gr_rect
 		(start 100 40)
@@ -26426,7 +26438,7 @@
 	(gr_text "github.com/domesticmouse/"
 		(at 114.069 129.112 90)
 		(layer "F.SilkS")
-		(uuid "25090c00-e9bc-4450-a05d-f12987b74e18")
+		(uuid "36a1ca95-95f3-478d-800b-2f4003cfed03")
 		(effects
 			(font
 				(size 0.8 0.8)
@@ -26437,7 +26449,7 @@
 	(gr_text "EnvelopeFollowerWithSkewLimiter"
 		(at 115.931 127.95 90)
 		(layer "F.SilkS")
-		(uuid "8f99b868-c49b-44e1-b00b-d8749e8c3521")
+		(uuid "4ed80e95-f8ec-4eea-a10d-a28a0c1dc3dc")
 		(effects
 			(font
 				(size 0.8 0.8)
@@ -26448,7 +26460,7 @@
 	(gr_text "6HP REV 1.0"
 		(at 128.55 66.879 90)
 		(layer "F.SilkS")
-		(uuid "893ad11f-7ce3-4178-ae6b-7f8ba63f8436")
+		(uuid "36113dd8-d092-4b82-977b-f23e18ba3048")
 		(effects
 			(font
 				(size 0.8 0.8)
@@ -26459,7 +26471,7 @@
 	(gr_text "ENV FOLLOWER"
 		(at 128.55 76.512 90)
 		(layer "F.SilkS")
-		(uuid "ab4c14bd-f9c4-4051-9eb6-2c87c8a2283d")
+		(uuid "aafadcaa-49cc-4148-bd06-e8aa199751ae")
 		(effects
 			(font
 				(size 0.8 0.8)
@@ -26470,7 +26482,7 @@
 	(gr_text "FAB NOTES: 2L FR4 | THICKNESS: 1.6mm | 1oz CU"
 		(at 115 153 0)
 		(layer "B.Fab")
-		(uuid "68e5dd97-b722-41d2-9073-44d495f8167c")
+		(uuid "0c143c15-be64-417a-9a8a-d7250ec3f282")
 		(effects
 			(font
 				(size 0.8 0.8)
@@ -26482,7 +26494,7 @@
 	(gr_text "FINISH: ENIG / HASL-LF | IPC-6012 CLASS 2"
 		(at 115 155.2 0)
 		(layer "B.Fab")
-		(uuid "1f861042-5124-466d-b6e4-670e10300304")
+		(uuid "7443499f-f2a9-4b88-b59f-6be8e09aee2b")
 		(effects
 			(font
 				(size 0.8 0.8)
@@ -26494,7 +26506,7 @@
 	(gr_text "SOLDER MASK: BLACK | SILK: WHITE | MIN TR/SP: 0.127mm"
 		(at 115 157.4 0)
 		(layer "B.Fab")
-		(uuid "e9af9942-518a-42c8-93ef-407856eb9011")
+		(uuid "bdfafb35-0a71-42a1-aeca-c68db0a53726")
 		(effects
 			(font
 				(size 0.8 0.8)
@@ -26506,7 +26518,7 @@
 	(gr_text "DRILL TOL: +/-0.08mm | NO EDGE CUT"
 		(at 115 159.6 0)
 		(layer "B.Fab")
-		(uuid "c3bc498e-18d5-4866-b03a-6b39690aa0b8")
+		(uuid "cd1759c0-f064-4938-ac3c-0824c928cbba")
 		(effects
 			(font
 				(size 0.8 0.8)
