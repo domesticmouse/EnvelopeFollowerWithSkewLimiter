@@ -2,6 +2,8 @@
 
 Follow this assembly sequence **strictly in order**. Installing `B.Cu` through-hole parts **before** `F.Cu` panel controls gives unrestricted soldering access on `F.Cu` and lets you trim every lead completely flush underneath the front-side pots and jacks.
 
+> **Useful Tool — Interactive Hand-Assembly BOM:** Open [`../bom/ibom.html`](../bom/ibom.html) locally in a web browser while building. It is pre-filtered to the `18` hand-soldered non-SMD (`Manual THT`) parts (`7` on `B.Cu`, `11` on `F.Cu`) with `MPN` and `Manufacturer` columns, clickable front/back placement highlighting, and built-in **Sourced** / **Placed** progress checkboxes.
+
 ---
 
 ## 0. Incoming PCBA Inspection & Prep
@@ -15,6 +17,7 @@ Follow this assembly sequence **strictly in order**. Installing `B.Cu` through-h
   - `TP3 (-12V)` to `TP1 (GND)`: no short (`> 10 kΩ`).
 - [ ] **Stage tools & workspace:** Temperature-controlled soldering iron (fine chisel/conical tip), solder wire (`SAC305` lead-free recommended to match lead-free PCBA), flux pen/no-clean tacky flux, sharp flush cutters, DMM, `5 V` supply + `1 kΩ` series resistor (for `LED1` test), `99%` IPA + ESD brush, and your `6 HP` front panel.
 - [ ] **Bag & label all `18` Tayda THT parts** (plus optional `TP1`–`TP12`) so values are never mixed up.
+- [ ] **Open [`../bom/ibom.html`](../bom/ibom.html) in a browser** as a live placement map alongside this checklist (use its `B` / `F` view toggles to match Sections 2 and 4).
 
 ---
 
