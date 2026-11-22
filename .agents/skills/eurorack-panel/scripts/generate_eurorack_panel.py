@@ -93,7 +93,9 @@ PANEL_COMPONENT_SPECS: list[dict] = [
     },
     {
         "kind": "switch_submini",
-        "pattern": re.compile(r"Dailywell_2M|2MS1|2M1|SubMini|10-48", re.IGNORECASE),
+        "pattern": re.compile(
+            r"Dailywell_2M|2MS1|2M1|Sub[-_]?Mini|10-48", re.IGNORECASE
+        ),
         "default_offset": (0.0, 0.0),
         "drill_mm": 5.2,
         "pad_mm": 7.2,
@@ -178,16 +180,18 @@ def _sexpr_escape(value: str) -> str:
     return value.replace("\\", "\\\\").replace('"', '\\"')
 
 
-def _extract_title_block(text: str) -> dict[str, str]:
-    """Extract title/rev/date fields from a KiCad PCB `(title_block ...)` section."""
-    m = re.search(r"\(title_block\b", text)
-    if not m:
-        return {}
+def _sexpr_unescape(value: str) -> str:
+    """Unescape KiCad S-expression string escapes (`\\"` and `\\\\`)."""
+    return re.sub(r'\\(["\\])', r"\1", value)
+
+
+def _extract_sexpr_block(text: str, start_idx: int) -> str:
+    """Return the balanced S-expression substring starting at `(` index `start_idx`."""
     depth = 0
     in_quote = False
     escape = False
     end_idx = len(text)
-    for idx in range(m.start(), len(text)):
+    for idx in range(start_idx, len(text)):
         ch = text[idx]
         if escape:
             escape = False
@@ -207,10 +211,18 @@ def _extract_title_block(text: str) -> dict[str, str]:
             if depth == 0:
                 end_idx = idx + 1
                 break
-    block = text[m.start() : end_idx]
+    return text[start_idx:end_idx]
+
+
+def _extract_title_block(text: str) -> dict[str, str]:
+    """Extract title/rev/date fields from a KiCad PCB `(title_block ...)` section."""
+    m = re.search(r"\(title_block\b", text)
+    if not m:
+        return {}
+    block = _extract_sexpr_block(text, m.start())
     return {
-        key: val.strip()
-        for key, val in re.findall(r'\((title|rev|date)\s+"([^"]*)"\)', block)
+        key: _sexpr_unescape(val).strip()
+        for key, val in re.findall(r'\((title|rev|date)\s+"((?:[^"\\]|\\.)*)"\)', block)
     }
 
 
@@ -316,15 +328,8 @@ def parse_main_pcb(
         }
 
     jacks: list[dict] = []
-    chunks = re.split(r"(?=\n[ \t]+\(footprint\s+\")", text)[1:]
-    for raw_chunk in chunks:
-        chunk = re.split(
-            r"\n[ \t]+\((?:gr_|segment|via|zone|embedded_fonts)", raw_chunk, maxsplit=1
-        )[0]
-        fp_m = re.match(r'\s*\(footprint\s+"([^"]+)"', chunk)
-        if not fp_m:
-            continue
-        fp_lib = fp_m.group(1)
+    for fp_start in re.finditer(r'(?m)^[ \t]+\(footprint\s+"((?:[^"\\]|\\.)+)"', text):
+        fp_lib = _sexpr_unescape(fp_start.group(1))
         spec = next(
             (s for s in PANEL_COMPONENT_SPECS if s["pattern"].search(fp_lib)),
             None,
@@ -332,17 +337,18 @@ def parse_main_pcb(
         if spec is None:
             continue
 
+        chunk = _extract_sexpr_block(text, text.find("(", fp_start.start()))
         at_m = re.search(r"\(at\s+([\d.-]+)\s+([\d.-]+)(?:\s+([\d.-]+))?\)", chunk)
-        ref_m = re.search(r'\(property\s+"Reference"\s+"([^"]+)"', chunk)
-        val_m = re.search(r'\(property\s+"Value"\s+"([^"]+)"', chunk)
+        ref_m = re.search(r'\(property\s+"Reference"\s+"((?:[^"\\]|\\.)+)"', chunk)
+        val_m = re.search(r'\(property\s+"Value"\s+"((?:[^"\\]|\\.)+)"', chunk)
         if not (at_m and ref_m and val_m):
             continue
 
         fp_x = float(at_m.group(1))
         fp_y = float(at_m.group(2))
         rot = float(at_m.group(3)) if at_m.group(3) else 0.0
-        ref = ref_m.group(1)
-        val = val_m.group(1)
+        ref = _sexpr_unescape(ref_m.group(1))
+        val = _sexpr_unescape(val_m.group(1))
 
         # Auto-detect bushing/shaft circle from footprint body, fallback to spec default_offset
         circle_m = re.search(r"\(fp_circle\s+\(center\s+([\d.-]+)\s+([\d.-]+)\)", chunk)
@@ -352,8 +358,10 @@ def parse_main_pcb(
         dx, dy = rotate_offset(cx, cy, rot)
 
         def _prop(name: str, body: str = chunk) -> str:
-            pm = re.search(rf'\(property\s+"{re.escape(name)}"\s+"([^"]*)"', body)
-            return pm.group(1).strip() if pm else ""
+            pm = re.search(
+                rf'\(property\s+"{re.escape(name)}"\s+"((?:[^"\\]|\\.)*)"', body
+            )
+            return _sexpr_unescape(pm.group(1)).strip() if pm else ""
 
         silk = _prop("Silkscreen") or None
         jacks.append(
@@ -434,7 +442,7 @@ def print_inspection_report(
             f"{j['ref']:<5} {j['value']:<10} {lbl:<10} "
             f"({j['fp_x']:6.2f}, {j['fp_y']:6.2f})     "
             f"({j['bushing_x']:6.2f}, {j['bushing_y']:6.2f})        "
-            f"({lx:6.2f}, {ly:6.2f})     {drill_mm:.1f} mm"
+            f"({lx:6.2f}, {ly:6.2f})     {drill_mm:.2f} mm"
         )
 
 
@@ -521,7 +529,7 @@ def format_jack_footprint(
 \t\t(descr "{descr}")
 \t\t(tags "{fp_tags}")
 \t\t(attr board_only exclude_from_pos_files exclude_from_bom)
-\t\t(property "Reference" "{ref}"
+\t\t(property "Reference" "{_sexpr_escape(ref)}"
 \t\t\t(at 0 0 0)
 \t\t\t(layer "F.Fab")
 \t\t\t(hide yes)
@@ -533,7 +541,7 @@ def format_jack_footprint(
 \t\t\t\t)
 \t\t\t)
 \t\t)
-\t\t(property "Value" "{val}"
+\t\t(property "Value" "{_sexpr_escape(val)}"
 \t\t\t(at 0 0 0)
 \t\t\t(layer "F.Fab")
 \t\t\t(hide yes)
@@ -744,7 +752,8 @@ def _wrap_text_lines(
             break
         split_at = -1
         for delim in delims:
-            pos = rem.rfind(delim, 1, max_chars + 1)
+            upper = max_chars if delim == "/" else max_chars + 1
+            pos = rem.rfind(delim, 1, upper)
             if pos > 0:
                 split_at = pos + (1 if delim == "/" else 0)
                 break
@@ -889,7 +898,7 @@ def _place_title_block_silk(
     configs = [
         (1.0, 0.9, 0.16, 1.85),
         (0.85, 0.8, 0.15, 1.65),
-        (0.7, 0.7, 0.13, 1.4),
+        (0.8, 0.8, 0.15, 1.5),
     ]
     best_choice: dict | None = None
 
@@ -963,7 +972,9 @@ def _place_title_block_silk(
         bw, bh = _estimate_text_box(
             [ln for ln, _, _ in lines], max(title_sz, meta_sz), thick, 90.0, pitch
         )
-        xs = _make_frange(1.2 + bw / 2.0, panel_w - 1.2 - bw / 2.0, 0.5)
+        xs = ([round(panel_w / 2.0, 3)] if bw <= panel_w - 1.0 else []) + _make_frange(
+            1.2 + bw / 2.0, panel_w - 1.2 - bw / 2.0, 0.5
+        )
         ys = _make_frange(1.2 + bh / 2.0, panel_h - 1.2 - bh / 2.0, 1.0)
         cand = _scan_rect_positions(
             bw, bh, circles, obs_rects, panel_w, panel_h, xs, ys
@@ -984,7 +995,42 @@ def _place_title_block_silk(
             if cand[0] >= 0.8:
                 return best_choice
 
-    assert best_choice is not None
+    if best_choice is None or best_choice["clearance"] < 0.0:
+        compact_line = " ".join(part for part in (title.strip(), meta_full) if part)
+        compact_lines = [(compact_line, 0.8, 0.15)]
+        bw, bh = _estimate_text_box([compact_line], 0.8, 0.15, 90.0, 1.5)
+        xs = [round(panel_w / 2.0, 3)] + _make_frange(
+            1.0 + bw / 2.0, panel_w - 1.0 - bw / 2.0, 0.25
+        )
+        ys = _make_frange(1.2 + bh / 2.0, panel_h - 1.2 - bh / 2.0, 1.0)
+        cand = _scan_rect_positions(
+            bw, bh, circles, obs_rects, panel_w, panel_h, xs, ys
+        )
+        if cand is not None and (
+            best_choice is None or cand[0] > best_choice["clearance"]
+        ):
+            best_choice = {
+                "clearance": cand[0],
+                "cx": cand[1],
+                "cy": cand[2],
+                "bw": bw,
+                "bh": bh,
+                "rot": 90.0,
+                "line_pitch": 1.5,
+                "lines": compact_lines,
+            }
+        elif best_choice is None:
+            best_choice = {
+                "clearance": -99.0,
+                "cx": round(panel_w / 2.0, 3),
+                "cy": round(panel_h / 2.0, 3),
+                "bw": bw,
+                "bh": bh,
+                "rot": 90.0,
+                "line_pitch": 1.5,
+                "lines": compact_lines,
+            }
+
     return best_choice
 
 
@@ -1002,39 +1048,39 @@ def _place_url_silk(
 
     best_choice: dict | None = None
     attempts = [
-        ([clean_url], 0.85, 0.15, 1.5, 0.0, 1.0),
-        ([clean_url], 0.85, 0.15, 1.5, 90.0, 0.8),
+        ([clean_url], 0.85, 0.15, 1.5, 0.0, 0.8),
+        ([clean_url], 0.85, 0.15, 1.5, 90.0, 0.5),
         (
             _wrap_text_lines(clean_url, 32, max_lines=2, delims=("/", "-", " ")),
             0.8,
-            0.14,
-            1.5,
+            0.15,
+            1.45,
             0.0,
-            0.6,
+            0.5,
         ),
         (
             _wrap_text_lines(clean_url, 36, max_lines=2, delims=("/", "-", " ")),
             0.8,
-            0.14,
-            1.5,
+            0.15,
+            1.45,
             90.0,
-            0.6,
+            0.5,
         ),
         (
-            _wrap_text_lines(clean_url, 24, max_lines=3, delims=("/", "-", " ")),
-            0.65,
-            0.12,
-            1.25,
+            _wrap_text_lines(clean_url, 22, max_lines=3, delims=("/", "-", " ")),
+            0.8,
+            0.15,
+            1.45,
             0.0,
-            0.3,
+            0.2,
         ),
         (
-            _wrap_text_lines(clean_url, 40, max_lines=3, delims=("/", "-", " ")),
-            0.65,
-            0.12,
-            1.25,
+            _wrap_text_lines(clean_url, 36, max_lines=3, delims=("/", "-", " ")),
+            0.8,
+            0.15,
+            1.45,
             90.0,
-            0.3,
+            0.2,
         ),
     ]
     for raw_lines, font_sz, thick, pitch, rot, accept_clr in attempts:
@@ -1049,7 +1095,9 @@ def _place_url_silk(
             )
             ys = _make_frange(1.2 + bh / 2.0, panel_h - 1.2 - bh / 2.0, 0.5)
         else:
-            xs = _make_frange(1.2 + bw / 2.0, panel_w - 1.2 - bw / 2.0, 0.5)
+            xs = [round(panel_w / 2.0, 3)] + _make_frange(
+                1.2 + bw / 2.0, panel_w - 1.2 - bw / 2.0, 0.5
+            )
             ys = _make_frange(1.2 + bh / 2.0, panel_h - 1.2 - bh / 2.0, 1.0)
         cand = _scan_rect_positions(
             bw, bh, circles, obs_rects, panel_w, panel_h, xs, ys
@@ -1072,7 +1120,7 @@ def _place_url_silk(
             best_choice = choice
 
     if best_choice is None:
-        bw, bh = _estimate_text_box([clean_url], 0.65, 0.12, 90.0, 1.25)
+        bw, bh = _estimate_text_box([clean_url], 0.8, 0.15, 90.0, 1.45)
         best_choice = {
             "clearance": -99.0,
             "cx": round(panel_w / 2.0, 3),
@@ -1080,8 +1128,8 @@ def _place_url_silk(
             "bw": bw,
             "bh": bh,
             "rot": 90.0,
-            "line_pitch": 1.25,
-            "lines": [(clean_url, 0.65, 0.12)],
+            "line_pitch": 1.45,
+            "lines": [(clean_url, 0.8, 0.15)],
         }
     return best_choice
 
@@ -1677,13 +1725,26 @@ def _compute_panel_spacing(
     pots = [c for c in comp_entries if c["kind"] == "pot"]
     max_knob_by_ref: dict[str, float] = {}
     for pot in pots:
-        other_pot_dists = [
+        edge_max = 2.0 * (min(pot["local_x"], panel_w - pot["local_x"]) - 1.0)
+        pot_limits = [
             math.hypot(pot["local_x"] - op["local_x"], pot["local_y"] - op["local_y"])
+            - 1.5
             for op in pots
             if op["ref"] != pot["ref"]
         ]
-        pot_pitch = min(other_pot_dists) if other_pot_dists else panel_w
-        raw_max = min(pot_pitch - 1.5, panel_w - 2.0)
+        other_limits = [
+            2.0
+            * (
+                math.hypot(
+                    pot["local_x"] - oc["local_x"], pot["local_y"] - oc["local_y"]
+                )
+                - oc["keepout_mm"] / 2.0
+                - 1.0
+            )
+            for oc in comp_entries
+            if oc["kind"] != "pot"
+        ]
+        raw_max = max(0.0, min([edge_max, *pot_limits, *other_limits]))
         max_knob_by_ref[pot["ref"]] = round(math.floor(raw_max * 2.0) / 2.0, 1)
 
     rows: list[list[dict]] = []
@@ -1693,13 +1754,12 @@ def _compute_panel_spacing(
         else:
             rows[-1].append(c)
 
+    row_ys = [round(sum(c["local_y"] for c in row) / len(row), 2) for row in rows]
     row_summary = []
     for idx, row in enumerate(rows):
-        ry = round(sum(c["local_y"] for c in row) / len(row), 2)
+        ry = row_ys[idx]
         xs = sorted(c["local_x"] for c in row)
-        gap_below = (
-            round(rows[idx + 1][0]["local_y"] - ry, 2) if idx + 1 < len(rows) else None
-        )
+        gap_below = round(row_ys[idx + 1] - ry, 2) if idx + 1 < len(rows) else None
         h_pitches = (
             [round(xs[i + 1] - xs[i], 2) for i in range(len(xs) - 1)]
             if len(xs) > 1
@@ -1826,9 +1886,9 @@ def build_panel_spec_markdown(
         "",
         "| Field | Value |",
         "| :--- | :--- |",
-        f"| **Module Name** | `{title}` |",
-        f"| **Version** | `{version or 'N/A'}` |",
-        f"| **GitHub / Project URL** | `{url or 'N/A'}` |",
+        f"| **Module Name** | `{_md_esc(title)}` |",
+        f"| **Version** | `{_md_esc(version or 'N/A')}` |",
+        f"| **GitHub / Project URL** | `{_md_esc(url or 'N/A')}` |",
         f"| **Format** | `{hp} HP × 3U` (`{panel_w:.2f} × {PANEL_HEIGHT_3U_MM:.2f} mm`, `1.6 mm` FR4) |",
         f"| **Source Main PCB** | `{main_pcb_path.name}` (`{geom['pcb_w']:.2f} × {geom['pcb_h']:.2f} mm`) |",
         f"| **Target Panel PCB** | {target_pcb_display} |",
@@ -1936,7 +1996,7 @@ def build_panel_spec_markdown(
             "",
             "## 7. Back-Face Silkscreen Layout (`B.SilkS`)",
             "",
-            "All rear markings are mirrored (`(justify mirror)`) for right-reading inspection from the back and automatically kept clear of `B.Mask` pads, mounting slots, and panel edges:",
+            "All rear markings are mirrored (`(justify mirror)`) for right-reading inspection from the back and automatically kept clear of `B.Mask` pads, mounting slots, and panel edges (`Min Clearance mm` / `clearance_mm` reports net margin beyond the built-in `1.0 mm` edge, `0.65 mm` pad/slot, and `0.50 mm` inter-item keepout buffers):",
             "",
             "| Element | Content / Size | Panel-Local `(X, Y)` mm | KiCad Global `(X, Y)` mm | Rot (deg) | Min Clearance mm |",
             "| :--- | :--- | :---: | :---: | :---: | :---: |",
@@ -2277,7 +2337,7 @@ def _apply_drill_overrides(jacks: list[dict], specs: list[str]) -> None:
             raise ValueError(
                 f"Invalid drill diameter {drill_str!r} in --drill {spec!r}"
             ) from exc
-        if drill_val <= 0:
+        if not math.isfinite(drill_val) or drill_val <= 0:
             raise ValueError(f"Drill diameter must be > 0 in --drill {spec!r}")
         overrides[ref_key.strip().upper()] = drill_val
     matched_refs = {j["ref"].upper() for j in jacks}
@@ -2292,14 +2352,19 @@ def _apply_drill_overrides(jacks: list[dict], specs: list[str]) -> None:
         if ref_u in overrides:
             new_drill = overrides[ref_u]
             old_drill = j["drill_mm"]
+            delta = new_drill - old_drill
             j["drill_mm"] = new_drill
             if j.get("grounded", True):
                 j["pad_mm"] = round(
-                    max(new_drill + 2.0, j["pad_mm"] + (new_drill - old_drill)),
+                    max(new_drill + 2.0, j["pad_mm"] + delta),
                     2,
                 )
+                j["keepout_mm"] = round(max(j["pad_mm"], j["keepout_mm"] + delta), 2)
             else:
                 j["pad_mm"] = new_drill
+                j["keepout_mm"] = round(
+                    max(new_drill + 0.8, j["keepout_mm"] + delta), 2
+                )
 
 
 def main() -> None:
@@ -2313,6 +2378,10 @@ def main() -> None:
 
     pcb_w = bbox["max_x"] - bbox["min_x"]
     hp, panel_w = infer_hp_and_width(pcb_w, args.hp)
+    if args.inspect and args.spec_md is None:
+        print_inspection_report(args.main_pcb, bbox, jacks, hp, panel_w)
+        return
+
     title = (
         args.title
         if args.title is not None

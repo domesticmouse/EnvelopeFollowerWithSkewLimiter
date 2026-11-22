@@ -54,7 +54,7 @@ Use this checklist to order all **`18` populated through-hole / panel parts** pe
   - Confirm **shaft interface** (`T18` splined/knurled vs `6.35 mm` round/set-screw vs `D-shaft`) on the exact Tayda product pages for `A-1855`, `A-1672`, and `A-8401` before picking knobs!
 - [ ] **Eurorack Power Cable (Qty `1`/board, if needed)** — `10-pin` to `16-pin` `2.54 mm` IDC ribbon power cable with red `-12V` stripe
 - [ ] **Eurorack Mounting Hardware (Qty `2` sets/board)** — `M3` panel screws (`6–8 mm` length) + nylon washers (to avoid scratching the panel)
-- [ ] **6 HP Front Panel (`30.0 × 128.5 mm`)** — Ensure your matching 6 HP faceplate is ordered/fabricated alongside the main PCB
+- [ ] **6 HP Front Panel (`30.0 × 128.5 mm`)** — Order the mated `Matte Black` + `ENIG-RoHS` + `White` silkscreen faceplate via [`01b-front-panel-ordering.md`](01b-front-panel-ordering.md) ([`../manufacturing/envelope_follower_panel_gerbers.zip`](../manufacturing/envelope_follower_panel_gerbers.zip)) alongside the main PCB
 
 ---
 

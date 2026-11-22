@@ -79,15 +79,15 @@ Follow this assembly sequence **strictly in order**. Installing `B.Cu` through-h
 
 ### Component Prep & Dry-Fit on `F.Cu`
 
-- [ ] **Inspect `RV1`–`RV4` anti-rotation tabs:** Break off the small metal locating tab on each Alpha `9 mm` pot **if** your `6 HP` front panel does not have matching tab holes.
+- [ ] **Snap off `RV1`–`RV4` anti-rotation tabs:** [`../envelope_follower_panel.kicad_pcb`](../envelope_follower_panel.kicad_pcb) has no anti-rotation tab holes — cleanly snap off the small metal locating tab on each Alpha `9 mm` pot with flush cutters/pliers before dry-fitting.
 - [ ] **Insert Potentiometers (`4` parts on `F.Cu`, verify exact taper in each position!):**
   - [ ] **`RV1` (`GAIN`, top):** `A100K` (`A-1855`)
   - [ ] **`RV2` (`ATK`, 2nd):** `A1M` (`A-1672`)
   - [ ] **`RV3` (`REL`, 3rd):** `A1M` (`A-1672`)
   - [ ] **`RV4` (`OFFSET`, 4th):** `B10K` **center-detent** (`A-8401`) — rotate shaft to verify crisp center click before inserting!
 - [ ] **Insert Toggle Switches (`2` parts on `F.Cu`, `Dailywell 2MS1` / `A-6087`):**
-  - [ ] **`SW1` (`SMOOTH`, middle-left)** and **`SW2` (`FAST/SLOW`, middle-right)**:
-    - Check continuity with DMM: confirm **Pin 2 (center) connects to Pin 3 (bottom pad) when the toggle lever is UP** (`SMOOTH` = UP, `SLOW` = UP). Flip switch `180°` if inverted, or verify Pin 1 (`NC`) aligns with the top square pad/tick mark.
+  - [ ] **`SW1` (`SMOOTH` / `RAW`, middle-left)** and **`SW2` (`SLOW` / `FAST`, middle-right)**:
+    - Check continuity with DMM: confirm **Pin 2 (center) connects to Pin 3 (bottom pad) when the toggle lever is UP** (`SW1`: UP = `SMOOTH`, DOWN = `RAW`; `SW2`: UP = `SLOW`, DOWN = `FAST`). Flip switch `180°` if inverted, or verify Pin 1 (`NC`) aligns with the top square pad/tick mark.
     - Check bushing-to-panel stand-off height against `RV1`–`RV4` and `J1`–`J4`; install an inner backing nut/washer on `SW1`/`SW2` bushings if needed so tightening the top nut does not pull the PCB upward.
 - [ ] **Insert `LED1` (`A-1076`) on `F.Cu`:**
   - Insert marked **Green-anode lead (`+V = Green`) into LEFT square Pad 1** and remaining lead into **RIGHT round Pad 2**. Do **not** push fully down onto PCB yet — leave leads long so the LED dome seats cleanly into the front-panel hole.
@@ -100,7 +100,7 @@ Follow this assembly sequence **strictly in order**. Installing `B.Cu` through-h
 
 ### Panel Mating & Soldering (Solder from `B.Cu`)
 
-- [ ] **Fit the `6 HP` front panel** over all `4` pot shafts, `2` toggle bushings, `4` jack bushings, and `LED1`.
+- [ ] **Fit the `6 HP` front panel** over all `4` pot shafts, `2` toggle bushings, `4` jack bushings, and `LED1` *(protect the Matte Black solder mask & ENIG gold `F.Mask` artwork from scratches — use nylon washers under nuts/M3 screws and non-marring socket/finger tightening)*.
 - [ ] **Finger-tighten panel nuts** on `J1`–`J4`, `SW1`–`SW2`, and `RV1`–`RV4` so the PCB sits completely parallel and stress-free behind the panel.
 - [ ] **Seat `LED1` dome** flush/protruding consistently in its panel bezel hole, then slightly splay its `B.Cu` leads so it stays put during soldering.
 - [ ] **Solder `F.Cu` parts carefully on `B.Cu`** using a clean, fine iron tip — **watch adjacent `B.Cu` SMDs** (`C3`–`C6`, `R3`, `D3`, `R15`–`R17`, `R25`, `R32`, `R33`, `C14`):

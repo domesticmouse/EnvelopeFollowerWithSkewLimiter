@@ -17,10 +17,10 @@
     },
     "eurorack-panel": {
       "source": "domesticmouse/skills",
-      "commit": "2056762863f699720041aff1f4dbf3a77b71fd2e",
+      "commit": "fefa623f98d8bf6ca90511341cc5176cbaaafb3a",
       "sourceType": "github",
       "skillPath": "packs/hardware/eurorack-panel/SKILL.md",
-      "computedHash": "fda4e915cfbc367b26c57894c74b4d37a4a7c36bbab5df1aab3161b4da1e647c"
+      "computedHash": "57aad5bb20f920631bcb30632d99e2f5aba815b4341f8735bfe05f1e4d0cbbb1"
     },
     "jlcpcb": {
       "source": "aklofas/kicad-happy",
@@ -63,6 +63,13 @@
       "sourceType": "github",
       "skillPath": "packs/hardware/skidl/SKILL.md",
       "computedHash": "2f42bb3e6049f242f56c07fc97cf6fe46cec857efe852ee05d70491c1f22f783"
+    },
+    "vectorcraft-cli": {
+      "source": "domesticmouse/skills",
+      "commit": "fefa623f98d8bf6ca90511341cc5176cbaaafb3a",
+      "sourceType": "github",
+      "skillPath": "skills/vectorcraft-cli/SKILL.md",
+      "computedHash": "ee14dc8c173d6bfc17ef822c9a9f976c25268c728038a06206b0194cc502dcfc"
     }
   }
 }

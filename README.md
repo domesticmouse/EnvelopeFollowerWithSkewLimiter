@@ -11,7 +11,7 @@ Building on [domesticmouse/EnvelopeFollower](https://github.com/domesticmouse/En
 | [`EnvelopeFollower.md`](EnvelopeFollower.md) | Extracted Markdown circuit specification (BOM, stage-by-stage analysis, pin-level netlist, and build notes) derived from `EnvelopeFollower.webp`. |
 | [`EnvelopeFollowerImprovements.md`](EnvelopeFollowerImprovements.md) | Engineering review of the base circuit documenting electrical issues, quantitative analysis, prioritized fixes, and Eurorack skew-limiter upgrade architectures. |
 | [`DesignSpec.md`](DesignSpec.md) | Finalized 6 HP (`2× TL074H`) build specification, JLCPCB SMD / Tayda TH BOM, stage analysis, pin-level netlist, and front-panel layout. |
-| [`checklists/`](checklists/) | Step-by-step markdown checklists for JLCPCB main board/PCBA ordering, 50-part PCBA alignment, Tayda ordering, hand assembly, and board bringup. |
+| [`checklists/`](checklists/) | Step-by-step markdown checklists for JLCPCB main board/PCBA & front panel ordering, 50-part PCBA alignment, Tayda ordering, hand assembly, and board bringup. |
 | [`envelope_follower.py`](envelope_follower.py) | SKiDL Python circuit capture script implementing all 80 footprints, 48 nets, ERC assertions, and BOM/netlist exports. |
 | [`generate_schematic.py`](generate_schematic.py) | Script that reads `envelope_follower.build_circuit()` and KiCad 10 symbols to generate the 9-section A3 schematic (`envelope_follower.kicad_sch`). |
 | [`envelope_follower.kicad_sch`](envelope_follower.kicad_sch) | Clean 9-section A3 KiCad 10 schematic ready to open directly in KiCad 10 Eeschema (`0` ERC errors, 100% netlist parity with `envelope_follower.net`). |
@@ -20,8 +20,10 @@ Building on [domesticmouse/EnvelopeFollower](https://github.com/domesticmouse/En
 | [`envelope_follower.kicad_pcb`](envelope_follower.kicad_pcb) | Routed 2-layer `30.0 × 108.0 mm` (6 HP) KiCad 10 PCB (`F.Cu` panel controls + `B.Cu` SMD/power/test points, `0` DRC violations, `0` unconnected items, `0` schematic parity issues). |
 | [`envelope_follower.kicad_pro`](envelope_follower.kicad_pro) | KiCad 10 project configuration file for `envelope_follower.kicad_sch` and `envelope_follower.kicad_pcb`. |
 | [`silk_layout.json`](silk_layout.json) | Pinned board-local `F.SilkS`/`B.SilkS` layout manifest synced with `generate_kicad_pcb.py` (including `LED1` bi-color/polarity callouts, dual-sided `TP1`–`TP12` labels, and value-only `B.SilkS` passives). |
-| [`envelope_follower_panel.kicad_pcb`](envelope_follower_panel.kicad_pcb) | Mated 6 HP × 3U (`30.0 × 128.5 mm`) blank-front Eurorack front panel KiCad 10 PCB with `F.Cu`/`B.Cu` `GND` shield planes, grounded cutouts, M3 oval mounting slots, and rear `B.SilkS` metadata + JLCPCB QR placeholder (`0` DRC violations). |
+| [`envelope_follower_panel.kicad_pcb`](envelope_follower_panel.kicad_pcb) | Mated 6 HP × 3U (`30.0 × 128.5 mm`) Eurorack front panel KiCad 10 PCB (Matte Black + ENIG finish + White silkscreen) with integrated VectorCraft `F.SilkS`/`F.Mask` artwork, `F.Cu`/`B.Cu` `GND` shield planes, grounded cutouts, M3 oval mounting slots, and rear `B.SilkS` metadata (`0` DRC errors). |
 | [`panel_svg_spec.md`](panel_svg_spec.md) | 1:1 mm Markdown + JSON front-panel mechanical & SVG dimension specification (`F.SilkS` & `F.Mask` canvas, coordinates, keepouts, and KiCad import rules) for downstream graphics generation. |
+| [`panel_art/`](panel_art/) | VectorCraft panel artwork generator (`generate_panel_art.py`), source `.vectorcraft`, 1:1 mm Plain SVGs (`front_silkscreen.svg`, `front_soldermask.svg`), mockup/keepout PNGs, and KiCad importer (`import_svgs_to_kicad.py`). |
+| [`manufacturing/`](manufacturing/) | Ready-to-upload JLCPCB fabrication outputs: main-board Gerbers + drills (`envelope_follower_gerbers.zip`, `gerbers/`), Bottom-Side PCBA placement (`jlcpcb_cpl.csv`), and front-panel Gerbers + drills (`envelope_follower_panel_gerbers.zip`, `panel_gerbers/`). |
 | [`images/`](images/) | Rendered PNG previews embedded in `README.md` (`schematic.png`, `pcb_front.png`, `pcb_back.png`, `panel_front.png`, `panel_back.png`) exported from `envelope_follower.pdf`, `envelope_follower.kicad_pcb`, and `envelope_follower_panel.kicad_pcb`. |
 | [`envelope_follower.net`](envelope_follower.net) | Exported KiCad 10 netlist (80 components, 48 active nets, `Power`/`HighImpedance` NetClasses, and DNP test-point properties). |
 | [`envelope_follower_bom.xml`](envelope_follower_bom.xml) | Well-formed KiCad XML BOM containing component values, footprints, LCSC/MPN/silkscreen fields, and net nodes. |
@@ -96,11 +98,12 @@ kicad-cli pcb render --side bottom --width 900 --height 2400 --background transp
 
 ## Front Panel
 
-- **6 HP × 3U blank-front faceplate ([`envelope_follower_panel.kicad_pcb`](envelope_follower_panel.kicad_pcb)):** `30.0 × 128.5 mm` (`1.6 mm` FR4) mated directly to [`envelope_follower.kicad_pcb`](envelope_follower.kicad_pcb) (`10.25 mm` top/bottom rail overhang). Features `0` `F.SilkS` primitives on the front face, `2` Doepfer M3 oval mounting slots (`3.2 × 5.5 mm` NPTH), `10` grounded `GND` PTH panel cutouts (`RV1`–`RV4` `7.2 mm`, `SW1`–`SW2` `5.2 mm`, `J1`–`J4` `6.2 mm`) with tented front solder mask and exposed rear `B.Mask` grounding rings, `1` `3.2 mm` NPTH aperture for `LED1`, and filled `F.Cu`/`B.Cu` `GND` shield planes (`0` DRC violations, `0` unconnected items).
+- **6 HP × 3U Matte Black + ENIG faceplate ([`envelope_follower_panel.kicad_pcb`](envelope_follower_panel.kicad_pcb)):** `30.0 × 128.5 mm` (`1.6 mm` FR4, `Matte Black` solder mask, `ENIG` copper finish, `White` silkscreen) mated directly to [`envelope_follower.kicad_pcb`](envelope_follower.kicad_pcb) (`10.25 mm` top/bottom rail overhang). Features `2` Doepfer M3 oval mounting slots (`3.2 × 5.5 mm` NPTH), `10` grounded `GND` PTH panel cutouts (`RV1`–`RV4` `7.2 mm`, `SW1`–`SW2` `5.2 mm`, `J1`–`J4` `6.2 mm`) with tented front solder mask and exposed rear `B.Mask` grounding rings, `1` `3.2 mm` NPTH aperture for `LED1`, and filled `F.Cu`/`B.Cu` `GND` shield planes (`0` DRC errors, `0` unconnected items).
+- **Dark Techno / Brutalist front artwork ([`panel_art/`](panel_art/)):** Generated via `vectorcraft-cli` ([`panel_art/generate_panel_art.py`](panel_art/generate_panel_art.py)) against [`panel_svg_spec.md`](panel_svg_spec.md) and imported into KiCad via [`panel_art/import_svgs_to_kicad.py`](panel_art/import_svgs_to_kicad.py) (`104` `F.SilkS` polygons, `33` `F.Mask` ENIG gold openings over `F.Cu`, `>= 0.60 mm` ink-to-mask separation).
 - **Rear `B.SilkS` markings:** Mirrored (`(justify mirror)`) module title/version (`ENVELOPE FOLLOWER / + SKEW LIMITER / 6HP  Rev 1.0`), vertical GitHub URL (`github.com/domesticmouse/EnvelopeFollowerWithSkewLimiter`), and a `5.0 × 5.0 mm` solid JLCPCB QR placeholder square placed clear of all `B.Mask` pads, M3 slots, and panel edges.
-- **Downstream SVG graphics specification ([`panel_svg_spec.md`](panel_svg_spec.md)):** Machine-readable JSON + Markdown dimension specification (`30.00 × 128.50 mm` `viewBox`, exact control centers, nut/washer/rail keepouts, `<= 14.0 mm` knob constraint, switch/LED metadata, and `F.SilkS` / `F.Mask` registration instructions for KiCad 10 import).
+- **Upload Gerbers ([`manufacturing/`](manufacturing/)):** Ready-to-upload JLCPCB archive in [`manufacturing/envelope_follower_panel_gerbers.zip`](manufacturing/envelope_follower_panel_gerbers.zip).
 
-| Front (`F.Cu` — Blank Front Face) | Back (`B.Cu` — Ground Rings, Metadata & QR) |
+| Front (`F.Cu` — Matte Black, ENIG Gold & White Silkscreen) | Back (`B.Cu` — Ground Rings, Metadata & QR) |
 | :---: | :---: |
 | <img src="images/panel_front.png" alt="Front panel front render (F.Cu)" width="280"> | <img src="images/panel_back.png" alt="Front panel back render (B.Cu)" width="280"> |
 
@@ -114,6 +117,7 @@ python3 .agents/skills/eurorack-panel/scripts/generate_eurorack_panel.py \
     --url "github.com/domesticmouse/EnvelopeFollowerWithSkewLimiter" \
     --spec-md panel_svg_spec.md \
     --drc
+/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3 panel_art/import_svgs_to_kicad.py
 kicad-cli pcb render --side top --width 900 --height 2400 --background transparent --quality high --output images/panel_front.png envelope_follower_panel.kicad_pcb
 kicad-cli pcb render --side bottom --width 900 --height 2400 --background transparent --quality high --output images/panel_back.png envelope_follower_panel.kicad_pcb
 ```
@@ -122,7 +126,8 @@ kicad-cli pcb render --side bottom --width 900 --height 2400 --background transp
 
 Step-by-step checklists are organized in [`checklists/`](checklists/) ([`checklists/README.md`](checklists/README.md)) in build order:
 
-1. [`checklists/01-main-board-ordering.md`](checklists/01-main-board-ordering.md) — Gerber/CPL export, JLCPCB lead-free fabrication, `F.SilkS` QR code replacement, and Bottom-Side Economic PCBA ordering
+1. [`checklists/01-main-board-ordering.md`](checklists/01-main-board-ordering.md) — Main-board Gerber/CPL export, JLCPCB lead-free fabrication, `F.SilkS` QR code replacement, and Bottom-Side Economic PCBA ordering
+1b. [`checklists/01b-front-panel-ordering.md`](checklists/01b-front-panel-ordering.md) — 6 HP front panel Gerber/drill verification and JLCPCB ordering (`Matte Black` + `ENIG-RoHS` + `White` silkscreen, `B.SilkS` QR replacement)
 2. [`checklists/02-pcba-part-alignment.md`](checklists/02-pcba-part-alignment.md) — Placement & orientation verification for all `50` `B.Cu` SMD components in the JLCPCB viewer
 3. [`checklists/03-tayda-ordering.md`](checklists/03-tayda-ordering.md) — Tayda ordering list for all `18` THT/panel components, `<= 14.0 mm` knobs, hardware, and spares
 4. [`checklists/04-hand-assembly.md`](checklists/04-hand-assembly.md) — Mechanical assembly order (`B.Cu` THT parts, `LED1` polarity bench check, `F.Cu` front-panel dry-fit & soldering, IPA cleaning)

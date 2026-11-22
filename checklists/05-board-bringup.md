@@ -32,7 +32,7 @@ Use this checklist to safely power up, verify, and test your assembled **6 HP En
   - `RV2 (ATK)`: **Full CCW** (min attack)
   - `RV3 (REL)`: **Full CCW** (min release)
   - `RV4 (OFFSET)`: **Center detent** (`12 o'clock`)
-  - `SW1 (SMOOTH)`: **DOWN** (`OFF`)
+  - `SW1 (SMOOTH)`: **DOWN** (`RAW / OFF`)
   - `SW2 (FAST/SLOW)`: **DOWN** (`FAST`)
 
 ---
