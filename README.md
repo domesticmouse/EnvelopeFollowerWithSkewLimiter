@@ -11,7 +11,8 @@ Building on [domesticmouse/EnvelopeFollower](https://github.com/domesticmouse/En
 | [`EnvelopeFollower.md`](EnvelopeFollower.md) | Extracted Markdown circuit specification (BOM, stage-by-stage analysis, pin-level netlist, and build notes) derived from `EnvelopeFollower.webp`. |
 | [`EnvelopeFollowerImprovements.md`](EnvelopeFollowerImprovements.md) | Engineering review of the base circuit documenting electrical issues, quantitative analysis, prioritized fixes, and Eurorack skew-limiter upgrade architectures. |
 | [`DesignSpec.md`](DesignSpec.md) | Finalized 6 HP (`2× TL074H`) build specification, JLCPCB SMD / Tayda TH BOM, stage analysis, pin-level netlist, and front-panel layout. |
-| [`checklists/`](checklists/) | Step-by-step markdown checklists for JLCPCB main board/PCBA & front panel ordering, 50-part PCBA alignment, Tayda ordering, hand assembly, and board bringup. |
+| [`checklists/`](checklists/) | Step-by-step markdown checklists for JLCPCB main board/PCBA & front panel ordering, 50-part PCBA alignment (with [`generate_pcba_alignment_images.py`](checklists/generate_pcba_alignment_images.py)), Tayda ordering, hand assembly, and board bringup. |
+| [`effects/`](effects/) | Patch guides and front-panel reference documenting 8 audio effects across Envelope Follower (`IN`) and Asymmetric Skew Limiter (`SLEW IN`) modes. |
 | [`envelope_follower.py`](envelope_follower.py) | SKiDL Python circuit capture script implementing all 80 footprints, 48 nets, ERC assertions, and BOM/netlist exports. |
 | [`generate_schematic.py`](generate_schematic.py) | Script that reads `envelope_follower.build_circuit()` and KiCad 10 symbols to generate the 9-section A3 schematic (`envelope_follower.kicad_sch`). |
 | [`envelope_follower.kicad_sch`](envelope_follower.kicad_sch) | Clean 9-section A3 KiCad 10 schematic ready to open directly in KiCad 10 Eeschema (`0` ERC errors, 100% netlist parity with `envelope_follower.net`). |
@@ -24,7 +25,7 @@ Building on [domesticmouse/EnvelopeFollower](https://github.com/domesticmouse/En
 | [`panel_svg_spec.md`](panel_svg_spec.md) | 1:1 mm Markdown + JSON front-panel mechanical & SVG dimension specification (`F.SilkS` & `F.Mask` canvas, coordinates, keepouts, and KiCad import rules) for downstream graphics generation. |
 | [`panel_art/`](panel_art/) | VectorCraft panel artwork generator (`generate_panel_art.py`), source `.vectorcraft`, 1:1 mm Plain SVGs (`front_silkscreen.svg`, `front_soldermask.svg`), mockup/keepout PNGs, and KiCad importer (`import_svgs_to_kicad.py`). |
 | [`manufacturing/`](manufacturing/) | Ready-to-upload JLCPCB fabrication outputs: main-board Gerbers + drills (`envelope_follower_gerbers.zip`, `gerbers/`), Bottom-Side PCBA placement (`jlcpcb_cpl.csv`), and front-panel Gerbers + drills (`envelope_follower_panel_gerbers.zip`, `panel_gerbers/`). |
-| [`images/`](images/) | Rendered PNG previews embedded in `README.md` (`schematic.png`, `pcb_front.png`, `pcb_back.png`, `panel_front.png`, `panel_back.png`) exported from `envelope_follower.pdf`, `envelope_follower.kicad_pcb`, and `envelope_follower_panel.kicad_pcb`. |
+| [`images/`](images/) | Rendered PNG previews embedded in `README.md` (`schematic.png`, `pcb_front.png`, `pcb_back.png`, `panel_front.png`, `panel_back.png`) exported from `envelope_follower.pdf`, `envelope_follower.kicad_pcb`, and `envelope_follower_panel.kicad_pcb`, plus SMD-only `B.Cu` 3D placement screenshots in [`images/pcba_alignment/`](images/pcba_alignment/) (`board_overview.png` and `50` per-part cards embedded in `checklists/02-pcba-part-alignment.md`). |
 | [`envelope_follower.net`](envelope_follower.net) | Exported KiCad 10 netlist (80 components, 48 active nets, `Power`/`HighImpedance` NetClasses, and DNP test-point properties). |
 | [`envelope_follower_bom.xml`](envelope_follower_bom.xml) | Well-formed KiCad XML BOM containing component values, footprints, LCSC/MPN/silkscreen fields, and net nodes. |
 | [`jlcpcb_bom.csv`](jlcpcb_bom.csv) | Grouped 4-column JLCPCB SMT PCBA BOM (50 SMD components across 17 rows, 3 Extended SKUs). |
@@ -128,10 +129,16 @@ Step-by-step checklists are organized in [`checklists/`](checklists/) ([`checkli
 
 1. [`checklists/01-main-board-ordering.md`](checklists/01-main-board-ordering.md) — Main-board Gerber/CPL export, JLCPCB lead-free fabrication, `F.SilkS` QR code replacement, and Bottom-Side Economic PCBA ordering
 1b. [`checklists/01b-front-panel-ordering.md`](checklists/01b-front-panel-ordering.md) — 6 HP front panel Gerber/drill verification and JLCPCB ordering (`Matte Black` + `ENIG-RoHS` + `White` silkscreen, `B.SilkS` QR replacement)
-2. [`checklists/02-pcba-part-alignment.md`](checklists/02-pcba-part-alignment.md) — Placement & orientation verification for all `50` `B.Cu` SMD components in the JLCPCB viewer
+2. [`checklists/02-pcba-part-alignment.md`](checklists/02-pcba-part-alignment.md) — Placement & orientation verification for all `50` `B.Cu` SMD components in the JLCPCB viewer, with an embedded full-board 3D map and `50` per-part SMD-only `B.Cu` 3D verification cards (Pin-1 / cathode / SOT-23 lead callouts and board mini-maps)
 3. [`checklists/03-tayda-ordering.md`](checklists/03-tayda-ordering.md) — Tayda ordering list for all `18` THT/panel components, `<= 14.0 mm` knobs, hardware, and spares
 4. [`checklists/04-hand-assembly.md`](checklists/04-hand-assembly.md) — Mechanical assembly order (`B.Cu` THT parts, `LED1` polarity bench check, `F.Cu` front-panel dry-fit & soldering, IPA cleaning)
 5. [`checklists/05-board-bringup.md`](checklists/05-board-bringup.md) — Unpowered cold checks, current-limited first power-up, all `12` test points (`TP1`–`TP12`), signal verification, and troubleshooting
+
+To regenerate the `51` PCBA alignment screenshots ([`board_overview.png`](images/pcba_alignment/board_overview.png) and all `50` part cards in [`images/pcba_alignment/`](images/pcba_alignment/)) after modifying [`envelope_follower.kicad_pcb`](envelope_follower.kicad_pcb) or [`silk_layout.json`](silk_layout.json):
+
+```bash
+python3 checklists/generate_pcba_alignment_images.py
+```
 
 ### Interactive Hand-Assembly BOM
 
@@ -146,6 +153,21 @@ To re-create [`bom/ibom.html`](bom/ibom.html) after modifying [`envelope_followe
    - **Board variant field:** select `JLCPCB_Class`.
    - **Variants whitelist:** select `Manual THT` only (leave `Basic`, `Extended`, `DNP THT`, and `<empty>` unselected).
 4. Click **Generate BOM** and verify the output lists `14` BOM rows / `18` components (`11` Front, `7` Back).
+
+## Audio Effect & Patch Guides
+
+Patch recipes, front-panel starting settings, and control tips for **`ENV / SKEW`** are collected in [`effects/`](effects/) ([`effects/README.md`](effects/README.md)):
+
+- **Envelope Follower Mode (`IN` patched, `SLEW IN` unpatched):**
+  1. [`effects/01-sidechain-ducking.md`](effects/01-sidechain-ducking.md) — Sidechain ducking & pumping (`INV OUT`, `SMOOTH`, `+ / −` LED zero-crossing calibration)
+  2. [`effects/02-auto-wah-envelope-filter.md`](effects/02-auto-wah-envelope-filter.md) — Upward (`OUT`) and reverse (`INV OUT`) auto-wah & dynamic envelope filtering
+  3. [`effects/03-compression-expansion-gating.md`](effects/03-compression-expansion-gating.md) — Opto-style compression, threshold noise gating, and transient shaping
+  4. [`effects/04-ducking-and-blooming-fx.md`](effects/04-ducking-and-blooming-fx.md) — Ducking delay/reverb sends and multi-second ambient swells (`SLOW` `4.87 µF`)
+  5. [`effects/05-cross-modulation-push-pull.md`](effects/05-cross-modulation-push-pull.md) — Complementary push-pull stereo panning and dynamic FM/wavefolder modulation
+- **Asymmetric Skew Limiter Mode (`SLEW IN` patched):**
+  6. [`effects/06-audio-rate-slew-waveshaping.md`](effects/06-audio-rate-slew-waveshaping.md) — Audio-rate slew waveshaping & nonlinear low-pass filtering (`RAW` + `FAST`)
+  7. [`effects/07-asymmetric-portamento-slides.md`](effects/07-asymmetric-portamento-slides.md) — Asymmetric portamento, TB-303 acid slides, and contrary-motion VCO tracking
+  8. [`effects/08-gate-to-ar-envelope-and-slewed-mod.md`](effects/08-gate-to-ar-envelope-and-slewed-mod.md) — Linear-ramp AR/ASR envelopes, vactrol-style `SMOOTH` rounding, and slewed S&H/LFOs
 
 ## Installed Skills
 
