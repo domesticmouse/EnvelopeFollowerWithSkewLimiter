@@ -11,7 +11,7 @@ Step-by-step checklists for ordering, verifying, assembling, and bringing up the
 | **2** | [`02-pcba-part-alignment.md`](02-pcba-part-alignment.md) | Per-component placement & orientation verification for all **50 `B.Cu` SMD parts** in the JLCPCB placement viewer before checkout |
 | **3** | [`03-tayda-ordering.md`](03-tayda-ordering.md) | Shopping checklist for all **18 through-hole / panel parts** (`RV1`–`RV4`, `SW1`–`SW2`, `LED1`, `J1`–`J4`, `J_PWR`, `C1`–`C2`, `C7`, `C11`–`C13`) plus knobs (`<= 14.0 mm` OD), power cable, mounting hardware, spares, and optional test loops |
 | **4** | [`04-hand-assembly.md`](04-hand-assembly.md) | Post-PCBA inspection, optional `TP1`–`TP12` test loops, `B.Cu` THT parts (`J_PWR`, `C1`/`C2`, film caps), `LED1` polarity bench check, `F.Cu` front-panel dry-fit & soldering, and flux cleanup |
-| **5** | [`05-board-bringup.md`](05-board-bringup.md) | Unpowered cold checks, current-limited first power-up, all **12 test points** (`TP1`–`TP12`), stage-by-stage signal verification, `SLEW IN` / `SMOOTH` / `FAST-SLOW` / `OFFSET` / `LED1` tests, and troubleshooting |
+| **5** | [`05-board-bringup.md`](05-board-bringup.md) | Unpowered cold checks, current-limited first power-up, all **12 test points** (`TP1`–`TP12`), stage-by-stage signal verification, `SLEW IN` / `SMOOTH` / `FAST-SLOW` / `OFFSET` / `LED1` tests, and troubleshooting, with `9` embedded annotated main-PCB screenshots |
 
 ## Source References
 

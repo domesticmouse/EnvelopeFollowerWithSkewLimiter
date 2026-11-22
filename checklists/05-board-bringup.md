@@ -2,24 +2,28 @@
 
 Use this checklist to safely power up, verify, and test your assembled **6 HP Envelope Follower with Skew Limiter** before installing it into a Eurorack case.
 
+> **Viewing Convention & Reference Screenshots:** Coordinates below list **`back (X, Y)`** (direct **`B.Cu` back-side** view upright with `Y = 0` at top and `back_X = 30.0 - board_X`, matching the bench probing view) alongside front-referenced **`board (X, Y)`** (`F.Cu`). All embedded main-PCB figures are rendered from `envelope_follower.kicad_pcb` — regenerate them after any PCB or silkscreen change with `python3 checklists/generate_bringup_images.py`.
+
 ---
 
 ## Test Point Reference (`12` `B.Cu` Test Points)
 
-| RefDes | Silkscreen Label | Net | Board Location (`board X, Y` mm) | Expected Idle / Function |
+<img src="../images/board_bringup/00_test_point_map.png" alt="B.Cu Test Point Map (TP1–TP12) on the assembled 30.0 × 108.0 mm main PCB" width="660">
+
+| RefDes | Silkscreen Label | Net | Location (`back X, Y` / `board X, Y` mm) | Expected Idle / Function |
 | :--- | :--- | :--- | :--- | :--- |
-| **`TP1`** | `GND` | `GND` | `(15.00, 105.60)` bottom-center | Lower scope ground clip |
-| **`TP2`** | `+12V` | `+12V` | `(16.70, 2.25)` top edge (`J_PWR` side) | Filtered `+11.54 V` rail (post-`D1`/`R1`) |
-| **`TP3`** | `-12V` | `-12V` | `(11.20, 2.25)` top edge (center-left) | Filtered `-11.54 V` rail (post-`D2`/`R2`) |
-| **`TP4`** | `PRE` | `NET_PREAMP_OUT` | `(3.20, 20.00)` edge column | `U1A.1` `×2.00` preamp (`±10.0 V` headroom) |
-| **`TP9`** | `HWR` | `NET_RECT_HALF` | `(3.20, 26.50)` edge column | `U1B` / `D3.1` half-wave rectifier check |
-| **`TP5`** | `RECT` | `NET_RECT_OUT` | `(3.20, 33.00)` edge column | `U1C.8` FWR (`1.000× |V_pre|`) |
-| **`TP10`** | `DRV` | `NET_U1D_OUT` | `(3.20, 39.50)` edge column | `U1D.14` skew driver swing & stability |
-| **`TP6`** | `ENV` | `NET_ENV_BUF` | `(3.20, 46.00)` edge column | `U2A.1` buffered `V_env` (zero cap loading) |
-| **`TP11`** | `OFF` | `NET_OFF_WIPER` | `(3.20, 52.50)` edge column | `RV4.2` `±4.98 V` offset & center detent |
-| **`TP7`** | `INV` | `NET_INV_AMP` | `(3.20, 59.00)` edge column | `U2B.7` `-(V_env + V_off)` (`SMOOTH` check) |
-| **`TP8`** | `OUT` | `NET_OUT_AMP` | `(3.20, 65.00)` edge column | `U2C.8` `+(V_env + V_off)` & `U2D` input |
-| **`TP12`** | `GND2` | `GND` | `(3.20, 2.50)` top corner | Upper scope ground clip |
+| **`TP1`** | `GND` | `GND` | `back (15.00, 105.60)` / `board (15.00, 105.60)` bottom-center | Lower scope ground clip |
+| **`TP2`** | `+12V` | `+12V` | `back (13.30, 2.25)` / `board (16.70, 2.25)` top edge (`J_PWR` side) | Filtered `+11.54 V` rail (post-`D1`/`R1`) |
+| **`TP3`** | `-12V` | `-12V` | `back (18.80, 2.25)` / `board (11.20, 2.25)` top edge (center) | Filtered `-11.54 V` rail (post-`D2`/`R2`) |
+| **`TP4`** | `PRE` | `NET_PREAMP_OUT` | `back (26.80, 20.00)` / `board (3.20, 20.00)` `B.Cu` right column | `U1A.1` `×2.00` preamp (`±10.0 V` headroom) |
+| **`TP9`** | `HWR` | `NET_RECT_HALF` | `back (26.80, 26.50)` / `board (3.20, 26.50)` `B.Cu` right column | `U1B` / `D3.1` half-wave rectifier check |
+| **`TP5`** | `RECT` | `NET_RECT_OUT` | `back (26.80, 33.00)` / `board (3.20, 33.00)` `B.Cu` right column | `U1C.8` FWR (`1.000× |V_pre|`) |
+| **`TP10`** | `DRV` | `NET_U1D_OUT` | `back (26.80, 39.50)` / `board (3.20, 39.50)` `B.Cu` right column | `U1D.14` skew driver swing & stability |
+| **`TP6`** | `ENV` | `NET_ENV_BUF` | `back (26.80, 46.00)` / `board (3.20, 46.00)` `B.Cu` right column | `U2A.1` buffered `V_env` (zero cap loading) |
+| **`TP11`** | `OFF` | `NET_OFF_WIPER` | `back (26.80, 52.50)` / `board (3.20, 52.50)` `B.Cu` right column | `RV4.2` `±4.98 V` offset & center detent |
+| **`TP7`** | `INV` | `NET_INV_AMP` | `back (26.80, 59.00)` / `board (3.20, 59.00)` `B.Cu` right column | `U2B.7` `-(V_env + V_off)` (`SMOOTH` check) |
+| **`TP8`** | `OUT` | `NET_OUT_AMP` | `back (26.80, 65.00)` / `board (3.20, 65.00)` `B.Cu` right column | `U2C.8` `+(V_env + V_off)` & `U2D` input |
+| **`TP12`** | `GND2` | `GND` | `back (26.80, 2.50)` / `board (3.20, 2.50)` `B.Cu` top-right corner | Upper scope ground clip |
 
 ---
 
@@ -35,6 +39,8 @@ Use this checklist to safely power up, verify, and test your assembled **6 HP En
   - `SW1 (SMOOTH)`: **DOWN** (`RAW / OFF`)
   - `SW2 (FAST/SLOW)`: **DOWN** (`FAST`)
 
+<img src="../images/board_bringup/01_initial_controls_front.png" alt="Initial bench control state on Front (F.Cu) main PCB with all jacks unpatched" width="620">
+
 ---
 
 ## Phase 1 — Unpowered Cold Checks (Power OFF)
@@ -43,6 +49,9 @@ Use this checklist to safely power up, verify, and test your assembled **6 HP En
   - `J_PWR` keying notch faces board center; `-12V` Pins `1–2` at bottom (`-12V` bar on `F.SilkS`).
   - `C1` `+` at inner/right square pad (`+12V`); `C2` `+` at outer/left square pad (`GND`).
   - `D1` & `D2` cathode bands face **left**; `U1` Pin 1 bottom-right; `U2` Pin 1 top-left (`B.Cu` direct view).
+
+<img src="../images/board_bringup/02_phase1_polarity_check.png" alt="Phase 1 unpowered visual polarity check in B.Cu direct view (J_PWR, D1–D2, C1–C2, U1–U2)" width="680">
+
 - [ ] **Power-rail resistance check (DMM Ohms, after caps settle):**
   - `TP2 (+12V)` to `TP1 (GND)`: **`> 10 kΩ`** (no dead short).
   - `TP3 (-12V)` to `TP1 (GND)`: **`> 10 kΩ`** (no dead short).
@@ -52,9 +61,13 @@ Use this checklist to safely power up, verify, and test your assembled **6 HP En
   - Red probe on `J_PWR` Pin `9/10` (`+12V in`), Black probe on `TP2 (+12V)`: reads **`~0.18–0.35 V`** (`OL` when probes reversed).
   - Red probe on `TP3 (-12V)`, Black probe on `J_PWR` Pin `1/2` (`-12V in`): reads **`~0.18–0.35 V`** (`OL` when probes reversed).
 
+<img src="../images/board_bringup/03_phase1_cold_checks.png" alt="Phase 1 DMM resistance, ground continuity, and Schottky diode-mode probe guide" width="680">
+
 ---
 
 ## Phase 2 — First Power-Up (Smoke Test & Supply Rails)
+
+<img src="../images/board_bringup/04_phase2_power_up.png" alt="Phase 2 first power-up guide showing red stripe at J_PWR bottom, TP2/TP3 rail targets, and thermal check zones" width="680">
 
 - [ ] **Connect `10-pin` power ribbon cable** — confirm **RED STRIPE (`-12V`) is at the BOTTOM** of `J_PWR` (`Pins 1–2`, matching `F.SilkS` `-12V` bar and `B.SilkS` Pin-1 triangle).
 - [ ] **Enable `±12 V` bench supply (`40–50 mA` current limit):**
@@ -68,6 +81,8 @@ Use this checklist to safely power up, verify, and test your assembled **6 HP En
 ---
 
 ## Phase 3 — Quiescent DC Bias, `OFFSET` & `LED1` Verification (No Input)
+
+<img src="../images/board_bringup/05_phase3_bias_offset_led.png" alt="Phase 3 quiescent DC bias, RV4 OFFSET sweep truth table, and LED1 B.Cu polarity zoom" width="680">
 
 - [ ] **Center-detent baseline check (`RV4` at center detent, `RV1` CCW, no cables patched):**
   - `TP4 (PRE)`: `0.00 V ± 10 mV`
@@ -93,6 +108,8 @@ Use this checklist to safely power up, verify, and test your assembled **6 HP En
 ---
 
 ## Phase 4 — Audio Signal Path Verification (`100–200 Hz`, `10 Vpp` / `±5 V` Sine into `J1 IN`)
+
+<img src="../images/board_bringup/06_phase4_signal_chain.png" alt="Phase 4 stage-by-stage oscilloscope signal chain walk from TP4 (PRE) through TP8 (OUT)" width="680">
 
 Patch a **`100 Hz` or `200 Hz`, `10 Vpp` (`±5 V`) sine wave** into **`J1 (IN)`**; clip scope ground to `TP1`/`TP12`:
 
@@ -121,6 +138,8 @@ Patch a **`100 Hz` or `200 Hz`, `10 Vpp` (`±5 V`) sine wave** into **`J1 (IN)`*
 
 ## Phase 5 — `SLEW IN` (`J2`) Normaling & Bipolar Timing Verification
 
+<img src="../images/board_bringup/07_phase5_slew_and_timing.png" alt="Phase 5 SLEW IN (J2) normaling trace, high-Z timing capacitor bank, and 4-mode spot-check timing" width="680">
+
 - [ ] **Patch a `0 → +5 V` (and/or `±5 V`) square/gate LFO (`~0.5–5 Hz`) into `J2 (SLEW IN)`:**
   - Leave the `100 Hz` sine patched into `J1 (IN)` and verify `J1` audio disappears from `TP6` / `J3` (**normal switch broken cleanly**).
 - [ ] **Verify bipolar DC-coupled slewing (`±5 V` square input):**
@@ -148,11 +167,13 @@ Patch a **`100 Hz` or `200 Hz`, `10 Vpp` (`±5 V`) sine wave** into **`J1 (IN)`*
 
 ## Troubleshooting Quick Reference
 
-| Symptom | Most Likely Cause | Where to Check |
-| :--- | :--- | :--- |
-| Dead rail (`0 V` at `TP2` or `TP3`) or excessive current on power-up | `D1`/`D2` reversed, `C2` installed backward, or `J_PWR` rotated | Power OFF immediately; inspect `D1`/`D2` cathode bands (both face LEFT in `B.Cu` view), `C2` (`+` to `GND`), `J_PWR` notch |
-| `LED1` lights **RED** when `OFFSET` is CW (`+5 V` at `J3`) | `LED1` inserted backward | Desolder `LED1` and rotate `180°` (`+V = Green` anode in Pad 1 left square pad) |
-| Half-wave or asymmetric lobes at `TP5 (RECT)` | `D3 (BAT54S)` rotated or wrong pinout | Verify `D3` has 2 pins right / 1 pin left in `B.Cu` view and `TP9` shows clean negative half-waves |
-| Large `~0.6 V` dead-zone or slow bleed droop in `SLOW` mode | `D4`/`D5` reversed, Schottky substituted for `1N4148W`, or flux on `NET_ENV_CAP` | Check `D4` cathode RIGHT / `D5` cathode LEFT; confirm `1N4148W` silicon; clean `RV2`, `RV3`, `C11`–`C13`, `SW2`, `U2.3` with `99%` IPA |
-| `SW1` or `SW2` works opposite to lever UP = ON | Switch rotated or wrong pins soldered | Confirm Pin 2 (center) connects to Pin 3 (bottom pad) when toggle lever is UP |
-| No audio in Envelope Follower mode when `J2` is unpatched | `J2` tip-normal switch (`TN`) open/bent or `R15`/`R17` cold joint | Probe `TP5 (RECT)` then `J2.TN` → `J2.T` → `U1.12` |
+<img src="../images/board_bringup/08_troubleshooting_hotspots.png" alt="Troubleshooting quick reference highlighting B.Cu fault zones 1–6 on the main PCB" width="620">
+
+| # | Symptom | Most Likely Cause | Where to Check |
+| :---: | :--- | :--- | :--- |
+| **1** | Dead rail (`0 V` at `TP2` or `TP3`) or excessive current on power-up | `D1`/`D2` reversed, `C2` installed backward, or `J_PWR` rotated | Power OFF immediately; inspect `D1`/`D2` cathode bands (both face LEFT in `B.Cu` view), `C2` (`+` to `GND`), `J_PWR` notch |
+| **2** | `LED1` lights **RED** when `OFFSET` is CW (`+5 V` at `J3`) | `LED1` inserted backward | Desolder `LED1` and rotate `180°` (`+V = Green` anode in Pad 1 — LEFT square pad on `F.Cu`, RIGHT square pad on `B.Cu`) |
+| **3** | Half-wave or asymmetric lobes at `TP5 (RECT)` | `D3 (BAT54S)` rotated or wrong pinout | Verify `D3` has 2 pins right / 1 pin left in `B.Cu` view and `TP9` shows clean negative half-waves |
+| **4** | Large `~0.6 V` dead-zone or slow bleed droop in `SLOW` mode | `D4`/`D5` reversed, Schottky substituted for `1N4148W`, or flux on `NET_ENV_CAP` | Check `D4` cathode RIGHT / `D5` cathode LEFT; confirm `1N4148W` silicon; clean `RV2`, `RV3`, `C11`–`C13`, `SW2`, `U2.3` with `99%` IPA |
+| **5** | `SW1` or `SW2` works opposite to lever UP = ON | Switch rotated or wrong pins soldered | Confirm Pin 2 (center) connects to Pin 3 (bottom pad) when toggle lever is UP |
+| **6** | No audio in Envelope Follower mode when `J2` is unpatched | `J2` tip-normal switch (`TN`) open/bent or `R15`/`R17` cold joint | Probe `TP5 (RECT)` then `J2.TN` → `J2.T` → `U1.12` |
