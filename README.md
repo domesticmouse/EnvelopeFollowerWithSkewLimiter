@@ -20,7 +20,9 @@ Building on [domesticmouse/EnvelopeFollower](https://github.com/domesticmouse/En
 | [`envelope_follower.kicad_pcb`](envelope_follower.kicad_pcb) | Routed 2-layer `30.0 × 108.0 mm` (6 HP) KiCad 10 PCB (`F.Cu` panel controls + `B.Cu` SMD/power/test points, `0` DRC violations, `0` unconnected items, `0` schematic parity issues). |
 | [`envelope_follower.kicad_pro`](envelope_follower.kicad_pro) | KiCad 10 project configuration file for `envelope_follower.kicad_sch` and `envelope_follower.kicad_pcb`. |
 | [`silk_layout.json`](silk_layout.json) | Pinned board-local `F.SilkS`/`B.SilkS` layout manifest synced with `generate_kicad_pcb.py` (including `LED1` bi-color/polarity callouts, dual-sided `TP1`–`TP12` labels, and value-only `B.SilkS` passives). |
-| [`images/`](images/) | Rendered PNG previews embedded in `README.md` (`schematic.png`, `pcb_front.png`, `pcb_back.png`) exported from `envelope_follower.pdf` and `envelope_follower.kicad_pcb`. |
+| [`envelope_follower_panel.kicad_pcb`](envelope_follower_panel.kicad_pcb) | Mated 6 HP × 3U (`30.0 × 128.5 mm`) blank-front Eurorack front panel KiCad 10 PCB with `F.Cu`/`B.Cu` `GND` shield planes, grounded cutouts, M3 oval mounting slots, and rear `B.SilkS` metadata + JLCPCB QR placeholder (`0` DRC violations). |
+| [`panel_svg_spec.md`](panel_svg_spec.md) | 1:1 mm Markdown + JSON front-panel mechanical & SVG dimension specification (`F.SilkS` & `F.Mask` canvas, coordinates, keepouts, and KiCad import rules) for downstream graphics generation. |
+| [`images/`](images/) | Rendered PNG previews embedded in `README.md` (`schematic.png`, `pcb_front.png`, `pcb_back.png`, `panel_front.png`, `panel_back.png`) exported from `envelope_follower.pdf`, `envelope_follower.kicad_pcb`, and `envelope_follower_panel.kicad_pcb`. |
 | [`envelope_follower.net`](envelope_follower.net) | Exported KiCad 10 netlist (80 components, 48 active nets, `Power`/`HighImpedance` NetClasses, and DNP test-point properties). |
 | [`envelope_follower_bom.xml`](envelope_follower_bom.xml) | Well-formed KiCad XML BOM containing component values, footprints, LCSC/MPN/silkscreen fields, and net nodes. |
 | [`jlcpcb_bom.csv`](jlcpcb_bom.csv) | Grouped 4-column JLCPCB SMT PCBA BOM (50 SMD components across 17 rows, 3 Extended SKUs). |
@@ -90,6 +92,30 @@ python3 generate_kicad_pcb.py --show-silk [REF ...]
 python3 generate_kicad_pcb.py --check-silk   # strict silkscreen collision/keepout/tether inspection
 kicad-cli pcb render --side top --width 900 --height 2400 --background transparent --quality high --output images/pcb_front.png envelope_follower.kicad_pcb
 kicad-cli pcb render --side bottom --width 900 --height 2400 --background transparent --quality high --output images/pcb_back.png envelope_follower.kicad_pcb
+```
+
+## Front Panel
+
+- **6 HP × 3U blank-front faceplate ([`envelope_follower_panel.kicad_pcb`](envelope_follower_panel.kicad_pcb)):** `30.0 × 128.5 mm` (`1.6 mm` FR4) mated directly to [`envelope_follower.kicad_pcb`](envelope_follower.kicad_pcb) (`10.25 mm` top/bottom rail overhang). Features `0` `F.SilkS` primitives on the front face, `2` Doepfer M3 oval mounting slots (`3.2 × 5.5 mm` NPTH), `10` grounded `GND` PTH panel cutouts (`RV1`–`RV4` `7.2 mm`, `SW1`–`SW2` `5.2 mm`, `J1`–`J4` `6.2 mm`) with tented front solder mask and exposed rear `B.Mask` grounding rings, `1` `3.2 mm` NPTH aperture for `LED1`, and filled `F.Cu`/`B.Cu` `GND` shield planes (`0` DRC violations, `0` unconnected items).
+- **Rear `B.SilkS` markings:** Mirrored (`(justify mirror)`) module title/version (`ENVELOPE FOLLOWER / + SKEW LIMITER / 6HP  Rev 1.0`), vertical GitHub URL (`github.com/domesticmouse/EnvelopeFollowerWithSkewLimiter`), and a `5.0 × 5.0 mm` solid JLCPCB QR placeholder square placed clear of all `B.Mask` pads, M3 slots, and panel edges.
+- **Downstream SVG graphics specification ([`panel_svg_spec.md`](panel_svg_spec.md)):** Machine-readable JSON + Markdown dimension specification (`30.00 × 128.50 mm` `viewBox`, exact control centers, nut/washer/rail keepouts, `<= 14.0 mm` knob constraint, switch/LED metadata, and `F.SilkS` / `F.Mask` registration instructions for KiCad 10 import).
+
+| Front (`F.Cu` — Blank Front Face) | Back (`B.Cu` — Ground Rings, Metadata & QR) |
+| :---: | :---: |
+| <img src="images/panel_front.png" alt="Front panel front render (F.Cu)" width="280"> | <img src="images/panel_back.png" alt="Front panel back render (B.Cu)" width="280"> |
+
+```bash
+python3 .agents/skills/eurorack-panel/scripts/generate_eurorack_panel.py \
+    --main-pcb envelope_follower.kicad_pcb \
+    --output envelope_follower_panel.kicad_pcb \
+    --blank-front \
+    --title "ENVELOPE FOLLOWER + SKEW LIMITER" \
+    --version "Rev 1.0" \
+    --url "github.com/domesticmouse/EnvelopeFollowerWithSkewLimiter" \
+    --spec-md panel_svg_spec.md \
+    --drc
+kicad-cli pcb render --side top --width 900 --height 2400 --background transparent --quality high --output images/panel_front.png envelope_follower_panel.kicad_pcb
+kicad-cli pcb render --side bottom --width 900 --height 2400 --background transparent --quality high --output images/panel_back.png envelope_follower_panel.kicad_pcb
 ```
 
 ## Build & Manufacturing Checklists
