@@ -8,3 +8,6 @@ __pycache__/
 *-backups/
 fp-info-cache
 ~*.lck
+site/node_modules/
+site/dist/
+site/.astro/

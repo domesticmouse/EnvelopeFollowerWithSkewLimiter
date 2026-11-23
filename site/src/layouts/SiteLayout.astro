@@ -1,0 +1,60 @@
+---
+import '../styles/fonts.css';
+import '../styles/tokens.css';
+import '../styles/global.css';
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  currentPath: string;
+  canvas?: 'canvas' | 'void';
+}
+
+const {
+  title,
+  description,
+  currentPath,
+  canvas = 'canvas',
+} = Astro.props;
+
+const hasSearchSlot = Astro.slots.has('search-trigger');
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23141518'/%3E%3Cpolygon points='2,2 12,2 14,4 14,14 4,14 2,12' fill='%23d8b154'/%3E%3C/svg%3E"
+    />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <slot name="head" />
+  </head>
+  <body data-canvas={canvas}>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+
+    {
+      hasSearchSlot ? (
+        <SiteHeader currentPath={currentPath}>
+          <slot name="search-trigger" slot="search-trigger" />
+        </SiteHeader>
+      ) : (
+        <SiteHeader currentPath={currentPath} />
+      )
+    }
+
+    <main id="main-content" class="site-main" data-pagefind-body>
+      <slot />
+    </main>
+
+    <SiteFooter />
+    <slot name="dialogs" />
+  </body>
+</html>

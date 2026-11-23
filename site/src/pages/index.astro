@@ -1,0 +1,484 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import {
+  ENVELOPE_FOLLOWER_PATCHES,
+  SKEW_LIMITER_PATCHES,
+} from '../data/landing-patches.ts';
+import { withBase } from '../lib/routes.ts';
+---
+
+<SiteLayout
+  title="ENV / SKEW — 6 HP Eurorack Envelope Follower & Asymmetric Skew Limiter"
+  description="Studio Monograph for ENV / SKEW: 8 Eurorack Patch Guides, 6 interactive Build Checklists, hosted Interactive BOM, A3 schematic, and hardware lineage from HAGIWO No. 43."
+  currentPath="/"
+  canvas="void"
+>
+  <div class="monograph-container">
+    <section class="poster-hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="hero-kicker">6 HP Eurorack · Dark-Studio Monograph</p>
+        <h1 id="hero-title" class="hero-title">TWO MODULES IN 6 HP</h1>
+        <p class="hero-lead">
+          Patch audio into <code>IN</code> for <strong>Envelope Follower Mode</strong> (switchless{' '}
+          <code>×2</code> AC preamp, precision full-wave rectifier, and <code>SMOOTH</code>{' '}
+          T-filter), or patch CV/audio into <code>SLEW IN</code> to break the internal normal for{' '}
+          <strong>Asymmetric Skew Limiter Mode</strong> with independent <code>ATK</code> /{' '}
+          <code>REL</code> rates, <code>±4.98 V</code> <code>OFFSET</code>, and mirrored{' '}
+          <code>OUT</code> / <code>INV OUT</code>.
+        </p>
+
+        <ul class="spec-chip-row" aria-label="Module specifications">
+          <li class="spec-chip tabular">6 HP (30.0 mm)</li>
+          <li class="spec-chip">2× TL074H (8/8 sections)</li>
+          <li class="spec-chip tabular">±12 V (~13 mA)</li>
+          <li class="spec-chip tabular">0 Trimmers</li>
+          <li class="spec-chip">Apache-2.0 OSHW</li>
+        </ul>
+
+        <div class="hero-cta-row">
+          <a href={withBase('/patches/')} class="cta-primary chamfer-sm">
+            <span>Explore Patch Guides</span>
+            <span aria-hidden="true">→</span>
+          </a>
+          <a href={withBase('/build/')} class="cta-secondary chamfer-sm">
+            Build It Yourself
+          </a>
+        </div>
+      </div>
+
+      <figure class="hero-frame">
+        <img
+          src={withBase('/images/panel_front.png')}
+          alt="ENV / SKEW 6 HP Matte Black and ENIG Gold Eurorack front panel"
+          width="872"
+          height="2384"
+          loading="eager"
+          fetchpriority="high"
+        />
+        <figcaption class="hero-frame-caption mono">
+          Matte Black FR4 · ENIG Gold · 30.0 × 128.5 mm
+        </figcaption>
+      </figure>
+    </section>
+
+    <section class="mode-band" aria-labelledby="ef-mode-heading">
+      <div class="mode-band-head">
+        <div>
+          <h2 id="ef-mode-heading" class="mode-band-title">
+            Envelope Follower Mode (01–05)
+          </h2>
+          <p class="mode-band-sub">
+            Audio-driven envelope extraction: <code>IN</code> patched · <code>SLEW IN</code>{' '}
+            unpatched
+          </p>
+        </div>
+        <a href={withBase('/patches/')} class="band-all-link mono">
+          All 8 Patch Guides →
+        </a>
+      </div>
+
+      <ul class="patch-strip-list">
+        {
+          ENVELOPE_FOLLOWER_PATCHES.map((patch) => (
+            <li>
+              <a href={withBase(`/patches/${patch.slug}/`)} class="patch-strip">
+                <span class="patch-num chamfer-sm tabular">{patch.num}</span>
+                <span class="patch-body">
+                  <strong class="patch-title">{patch.title}</strong>
+                  <span class="patch-summary">{patch.summary}</span>
+                  <span class="patch-controls mono">{patch.controls}</span>
+                </span>
+                <span class="led-pill" data-led={patch.ledState}>
+                  {patch.ledLabel}
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section class="mode-band" aria-labelledby="skew-mode-heading">
+      <div class="mode-band-head">
+        <div>
+          <h2 id="skew-mode-heading" class="mode-band-title">
+            Asymmetric Skew Limiter Mode (06–08)
+          </h2>
+          <p class="mode-band-sub">
+            DC-coupled slope shaping: <code>SLEW IN</code> patched · <code>IN</code> and{' '}
+            <code>GAIN</code> bypassed
+          </p>
+        </div>
+        <a href={withBase('/patches/')} class="band-all-link mono">
+          Open Workbench →
+        </a>
+      </div>
+
+      <ul class="patch-strip-list">
+        {
+          SKEW_LIMITER_PATCHES.map((patch) => (
+            <li>
+              <a href={withBase(`/patches/${patch.slug}/`)} class="patch-strip">
+                <span class="patch-num chamfer-sm tabular">{patch.num}</span>
+                <span class="patch-body">
+                  <strong class="patch-title">{patch.title}</strong>
+                  <span class="patch-summary">{patch.summary}</span>
+                  <span class="patch-controls mono">{patch.controls}</span>
+                </span>
+                <span class="led-pill" data-led={patch.ledState}>
+                  {patch.ledLabel}
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section class="dossier-section" aria-labelledby="dossier-heading">
+      <h2 id="dossier-heading" class="visually-hidden">
+        Build, Hardware, and Origin Dossier
+      </h2>
+      <div class="dossier-grid">
+        <article class="dossier-card">
+          <p class="dossier-kicker mono">01 · DIY BUILD &amp; BENCH</p>
+          <h3>Build</h3>
+          <p>
+            Six ordered Build Checklists (211 bench-persistent steps), JLCPCB Economic PCBA +
+            Tayda parts lists, and full-screen Interactive BOM (<code>bom/ibom.html</code>) for
+            the 18 manual THT components.
+          </p>
+          <div class="dossier-links">
+            <a href={withBase('/build/')}>Open Build Checklists →</a>
+            <a href={withBase('/downloads/')}>Fabrication Downloads →</a>
+          </div>
+        </article>
+
+        <article class="dossier-card">
+          <p class="dossier-kicker mono">02 · SCHEMATIC, PCB &amp; PANEL</p>
+          <h3>Hardware</h3>
+          <p>
+            9-block A3 KiCad 10 schematic, 2-layer <code>F.Cu</code> / <code>B.Cu</code> 6 HP
+            sandwich PCB with 12 test points (<code>TP1</code>–<code>TP12</code>), and 4-layer
+            Matte Black + ENIG panel vectors.
+          </p>
+          <div class="dossier-links">
+            <a href={withBase('/hardware/')}>Inspect Hardware Showcase →</a>
+            <a href={withBase('/specs/')}>Read Reference Specs →</a>
+          </div>
+        </article>
+
+        <article class="dossier-card">
+          <p class="dossier-kicker mono">03 · PROVENANCE &amp; LINEAGE</p>
+          <h3>Origin</h3>
+          <p>
+            Traced from HAGIWO/ハギヲ’s Jan 2022 <em>No. 43: $4 Envelope Follower</em> through{' '}
+            <code>domesticmouse/EnvelopeFollower</code> to this zero-trimmer, Apache-2.0{' '}
+            <code>ENV / SKEW</code> redesign.
+          </p>
+          <div class="dossier-links">
+            <a href={withBase('/origin/')}>Read Origin Story →</a>
+          </div>
+        </article>
+      </div>
+    </section>
+  </div>
+</SiteLayout>
+
+<style>
+  .monograph-container {
+    max-inline-size: var(--page-max-inline);
+    margin-inline: auto;
+    padding: 1.75rem 1.25rem 3.5rem;
+    min-inline-size: 0;
+  }
+
+  .poster-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(220px, 272px);
+    gap: 2.25rem;
+    align-items: center;
+    padding-block: 0.75rem 2.25rem;
+    border-block-end: 2px solid var(--accent-gold);
+  }
+
+  .hero-copy {
+    min-inline-size: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .hero-kicker {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-gold);
+  }
+
+  .hero-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 5vw, 3.85rem);
+    font-weight: 700;
+    line-height: 0.98;
+    letter-spacing: -0.02em;
+    color: var(--ink-silk);
+  }
+
+  .hero-lead {
+    margin: 0;
+    color: var(--ink-primary);
+    font-size: 1.03rem;
+    max-inline-size: 62ch;
+  }
+
+  .spec-chip-row {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .hero-cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+    margin-block-start: 0.25rem;
+  }
+
+  .hero-frame {
+    margin: 0;
+    padding: 0.9rem 0.9rem 0.7rem;
+    background: var(--bg-code);
+    border: 1px solid var(--accent-gold);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.65rem;
+    box-shadow: 0 0 36px rgba(216, 177, 84, 0.12);
+    min-inline-size: 0;
+  }
+
+  .hero-frame img {
+    display: block;
+    inline-size: auto;
+    max-inline-size: 100%;
+    max-block-size: 380px;
+    block-size: auto;
+    object-fit: contain;
+  }
+
+  .hero-frame-caption {
+    font-size: 0.72rem;
+    color: var(--ink-muted);
+    text-align: center;
+  }
+
+  .mode-band {
+    margin-block-start: 2.25rem;
+  }
+
+  .mode-band-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    padding-block-end: 0.55rem;
+    border-block-end: 2px solid var(--accent-gold);
+    margin-block-end: 0.75rem;
+  }
+
+  .mode-band-title {
+    margin: 0;
+    font-size: 1.38rem;
+    font-weight: 700;
+    color: var(--ink-silk);
+  }
+
+  .mode-band-sub {
+    margin: 0.2rem 0 0;
+    color: var(--ink-muted);
+    font-size: 0.9rem;
+  }
+
+  .band-all-link {
+    color: var(--accent-gold);
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .band-all-link:hover {
+    color: var(--accent-gold-bright);
+    text-decoration: underline;
+  }
+
+  .patch-strip-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+
+  .patch-strip {
+    display: grid;
+    grid-template-columns: 3.6rem minmax(0, 1fr) auto;
+    gap: 0.85rem 1.1rem;
+    align-items: center;
+    padding: 0.9rem 1rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--ink-primary);
+    text-decoration: none;
+    min-inline-size: 0;
+  }
+
+  .patch-strip:hover {
+    background: var(--bg-surface-elevated);
+    border-color: var(--accent-gold);
+  }
+
+  .patch-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    block-size: 2.55rem;
+    background: var(--accent-gold);
+    color: var(--accent-gold-ink);
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-size-adjust: cap-height from-font;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .patch-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-inline-size: 0;
+  }
+
+  .patch-title {
+    font-size: 1.04rem;
+    color: var(--ink-silk);
+  }
+
+  .patch-summary {
+    color: var(--ink-muted);
+    font-size: 0.9rem;
+  }
+
+  .patch-controls {
+    color: var(--accent-gold);
+    font-size: 0.76rem;
+    overflow-wrap: anywhere;
+  }
+
+  .dossier-section {
+    margin-block-start: 2.5rem;
+  }
+
+  .dossier-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .dossier-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-ui);
+    padding: 1.15rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    min-inline-size: 0;
+  }
+
+  .dossier-kicker {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--accent-gold);
+  }
+
+  .dossier-card h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: var(--ink-silk);
+  }
+
+  .dossier-card p {
+    margin: 0;
+    color: var(--ink-primary);
+    font-size: 0.92rem;
+    flex: 1;
+  }
+
+  .dossier-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    padding-block-start: 0.35rem;
+  }
+
+  .dossier-links a {
+    color: var(--accent-gold);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .dossier-links a:hover {
+    color: var(--accent-gold-bright);
+    text-decoration: underline;
+  }
+
+  @media (max-width: 859px) {
+    .poster-hero {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.5rem;
+    }
+
+    .hero-frame {
+      max-inline-size: 240px;
+      margin-inline: auto;
+    }
+
+    .patch-strip {
+      grid-template-columns: 3.1rem minmax(0, 1fr);
+    }
+
+    .patch-strip .led-pill {
+      grid-column: 2;
+      justify-self: start;
+    }
+
+    .dossier-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 520px) {
+    .monograph-container {
+      padding: 1.1rem 0.85rem 2.5rem;
+    }
+
+    .patch-strip {
+      padding: 0.75rem 0.8rem;
+      gap: 0.65rem 0.75rem;
+    }
+  }
+</style>
