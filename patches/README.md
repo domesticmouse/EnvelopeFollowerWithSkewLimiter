@@ -1,4 +1,4 @@
-# ENV / SKEW — Audio Effect & Patch Guides
+# ENV / SKEW — Patch Guides
 
 Practical Eurorack patch guides for the **6 HP Envelope Follower with Skew Limiter (`ENV / SKEW`)** — covering both audio-driven envelope following (`IN`) and DC-coupled asymmetric slew processing (`SLEW IN`).
 
@@ -64,7 +64,7 @@ Because `U1D` drives the timing capacitor toward `±10.89 V` (`±11.54 V` rails 
 
 ---
 
-## Effect Guides Index
+## Patch Guides Index
 
 ### Envelope Follower Mode (`IN` Patched, `SLEW IN` Unpatched)
 

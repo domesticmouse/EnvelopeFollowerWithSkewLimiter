@@ -1,4 +1,4 @@
-[← All Effect Guides](README.md)
+[← All Patch Guides](README.md)
 
 # 04 — Ducking & Blooming Reverb / Delay (Ambient Swells)
 
@@ -79,7 +79,7 @@ flowchart LR
 
 ---
 
-## How the Controls Shape the Effect
+## How the Controls Shape the Patch
 
 - **Why `VCA on Send` vs `VCA on Return` sounds different:** Patching `INV OUT` to a VCA on the **wet return** creates dramatic "vacuum" pumping after loud hits because delay echoes recorded *during* the phrase leap forward when you stop. Patching `INV OUT` to a VCA on the **FX send** keeps echoes clean and uncluttered—only phrases that end quietly get caught by the delay!
 - **Active linear ramps feel musical:** Passive RC integrators sprint through the first 63% of a swell and stall asymptotically near the top. Because `U1D` drives `C11+C12+C13` (`4.87 µF`) toward `+10.89 V`, a `0 → +5 V` **`SLOW` bloom** climbs smoothly and predictably from start to finish.
@@ -105,4 +105,4 @@ flowchart LR
 
 ---
 
-[← Previous: 03 — Dynamic Compression, Expansion & Noise Gating](03-compression-expansion-gating.md) · [All Effect Guides](README.md) · [Next: 05 — Cross-Modulation & Push-Pull Stereo / Timbral Effects →](05-cross-modulation-push-pull.md)
+[← Previous: 03 — Dynamic Compression, Expansion & Noise Gating](03-compression-expansion-gating.md) · [All Patch Guides](README.md) · [Next: 05 — Cross-Modulation & Push-Pull Stereo / Timbral Effects →](05-cross-modulation-push-pull.md)

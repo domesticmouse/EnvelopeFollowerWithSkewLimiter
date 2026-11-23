@@ -1,4 +1,4 @@
-[← All Effect Guides](README.md)
+[← All Patch Guides](README.md)
 
 # 03 — Dynamic Compression, Expansion & Noise Gating
 
@@ -79,7 +79,7 @@ flowchart LR
 
 ---
 
-## How the Controls Shape the Effect
+## How the Controls Shape the Patch
 
 - **Why independent `ATK` / `REL` makes compression work here:** Many simple envelope followers wire `ATK` and `REL` into a passive resistive divider where slowing `ATK` (`RV2` up) with fast `REL` (`RV3` down) collapses the envelope amplitude by over `15 dB`—destroying compression consistency. Here, `U1D` drives `D4` and `D5` in opposite directions inside an active feedback loop: raising `ATK` lets drum cracks slip past **without losing peak compression depth (`0 dB` collapse)** once sustained audio arrives.
 - **Linear decay stops cleanly at zero:** Because `U1D` pulls toward `−10.89 V` instead of passively bleeding toward `0 V`, gate release drops linearly and snaps off sharply at `0.00 V` rather than dragging an endless exponential tail.
@@ -105,4 +105,4 @@ flowchart LR
 
 ---
 
-[← Previous: 02 — Auto-Wah & Dynamic Envelope Filter](02-auto-wah-envelope-filter.md) · [All Effect Guides](README.md) · [Next: 04 — Ducking & Blooming Reverb / Delay →](04-ducking-and-blooming-fx.md)
+[← Previous: 02 — Auto-Wah & Dynamic Envelope Filter](02-auto-wah-envelope-filter.md) · [All Patch Guides](README.md) · [Next: 04 — Ducking & Blooming Reverb / Delay →](04-ducking-and-blooming-fx.md)

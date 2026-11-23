@@ -1,4 +1,4 @@
-[← All Effect Guides](README.md)
+[← All Patch Guides](README.md)
 
 # 01 — Sidechain Ducking & Pumping
 
@@ -64,7 +64,7 @@ flowchart LR
 
 ---
 
-## How the Controls Shape the Effect
+## How the Controls Shape the Patch
 
 - **Why the `+ / −` LED calibration works:** The LED monitors `+(V_env + V_off)` directly at **`OUT`** via the `U2D` active V-to-I driver (`0.00 mA` at `0 V`). Because **`INV OUT`** is the exact mirror `−(V_env + V_off)`, `OUT = 0 V` (LED **Dark**) equals `INV OUT = 0 V` (VCA **fully closed**). If you drive `GAIN` so hard that the LED flashes **Green** (`OUT > 0 V`), **`INV OUT` swings negative**. On a 4-quadrant/bipolar VCA (or ring-mod VCA), negative CV will **re-open the VCA out of phase** during the kick peak, causing an audible double-thump or buzz! On a unipolar VCA, going past `0 V` creates a flat "hold" floor at the bottom of the duck before recovery begins—useful only when intentional.
 - **Why `SMOOTH` matters on kicks:** A `50 Hz` kick body creates `100 Hz` full-wave rectified pulses after `U1C`. With fast `REL`, that `100 Hz` ripple causes audible intermodulation flutter on the ducked bass. Flipping **`SMOOTH` UP** places `C14` (`220 nF`) into the split-`R_env` T-filter (`49.9 kΩ` + `49.9 kΩ`), cutting `100 Hz` ripple by **`−11.1 dB`** while keeping **`0.00%` DC amplitude loss**—so your ducking depth never shifts when toggling **`RAW` / `SMOOTH`**.
@@ -92,4 +92,4 @@ flowchart LR
 
 ---
 
-[← All Effect Guides](README.md) · [Next: 02 — Auto-Wah & Dynamic Envelope Filter →](02-auto-wah-envelope-filter.md)
+[← All Patch Guides](README.md) · [Next: 02 — Auto-Wah & Dynamic Envelope Filter →](02-auto-wah-envelope-filter.md)

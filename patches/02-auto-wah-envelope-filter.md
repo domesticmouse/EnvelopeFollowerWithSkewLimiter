@@ -1,4 +1,4 @@
-[← All Effect Guides](README.md)
+[← All Patch Guides](README.md)
 
 # 02 — Auto-Wah & Dynamic Envelope Filter
 
@@ -59,7 +59,7 @@ flowchart LR
 
 ---
 
-## How the Controls Shape the Effect
+## How the Controls Shape the Patch
 
 - **Zero diode dead zone (`0.65 V` eliminated):** Traditional passive envelope followers lose quiet guitar or synth sustain tails once signal amplitude drops below `~0.6 V`. Because `U1D` wraps `D4`/`D5` (`1N4148W`) inside its feedback loop and drives down to `0.00 V`, your filter closes smoothly all the way down into silence without abruptly snapping shut mid-note.
 - **Line-level instrument note:** `IN` has a switchless `×2.00` preamp optimized for `10 Vpp` (`±5 V`) Eurorack audio (`90.9 kΩ` input impedance). Passive electric guitars or pedals output `~0.2–1.5 Vpp`, yielding `~0.2–1.5 V` envelopes even at `GAIN` = `5 o'clock`; use an external guitar preamp module before the mult for full-range Eurorack sweeps.
@@ -91,4 +91,4 @@ flowchart LR
 
 ---
 
-[← Previous: 01 — Sidechain Ducking & Pumping](01-sidechain-ducking.md) · [All Effect Guides](README.md) · [Next: 03 — Dynamic Compression, Expansion & Noise Gating →](03-compression-expansion-gating.md)
+[← Previous: 01 — Sidechain Ducking & Pumping](01-sidechain-ducking.md) · [All Patch Guides](README.md) · [Next: 03 — Dynamic Compression, Expansion & Noise Gating →](03-compression-expansion-gating.md)

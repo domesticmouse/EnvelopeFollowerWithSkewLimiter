@@ -1,4 +1,4 @@
-[← All Effect Guides](README.md)
+[← All Patch Guides](README.md)
 
 # 06 — Audio-Rate Slew Waveshaping & Nonlinear LPF
 
@@ -60,7 +60,7 @@ flowchart LR
 
 ---
 
-## How the Controls Shape the Effect
+## How the Controls Shape the Patch
 
 - **Why slew limiting sounds different from a standard VCF:** A linear `1-pole` VCF cuts high harmonics regardless of input level. A slew limiter sets a **maximum volts-per-second speed limit** (`±10.89 V` driving through `R × 470 nF`). Loud notes hit the speed limit early (heavy filtering + triangle conversion), while quiet notes (`1–2 Vpp`) pass higher frequencies cleanly—producing an organic, level-reactive saturation you can't get from normal filters!
 - **Why `C10` (`2.2 nF` C0G) matters at audio rates:** Audio-rate op-amp slew limiters without local lead-lag compensation often burst into MHz ultrasonic oscillation as pots sweep. `ENV / SKEW` compensates `U1D` at `7.23 kHz`, keeping **`~90°` phase margin** across the full `1 kΩ–1 MΩ` range so sweeps sound smooth and glitch-free.
@@ -87,4 +87,4 @@ flowchart LR
 
 ---
 
-[← Previous: 05 — Cross-Modulation & Push-Pull Stereo / Timbral Effects](05-cross-modulation-push-pull.md) · [All Effect Guides](README.md) · [Next: 07 — Asymmetric Portamento & 303-Style Slides →](07-asymmetric-portamento-slides.md)
+[← Previous: 05 — Cross-Modulation & Push-Pull Stereo / Timbral Effects](05-cross-modulation-push-pull.md) · [All Patch Guides](README.md) · [Next: 07 — Asymmetric Portamento & 303-Style Slides →](07-asymmetric-portamento-slides.md)

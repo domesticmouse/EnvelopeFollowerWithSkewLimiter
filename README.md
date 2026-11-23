@@ -12,7 +12,7 @@ Building on [domesticmouse/EnvelopeFollower](https://github.com/domesticmouse/En
 | [`EnvelopeFollowerImprovements.md`](EnvelopeFollowerImprovements.md) | Engineering review of the base circuit documenting electrical issues, quantitative analysis, prioritized fixes, and Eurorack skew-limiter upgrade architectures. |
 | [`DesignSpec.md`](DesignSpec.md) | Finalized 6 HP (`2× TL074H`) build specification, JLCPCB SMD / Tayda TH BOM, stage analysis, pin-level netlist, and front-panel layout. |
 | [`checklists/`](checklists/) | Step-by-step markdown checklists for JLCPCB main board/PCBA & front panel ordering, 50-part PCBA alignment (with [`generate_pcba_alignment_images.py`](checklists/generate_pcba_alignment_images.py)), Tayda ordering, hand assembly (with [`generate_hand_assembly_images.py`](checklists/generate_hand_assembly_images.py)), and board bringup (with [`generate_bringup_images.py`](checklists/generate_bringup_images.py)). |
-| [`effects/`](effects/) | Patch guides and front-panel reference documenting 8 audio effects across Envelope Follower (`IN`) and Asymmetric Skew Limiter (`SLEW IN`) modes. |
+| [`patches/`](patches/) | Patch guides and front-panel reference documenting 8 Eurorack patches across Envelope Follower (`IN`) and Asymmetric Skew Limiter (`SLEW IN`) modes. |
 | [`envelope_follower.py`](envelope_follower.py) | SKiDL Python circuit capture script implementing all 80 footprints, 48 nets, ERC assertions, and BOM/netlist exports. |
 | [`generate_schematic.py`](generate_schematic.py) | Script that reads `envelope_follower.build_circuit()` and KiCad 10 symbols to generate the 9-section A3 schematic (`envelope_follower.kicad_sch`). |
 | [`envelope_follower.kicad_sch`](envelope_follower.kicad_sch) | Clean 9-section A3 KiCad 10 schematic ready to open directly in KiCad 10 Eeschema (`0` ERC errors, 100% netlist parity with `envelope_follower.net`). |
@@ -157,20 +157,20 @@ To re-create [`bom/ibom.html`](bom/ibom.html) after modifying [`envelope_followe
    - **Variants whitelist:** select `Manual THT` only (leave `Basic`, `Extended`, `DNP THT`, and `<empty>` unselected).
 4. Click **Generate BOM** and verify the output lists `14` BOM rows / `18` components (`11` Front, `7` Back).
 
-## Audio Effect & Patch Guides
+## Patch Guides
 
-Patch recipes, front-panel starting settings, and control tips for **`ENV / SKEW`** are collected in [`effects/`](effects/) ([`effects/README.md`](effects/README.md)):
+Patch guides, front-panel starting settings, and control tips for **`ENV / SKEW`** are collected in [`patches/`](patches/) ([`patches/README.md`](patches/README.md)):
 
 - **Envelope Follower Mode (`IN` patched, `SLEW IN` unpatched):**
-  1. [`effects/01-sidechain-ducking.md`](effects/01-sidechain-ducking.md) — Sidechain ducking & pumping (`INV OUT`, `SMOOTH`, `+ / −` LED zero-crossing calibration)
-  2. [`effects/02-auto-wah-envelope-filter.md`](effects/02-auto-wah-envelope-filter.md) — Upward (`OUT`) and reverse (`INV OUT`) auto-wah & dynamic envelope filtering
-  3. [`effects/03-compression-expansion-gating.md`](effects/03-compression-expansion-gating.md) — Opto-style compression, threshold noise gating, and transient shaping
-  4. [`effects/04-ducking-and-blooming-fx.md`](effects/04-ducking-and-blooming-fx.md) — Ducking delay/reverb sends and multi-second ambient swells (`SLOW` `4.87 µF`)
-  5. [`effects/05-cross-modulation-push-pull.md`](effects/05-cross-modulation-push-pull.md) — Complementary push-pull stereo panning and dynamic FM/wavefolder modulation
+  1. [`patches/01-sidechain-ducking.md`](patches/01-sidechain-ducking.md) — Sidechain ducking & pumping (`INV OUT`, `SMOOTH`, `+ / −` LED zero-crossing calibration)
+  2. [`patches/02-auto-wah-envelope-filter.md`](patches/02-auto-wah-envelope-filter.md) — Upward (`OUT`) and reverse (`INV OUT`) auto-wah & dynamic envelope filtering
+  3. [`patches/03-compression-expansion-gating.md`](patches/03-compression-expansion-gating.md) — Opto-style compression, threshold noise gating, and transient shaping
+  4. [`patches/04-ducking-and-blooming-fx.md`](patches/04-ducking-and-blooming-fx.md) — Ducking delay/reverb sends and multi-second ambient swells (`SLOW` `4.87 µF`)
+  5. [`patches/05-cross-modulation-push-pull.md`](patches/05-cross-modulation-push-pull.md) — Complementary push-pull stereo panning and dynamic FM/wavefolder modulation
 - **Asymmetric Skew Limiter Mode (`SLEW IN` patched):**
-  6. [`effects/06-audio-rate-slew-waveshaping.md`](effects/06-audio-rate-slew-waveshaping.md) — Audio-rate slew waveshaping & nonlinear low-pass filtering (`RAW` + `FAST`)
-  7. [`effects/07-asymmetric-portamento-slides.md`](effects/07-asymmetric-portamento-slides.md) — Asymmetric portamento, TB-303 acid slides, and contrary-motion VCO tracking
-  8. [`effects/08-gate-to-ar-envelope-and-slewed-mod.md`](effects/08-gate-to-ar-envelope-and-slewed-mod.md) — Linear-ramp AR/ASR envelopes, vactrol-style `SMOOTH` rounding, and slewed S&H/LFOs
+  6. [`patches/06-audio-rate-slew-waveshaping.md`](patches/06-audio-rate-slew-waveshaping.md) — Audio-rate slew waveshaping & nonlinear low-pass filtering (`RAW` + `FAST`)
+  7. [`patches/07-asymmetric-portamento-slides.md`](patches/07-asymmetric-portamento-slides.md) — Asymmetric portamento, TB-303 acid slides, and contrary-motion VCO tracking
+  8. [`patches/08-gate-to-ar-envelope-and-slewed-mod.md`](patches/08-gate-to-ar-envelope-and-slewed-mod.md) — Linear-ramp AR/ASR envelopes, vactrol-style `SMOOTH` rounding, and slewed S&H/LFOs
 
 ## Installed Skills
 

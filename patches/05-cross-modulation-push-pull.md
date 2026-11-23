@@ -1,4 +1,4 @@
-[← All Effect Guides](README.md)
+[← All Patch Guides](README.md)
 
 # 05 — Cross-Modulation & Push-Pull Stereo / Timbral Effects
 
@@ -73,7 +73,7 @@ flowchart LR
 
 ---
 
-## How the Controls Shape the Effect
+## How the Controls Shape the Patch
 
 - **Matching precision across `OUT` and `INV OUT`:** `U2C` uses `10 kΩ ±0.1%` thin-film resistors (`R30`, `R31`) to invert `U2B` (`INV OUT`), guaranteeing that `OUT` and `INV OUT` maintain virtually identical scale factors (`1.000×`) across the entire `±10 V` swing—so stereo width or dual-filter push-pull movements stay tightly balanced around the center image.
 - **Audio-rate `RAW` grit vs `SMOOTH` polish:** Leaving the left toggle **DOWN (`RAW`)** with **`REL`** near `7–8 o'clock` lets rectified `2f` ripple leak deliberately into **`OUT`**—when routed to FM depth or wavefolder symmetry, this adds an aggressive, organic "octave-doubled growl" synchronized to your key signal! Flipping **UP (`SMOOTH`)** polishes the modulation back to silky dynamics.
@@ -99,4 +99,4 @@ flowchart LR
 
 ---
 
-[← Previous: 04 — Ducking & Blooming Reverb / Delay](04-ducking-and-blooming-fx.md) · [All Effect Guides](README.md) · [Next: 06 — Audio-Rate Slew Waveshaping & Nonlinear LPF →](06-audio-rate-slew-waveshaping.md)
+[← Previous: 04 — Ducking & Blooming Reverb / Delay](04-ducking-and-blooming-fx.md) · [All Patch Guides](README.md) · [Next: 06 — Audio-Rate Slew Waveshaping & Nonlinear LPF →](06-audio-rate-slew-waveshaping.md)

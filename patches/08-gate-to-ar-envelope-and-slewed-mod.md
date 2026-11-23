@@ -1,4 +1,4 @@
-[← All Effect Guides](README.md)
+[← All Patch Guides](README.md)
 
 # 08 — Gate-to-AR Envelope & Slewed Modulation
 
@@ -76,7 +76,7 @@ flowchart LR
 
 ---
 
-## How the Controls Shape the Effect
+## How the Controls Shape the Patch
 
 - **Why `ENV / SKEW` excels as an AR generator (`0.00 V` stop + no droop):** Passive RC slews approach `0 V` asymptotically and leave a sluggish residual tail, while uncompensated diode slews stop prematurely around `0.65 V`. Because `U1D` drives `C11`–`C13` inside its feedback loop toward `±10.89 V` using low-leakage `1N4148W` silicon diodes (`D4`, `D5`) and `U2A`'s FET input, envelopes hit full target height cleanly and snap to an exact `0.00 V` baseline.
 - **`OFFSET` turns any `0–5 V` gate into a Bipolar Envelope:** While holding **`ATK` / `REL`** in AR mode, turning **`OFFSET`** to `9:30 o'clock` (`−2.5 V`) turns a `0 → +5 V` gate into a **`−2.5 V → +2.5 V` bipolar sweep**—ideal for opening and closing bipolar VCF cutoffs or stereo panners around center!
@@ -102,4 +102,4 @@ flowchart LR
 
 ---
 
-[← Previous: 07 — Asymmetric Portamento & 303-Style Slides](07-asymmetric-portamento-slides.md) · [All Effect Guides](README.md)
+[← Previous: 07 — Asymmetric Portamento & 303-Style Slides](07-asymmetric-portamento-slides.md) · [All Patch Guides](README.md)

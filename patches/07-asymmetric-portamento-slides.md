@@ -1,4 +1,4 @@
-[← All Effect Guides](README.md)
+[← All Patch Guides](README.md)
 
 # 07 — Asymmetric Portamento & 303-Style Slides
 
@@ -58,7 +58,7 @@ flowchart LR
 
 ---
 
-## How the Controls Shape the Effect
+## How the Controls Shape the Patch
 
 - **Per-Octave (`1 V` Step) Glide Times (`0 V ↔ 1 V`):**
 
@@ -94,4 +94,4 @@ flowchart LR
 
 ---
 
-[← Previous: 06 — Audio-Rate Slew Waveshaping & Nonlinear LPF](06-audio-rate-slew-waveshaping.md) · [All Effect Guides](README.md) · [Next: 08 — Gate-to-AR Envelope & Slewed Modulation →](08-gate-to-ar-envelope-and-slewed-mod.md)
+[← Previous: 06 — Audio-Rate Slew Waveshaping & Nonlinear LPF](06-audio-rate-slew-waveshaping.md) · [All Patch Guides](README.md) · [Next: 08 — Gate-to-AR Envelope & Slewed Modulation →](08-gate-to-ar-envelope-and-slewed-mod.md)
