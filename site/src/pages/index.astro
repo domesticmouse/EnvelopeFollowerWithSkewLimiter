@@ -1,4 +1,5 @@
 ---
+import FaceplateIllustration from '../components/FaceplateIllustration.astro';
 import SiteLayout from '../layouts/SiteLayout.astro';
 import {
   ENVELOPE_FOLLOWER_PATCHES,
@@ -86,14 +87,7 @@ const MODE_BANDS: readonly ModeBand[] = [
       </div>
 
       <figure class="hero-frame">
-        <img
-          src={withBase('/images/panel_front.png')}
-          alt="ENV / SKEW 6 HP Matte Black and ENIG Gold Eurorack front panel"
-          width="872"
-          height="2384"
-          loading="eager"
-          fetchpriority="high"
-        />
+        <FaceplateIllustration />
         <figcaption class="hero-frame-caption mono">
           Matte Black FR4 · ENIG Gold · 30.0 × 128.5 mm
         </figcaption>
@@ -259,7 +253,7 @@ const MODE_BANDS: readonly ModeBand[] = [
 
   .hero-frame {
     margin: 0;
-    padding: 0.9rem 0.9rem 0.7rem;
+    padding: 0.9rem 1.15rem 0.75rem;
     background: var(--bg-code);
     border: 1px solid var(--accent-gold);
     display: flex;
@@ -268,15 +262,6 @@ const MODE_BANDS: readonly ModeBand[] = [
     gap: 0.65rem;
     box-shadow: 0 0 36px rgba(216, 177, 84, 0.12);
     min-inline-size: 0;
-  }
-
-  .hero-frame img {
-    display: block;
-    inline-size: auto;
-    max-inline-size: 100%;
-    max-block-size: 380px;
-    block-size: auto;
-    object-fit: contain;
   }
 
   .hero-frame-caption {

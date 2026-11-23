@@ -1,0 +1,236 @@
+---
+import {
+  PANEL_CONTROL_COORDS,
+  PANEL_VIEWBOX,
+  extractFaceplateLayers,
+  tickToDeg,
+} from '../lib/panel-svg.ts';
+
+const { goldLayerSvg, silkLayerSvg } = extractFaceplateLayers();
+
+const KNOBS = [
+  { key: 'rv1', tick: 7 },
+  { key: 'rv2', tick: 3 },
+  { key: 'rv3', tick: 6 },
+  { key: 'rv4', tick: 5 },
+] as const;
+
+const SWITCHES = [
+  { key: 'sw1', up: true },
+  { key: 'sw2', up: false },
+] as const;
+
+const JACKS = ['j1', 'j2', 'j3', 'j4'] as const;
+const LED = PANEL_CONTROL_COORDS.led1;
+---
+
+<svg
+  class="faceplate-svg"
+  viewBox={PANEL_VIEWBOX}
+  width="108"
+  height="463"
+  role="img"
+  aria-label="ENV / SKEW 6 HP assembled front panel with ENIG gold artwork, four knobs, two toggle switches, bi-color LED, and four 3.5 mm jack sockets"
+>
+  <defs>
+    <radialGradient id="hero-led-glow-grad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#4ADE80" stop-opacity="0.95" />
+      <stop offset="55%" stop-color="#4ADE80" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#4ADE80" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="hero-knob-cap-grad" cx="38%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#2E3340" />
+      <stop offset="75%" stop-color="#191B22" />
+      <stop offset="100%" stop-color="#101115" />
+    </radialGradient>
+    <radialGradient id="hero-jack-nut-grad" cx="40%" cy="35%" r="70%">
+      <stop offset="0%" stop-color="#585E6E" />
+      <stop offset="100%" stop-color="#252932" />
+    </radialGradient>
+  </defs>
+
+  <rect
+    class="panel-substrate"
+    x="0"
+    y="0"
+    width="30"
+    height="128.5"
+    rx="0.4"
+    fill="#141518"
+    stroke="#2A2E38"
+    stroke-width="0.25"
+  />
+
+  {
+    [3.0, 125.5].map((cy) => (
+      <g>
+        <rect
+          x="4.55"
+          y={(cy - 1.8).toFixed(2)}
+          width="5.9"
+          height="3.6"
+          rx="1.8"
+          fill="#262A34"
+          stroke="#464C5C"
+          stroke-width="0.18"
+        />
+        <rect
+          x="4.75"
+          y={(cy - 1.6).toFixed(2)}
+          width="5.5"
+          height="3.2"
+          rx="1.6"
+          fill="#090A0D"
+        />
+      </g>
+    ))
+  }
+
+  <Fragment set:html={goldLayerSvg} />
+  <Fragment set:html={silkLayerSvg} />
+
+  <g class="controls-layer">
+    {
+      KNOBS.map(({ key, tick }) => {
+        const { x, y } = PANEL_CONTROL_COORDS[key];
+        return (
+          <g>
+            <circle
+              cx={x}
+              cy={y}
+              r="4.75"
+              fill="#0B0C0F"
+              stroke="#3A3F4D"
+              stroke-width="0.22"
+            />
+            <circle
+              cx={x}
+              cy={y}
+              r="4.35"
+              fill="url(#hero-knob-cap-grad)"
+              stroke="#484F61"
+              stroke-width="0.2"
+            />
+            <g transform={`rotate(${tickToDeg(tick)} ${x} ${y})`}>
+              <line
+                x1={x}
+                y1={y - 1.1}
+                x2={x}
+                y2={y - 4.15}
+                stroke="#F4F5F7"
+                stroke-width="0.95"
+                stroke-linecap="round"
+              />
+              <circle cx={x} cy={y} r="0.85" fill="#303542" />
+            </g>
+          </g>
+        );
+      })
+    }
+
+    {
+      SWITCHES.map(({ key, up }) => {
+        const { x, y } = PANEL_CONTROL_COORDS[key];
+        const tipY = up ? y - 2.55 : y + 2.55;
+        return (
+          <g>
+            <circle
+              cx={x}
+              cy={y}
+              r="2.55"
+              fill="url(#hero-jack-nut-grad)"
+              stroke="#6C7387"
+              stroke-width="0.25"
+            />
+            <circle cx={x} cy={y} r="1.2" fill="#0B0C0F" />
+            <line
+              x1={x}
+              y1={y}
+              x2={x}
+              y2={tipY}
+              stroke="#090A0D"
+              stroke-width="1.9"
+              stroke-linecap="round"
+            />
+            <line
+              x1={x}
+              y1={y}
+              x2={x}
+              y2={tipY}
+              stroke="#E2BE66"
+              stroke-width="1.3"
+              stroke-linecap="round"
+            />
+            <circle cx={x} cy={tipY} r="0.85" fill="#F4F5F7" />
+          </g>
+        );
+      })
+    }
+
+    <g>
+      <circle cx={LED.x} cy={LED.y} r="4.6" fill="url(#hero-led-glow-grad)" opacity="0.78" />
+      <circle
+        cx={LED.x}
+        cy={LED.y}
+        r="1.95"
+        fill="#101216"
+        stroke="#3E4352"
+        stroke-width="0.22"
+      />
+      <circle
+        cx={LED.x}
+        cy={LED.y}
+        r="1.55"
+        fill="#4ADE80"
+        stroke="#16A34A"
+        stroke-width="0.2"
+      />
+      <circle cx={LED.x - 0.45} cy={LED.y - 0.45} r="0.42" fill="#FFFFFF" opacity="0.4" />
+    </g>
+
+    {
+      JACKS.map((key) => {
+        const { x, y } = PANEL_CONTROL_COORDS[key];
+        return (
+          <g>
+            <circle
+              cx={x}
+              cy={y}
+              r="3.1"
+              fill="url(#hero-jack-nut-grad)"
+              stroke="#666D80"
+              stroke-width="0.24"
+            />
+            <circle
+              cx={x}
+              cy={y}
+              r="2.35"
+              fill="#1E222B"
+              stroke="#4E5466"
+              stroke-width="0.18"
+            />
+            <circle cx={x} cy={y} r="1.55" fill="#07080A" />
+          </g>
+        );
+      })
+    }
+  </g>
+</svg>
+
+<style>
+  .faceplate-svg {
+    display: block;
+    inline-size: auto;
+    max-inline-size: 100%;
+    block-size: auto;
+    max-block-size: 400px;
+    aspect-ratio: 30 / 128.5;
+  }
+
+  @media (forced-colors: active) {
+    .panel-substrate {
+      stroke: CanvasText;
+      stroke-width: 0.4;
+    }
+  }
+</style>
