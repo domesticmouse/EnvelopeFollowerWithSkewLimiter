@@ -34,11 +34,8 @@ h3,
 h4 {
   color: var(--ink-silk);
   font-family: var(--font-display);
-  line-height: 1.15;
-}
-
-h1 {
   font-size-adjust: cap-height from-font;
+  line-height: 1.15;
 }
 
 code,
@@ -105,17 +102,6 @@ img {
 
 .skip-link:focus-visible {
   inset-block-start: 0.75rem;
-}
-
-.chamfer {
-  clip-path: polygon(
-    0 0,
-    calc(100% - 10px) 0,
-    100% 10px,
-    100% 100%,
-    10px 100%,
-    0 calc(100% - 10px)
-  );
 }
 
 .chamfer-sm {
@@ -554,7 +540,6 @@ dialog::backdrop {
  * ============================================================================ */
 @media (forced-colors: active) {
   .slab-logo,
-  .chamfer,
   .chamfer-sm,
   .patch-num {
     clip-path: none;
@@ -629,6 +614,7 @@ dialog::backdrop {
   }
 
   .site-header,
+  .footer-nav,
   .nav-drawer,
   .skip-link,
   .no-print,

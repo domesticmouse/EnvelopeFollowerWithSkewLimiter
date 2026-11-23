@@ -14,7 +14,7 @@ const result = verifyBuiltSite({
 });
 
 if (result.errors.length > 0) {
-  console.error('Seam 1 built-site contract FAILED:');
+  console.error('Built-site contract FAILED:');
   for (const err of result.errors) {
     console.error(`  - ${err}`);
   }
@@ -22,5 +22,5 @@ if (result.errors.length > 0) {
 }
 
 console.log(
-  `Seam 1 built-site contract PASSED: ${result.checkedHtmlRoutes.length} route(s), ${result.verifiedPassthroughs} passthrough(s), ${result.verifiedImages} image(s), ${result.verifiedLinks} link(s).`,
+  `Built-site contract PASSED: ${result.checkedHtmlRoutes.length} route(s), ${result.verifiedPassthroughs} passthrough(s), ${result.verifiedImages} image(s), ${result.verifiedLinks} link(s).`,
 );

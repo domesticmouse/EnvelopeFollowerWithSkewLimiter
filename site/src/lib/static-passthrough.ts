@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { AstroIntegration } from 'astro';
+import { SITE_BASE } from './routes.ts';
 
 /** Explicit allowlisted repository files served and exported verbatim at repo-relative URLs. */
 export const REQUIRED_PASSTHROUGH_FILES: readonly string[] = [
@@ -130,6 +131,27 @@ export function copyStaticPassthroughs(repoRoot: string, distDir: string): strin
   return files;
 }
 
+/** Resolve a normalized relative path safely beneath rootDir if it exists as a regular file. */
+export function resolveSafeFileUnderRoot(rootDir: string, relPath: string): string | null {
+  if (!relPath || relPath.includes('\0')) {
+    return null;
+  }
+  const segments = relPath.split('/');
+  if (segments.some((seg) => seg === '' || seg === '.' || seg === '..')) {
+    return null;
+  }
+  const resolvedRoot = path.resolve(rootDir);
+  const candidate = path.resolve(resolvedRoot, relPath);
+  const relCheck = path.relative(resolvedRoot, candidate);
+  if (relCheck.startsWith('..') || path.isAbsolute(relCheck)) {
+    return null;
+  }
+  if (!fs.existsSync(candidate) || !fs.statSync(candidate).isFile()) {
+    return null;
+  }
+  return candidate;
+}
+
 /** Resolve an incoming dev server request path to an allowlisted Static Passthrough file or null. */
 export function resolveDevPassthroughRequest(
   urlPath: string,
@@ -160,7 +182,7 @@ export function resolveDevPassthroughRequest(
   }
 
   const segments = relCandidate.split('/');
-  if (segments.some((seg) => seg === '' || seg === '.' || seg === '..' || seg.startsWith('.'))) {
+  if (segments.some((seg) => seg.startsWith('.'))) {
     return null;
   }
 
@@ -175,14 +197,8 @@ export function resolveDevPassthroughRequest(
     return null;
   }
 
-  const resolvedRoot = path.resolve(repoRoot);
-  const resolvedFile = path.resolve(resolvedRoot, normalizedRel);
-  const relCheck = path.relative(resolvedRoot, resolvedFile);
-  if (relCheck.startsWith('..') || path.isAbsolute(relCheck)) {
-    return null;
-  }
-
-  if (!fs.existsSync(resolvedFile) || !fs.statSync(resolvedFile).isFile()) {
+  const resolvedFile = resolveSafeFileUnderRoot(repoRoot, normalizedRel);
+  if (!resolvedFile) {
     return null;
   }
 
@@ -193,10 +209,9 @@ export function resolveDevPassthroughRequest(
 }
 
 /** Astro integration serving Static Passthroughs in dev and copying them verbatim on build. */
-export function staticPassthroughIntegration(options?: { repoRoot?: string }): AstroIntegration {
-  const defaultRepoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
-  const repoRoot = path.resolve(options?.repoRoot ?? defaultRepoRoot);
-  let configuredBase = '/EnvelopeFollowerWithSkewLimiter';
+export function staticPassthroughIntegration(): AstroIntegration {
+  const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
+  let configuredBase = SITE_BASE;
 
   return {
     name: 'env-skew-static-passthrough',

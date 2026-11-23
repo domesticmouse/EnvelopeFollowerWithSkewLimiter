@@ -1,9 +1,10 @@
 import { defineConfig } from 'astro/config';
+import { SITE_BASE, SITE_ORIGIN } from './src/lib/routes.ts';
 import { staticPassthroughIntegration } from './src/lib/static-passthrough.ts';
 
 export default defineConfig({
-  site: 'https://domesticmouse.github.io',
-  base: '/EnvelopeFollowerWithSkewLimiter',
+  site: SITE_ORIGIN,
+  base: SITE_BASE,
   trailingSlash: 'always',
   build: {
     format: 'directory',

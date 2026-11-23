@@ -73,7 +73,7 @@ afterEach(() => {
   }
 });
 
-describe('Seam 1 built-site artifact contract', () => {
+describe('Built-site artifact contract', () => {
   it('passes on a valid built fixture with dark color-scheme, data-pagefind-body, explicit image dimensions, and byte-identical passthroughs', () => {
     const { repoRoot, distDir } = createValidBuiltFixture();
     const result = verifyBuiltSite({ repoRoot, distDir, implementedRoutes: ['/'] });

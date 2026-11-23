@@ -2,9 +2,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { Window } from 'happy-dom';
 import { CANONICAL_ROUTES, SITE_BASE, normalizeRoutePath } from './routes.ts';
-import { isExcludedRepoPath, resolvePassthroughFiles } from './static-passthrough.ts';
+import {
+  isExcludedRepoPath,
+  resolvePassthroughFiles,
+  resolveSafeFileUnderRoot,
+} from './static-passthrough.ts';
 
-/** Configuration options for Seam 1 built-site artifact verification. */
+/** Configuration options for built-site artifact verification. */
 export interface VerifyBuiltSiteOptions {
   distDir: string;
   repoRoot: string;
@@ -60,22 +64,10 @@ function resolveDistFile(distDir: string, sitePathname: string): string | null {
     return null;
   }
   const rel = withoutQuery.slice(SITE_BASE.length + 1);
-  if (!rel || rel.includes('..') || rel.includes('\0')) {
-    return null;
-  }
-  const resolvedDist = path.resolve(distDir);
-  const candidate = path.resolve(resolvedDist, rel);
-  const relCheck = path.relative(resolvedDist, candidate);
-  if (relCheck.startsWith('..') || path.isAbsolute(relCheck)) {
-    return null;
-  }
-  if (!fs.existsSync(candidate) || !fs.statSync(candidate).isFile()) {
-    return null;
-  }
-  return candidate;
+  return resolveSafeFileUnderRoot(distDir, rel);
 }
 
-/** Verify built Astro output against Seam 1 static artifact, passthrough, and HTML invariants. */
+/** Verify built Astro output against static artifact, passthrough, and HTML invariants. */
 export function verifyBuiltSite(options: VerifyBuiltSiteOptions): SiteContractResult {
   const distDir = path.resolve(options.distDir);
   const repoRoot = path.resolve(options.repoRoot);

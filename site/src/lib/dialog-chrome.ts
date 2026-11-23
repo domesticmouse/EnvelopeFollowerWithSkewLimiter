@@ -5,11 +5,6 @@ export interface DialogChromeOptions {
   loadInvokersPolyfill?: () => Promise<unknown>;
 }
 
-/** Returned cleanup handle for removing listeners attached by initDialogChrome. */
-export interface DialogChromeHandle {
-  destroy: () => void;
-}
-
 function isPointerOutsideDialog(event: PointerEvent, dialog: HTMLDialogElement): boolean {
   const rect = dialog.getBoundingClientRect();
   return (
@@ -37,9 +32,7 @@ function setTriggersExpanded(doc: Document, dialogId: string, expanded: boolean)
 export function initDialogChrome(
   doc: Document = document,
   options?: DialogChromeOptions,
-): DialogChromeHandle {
-  const cleanups: Array<() => void> = [];
-
+): void {
   const supportsClosedBy =
     options?.supportsClosedBy ??
     (typeof HTMLDialogElement !== 'undefined' && 'closedBy' in HTMLDialogElement.prototype);
@@ -53,47 +46,34 @@ export function initDialogChrome(
   }
 
   for (const dialog of doc.querySelectorAll<HTMLDialogElement>('dialog')) {
-    const handleClose = () => {
+    dialog.addEventListener('close', () => {
       dialog.returnValue = '';
       setTriggersExpanded(doc, dialog.id, false);
-    };
-    const handleCommand = () => {
+    });
+    dialog.addEventListener('command', () => {
       queueMicrotask(() => {
         setTriggersExpanded(doc, dialog.id, dialog.open);
       });
-    };
-    dialog.addEventListener('close', handleClose);
-    dialog.addEventListener('command', handleCommand);
-    cleanups.push(() => {
-      dialog.removeEventListener('close', handleClose);
-      dialog.removeEventListener('command', handleCommand);
     });
 
     if (!supportsClosedBy && dialog.getAttribute('closedby') === 'any') {
       let pressedOutside = false;
 
-      const handlePointerDown = (event: PointerEvent) => {
+      dialog.addEventListener('pointerdown', (event) => {
         if (!dialog.open) {
           pressedOutside = false;
           return;
         }
         pressedOutside = isPointerOutsideDialog(event, dialog);
-      };
+      });
 
-      const handlePointerUp = (event: PointerEvent) => {
+      dialog.addEventListener('pointerup', (event) => {
         if (dialog.open && pressedOutside && isPointerOutsideDialog(event, dialog)) {
           pressedOutside = false;
           dialog.close();
           return;
         }
         pressedOutside = false;
-      };
-
-      dialog.addEventListener('pointerdown', handlePointerDown);
-      dialog.addEventListener('pointerup', handlePointerUp);
-      cleanups.push(() => {
-        dialog.removeEventListener('pointerdown', handlePointerDown);
-        dialog.removeEventListener('pointerup', handlePointerUp);
       });
     }
   }
@@ -101,7 +81,7 @@ export function initDialogChrome(
   for (const trigger of doc.querySelectorAll<HTMLButtonElement>(
     'button[command="show-modal"][commandfor]',
   )) {
-    const handleTriggerClick = () => {
+    trigger.addEventListener('click', () => {
       const targetId = trigger.getAttribute('commandfor');
       if (!targetId) {
         return;
@@ -118,17 +98,6 @@ export function initDialogChrome(
       queueMicrotask(() => {
         setTriggersExpanded(doc, dialog.id, dialog.open);
       });
-    };
-
-    trigger.addEventListener('click', handleTriggerClick);
-    cleanups.push(() => trigger.removeEventListener('click', handleTriggerClick));
+    });
   }
-
-  return {
-    destroy: () => {
-      while (cleanups.length > 0) {
-        cleanups.pop()?.();
-      }
-    },
-  };
 }

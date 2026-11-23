@@ -5,6 +5,45 @@ import {
   SKEW_LIMITER_PATCHES,
 } from '../data/landing-patches.ts';
 import { withBase } from '../lib/routes.ts';
+
+interface ModeBand {
+  id: string;
+  title: string;
+  subtitleParts: readonly { text: string; code?: boolean }[];
+  linkText: string;
+  patches: typeof ENVELOPE_FOLLOWER_PATCHES;
+}
+
+const MODE_BANDS: readonly ModeBand[] = [
+  {
+    id: 'ef-mode-heading',
+    title: 'Envelope Follower Mode (01–05)',
+    subtitleParts: [
+      { text: 'Audio-driven envelope extraction: ' },
+      { text: 'IN', code: true },
+      { text: ' patched · ' },
+      { text: 'SLEW IN', code: true },
+      { text: ' unpatched' },
+    ],
+    linkText: 'All 8 Patch Guides →',
+    patches: ENVELOPE_FOLLOWER_PATCHES,
+  },
+  {
+    id: 'skew-mode-heading',
+    title: 'Asymmetric Skew Limiter Mode (06–08)',
+    subtitleParts: [
+      { text: 'DC-coupled slope shaping: ' },
+      { text: 'SLEW IN', code: true },
+      { text: ' patched · ' },
+      { text: 'IN', code: true },
+      { text: ' and ' },
+      { text: 'GAIN', code: true },
+      { text: ' bypassed' },
+    ],
+    linkText: 'Open Workbench →',
+    patches: SKEW_LIMITER_PATCHES,
+  },
+];
 ---
 
 <SiteLayout
@@ -61,79 +100,45 @@ import { withBase } from '../lib/routes.ts';
       </figure>
     </section>
 
-    <section class="mode-band" aria-labelledby="ef-mode-heading">
-      <div class="mode-band-head">
-        <div>
-          <h2 id="ef-mode-heading" class="mode-band-title">
-            Envelope Follower Mode (01–05)
-          </h2>
-          <p class="mode-band-sub">
-            Audio-driven envelope extraction: <code>IN</code> patched · <code>SLEW IN</code>{' '}
-            unpatched
-          </p>
-        </div>
-        <a href={withBase('/patches/')} class="band-all-link mono">
-          All 8 Patch Guides →
-        </a>
-      </div>
+    {
+      MODE_BANDS.map((band) => (
+        <section class="mode-band" aria-labelledby={band.id}>
+          <div class="mode-band-head">
+            <div>
+              <h2 id={band.id} class="mode-band-title">
+                {band.title}
+              </h2>
+              <p class="mode-band-sub">
+                {band.subtitleParts.map((part) =>
+                  part.code ? <code>{part.text}</code> : part.text,
+                )}
+              </p>
+            </div>
+            <a href={withBase('/patches/')} class="band-all-link mono">
+              {band.linkText}
+            </a>
+          </div>
 
-      <ul class="patch-strip-list">
-        {
-          ENVELOPE_FOLLOWER_PATCHES.map((patch) => (
-            <li>
-              <a href={withBase(`/patches/${patch.slug}/`)} class="patch-strip">
-                <span class="patch-num chamfer-sm tabular">{patch.num}</span>
-                <span class="patch-body">
-                  <strong class="patch-title">{patch.title}</strong>
-                  <span class="patch-summary">{patch.summary}</span>
-                  <span class="patch-controls mono">{patch.controls}</span>
-                </span>
-                <span class="led-pill" data-led={patch.ledState}>
-                  {patch.ledLabel}
-                </span>
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </section>
-
-    <section class="mode-band" aria-labelledby="skew-mode-heading">
-      <div class="mode-band-head">
-        <div>
-          <h2 id="skew-mode-heading" class="mode-band-title">
-            Asymmetric Skew Limiter Mode (06–08)
-          </h2>
-          <p class="mode-band-sub">
-            DC-coupled slope shaping: <code>SLEW IN</code> patched · <code>IN</code> and{' '}
-            <code>GAIN</code> bypassed
-          </p>
-        </div>
-        <a href={withBase('/patches/')} class="band-all-link mono">
-          Open Workbench →
-        </a>
-      </div>
-
-      <ul class="patch-strip-list">
-        {
-          SKEW_LIMITER_PATCHES.map((patch) => (
-            <li>
-              <a href={withBase(`/patches/${patch.slug}/`)} class="patch-strip">
-                <span class="patch-num chamfer-sm tabular">{patch.num}</span>
-                <span class="patch-body">
-                  <strong class="patch-title">{patch.title}</strong>
-                  <span class="patch-summary">{patch.summary}</span>
-                  <span class="patch-controls mono">{patch.controls}</span>
-                </span>
-                <span class="led-pill" data-led={patch.ledState}>
-                  {patch.ledLabel}
-                </span>
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </section>
+          <ul class="patch-strip-list">
+            {band.patches.map((patch) => (
+              <li>
+                <a href={withBase(`/patches/${patch.slug}/`)} class="patch-strip">
+                  <span class="patch-num chamfer-sm tabular">{patch.num}</span>
+                  <span class="patch-body">
+                    <strong class="patch-title">{patch.title}</strong>
+                    <span class="patch-summary">{patch.summary}</span>
+                    <span class="patch-controls mono">{patch.controls}</span>
+                  </span>
+                  <span class="led-pill" data-led={patch.ledState}>
+                    {patch.ledLabel}
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
 
     <section class="dossier-section" aria-labelledby="dossier-heading">
       <h2 id="dossier-heading" class="visually-hidden">
