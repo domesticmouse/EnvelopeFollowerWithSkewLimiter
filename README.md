@@ -141,7 +141,6 @@ python3 checklists/generate_pcba_alignment_images.py
 python3 checklists/generate_hand_assembly_images.py
 python3 checklists/generate_bringup_images.py
 ```
-```
 
 ### Interactive Hand-Assembly BOM
 
