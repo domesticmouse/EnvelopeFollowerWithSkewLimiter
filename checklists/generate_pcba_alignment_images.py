@@ -74,12 +74,12 @@ TEXT_PRIMARY = (238 / 255, 242 / 255, 248 / 255)
 TEXT_MUTED = (156 / 255, 166 / 255, 182 / 255)
 DARK_HALO = (12 / 255, 14 / 255, 18 / 255)
 
-ACCENT_CRIT = (245 / 255, 158 / 255, 11 / 255)   # Amber (U*, D*)
+ACCENT_CRIT = (245 / 255, 158 / 255, 11 / 255)  # Amber (U*, D*)
 BRACKET_CRIT = (250 / 255, 204 / 255, 21 / 255)  # Bright yellow
-ACCENT_CAP = (56 / 255, 189 / 255, 248 / 255)    # Sky blue (C*)
-ACCENT_RES = (52 / 255, 211 / 255, 153 / 255)    # Emerald (R*)
+ACCENT_CAP = (56 / 255, 189 / 255, 248 / 255)  # Sky blue (C*)
+ACCENT_RES = (52 / 255, 211 / 255, 153 / 255)  # Emerald (R*)
 BRACKET_PASSIVE = (34 / 255, 211 / 255, 238 / 255)  # Cyan
-EXT_ORANGE = (249 / 255, 115 / 255, 22 / 255)    # Extended SKU badge
+EXT_ORANGE = (249 / 255, 115 / 255, 22 / 255)  # Extended SKU badge
 
 FONT_SANS = "Helvetica Neue"
 FONT_MONO = "Menlo"
@@ -226,10 +226,7 @@ def load_smd_parts() -> list[SMDPart]:
 
             pc_x, pc_y = _transform_local_point(fx, fy, fp_rot, px, py)
             if pnum == "1" or p1_coords is None:
-                if pnum == "1":
-                    p1_coords = _kicad_to_back(pc_x, pc_y)
-                elif p1_coords is None:
-                    p1_coords = _kicad_to_back(pc_x, pc_y)
+                p1_coords = _kicad_to_back(pc_x, pc_y)
 
             pa = math.radians(pad_rot)
             ca, sa = math.cos(pa), math.sin(pa)
@@ -290,19 +287,15 @@ def _find_alpha_bbox(surf: cairo.ImageSurface) -> tuple[int, int, int, int]:
     for py in range(h):
         alphas = buf[py * stride : py * stride + w * 4][3::4]
         if any(alphas):
-            if py < min_y:
-                min_y = py
-            if py > max_y:
-                max_y = py
+            min_y = min(min_y, py)
+            max_y = max(max_y, py)
             for px, a in enumerate(alphas):
                 if a > 0:
-                    if px < min_x:
-                        min_x = px
+                    min_x = min(min_x, px)
                     break
             for px in range(w - 1, -1, -1):
                 if alphas[px] > 0:
-                    if px > max_x:
-                        max_x = px
+                    max_x = max(max_x, px)
                     break
 
     if max_x < 0:
@@ -343,9 +336,13 @@ def render_master_smd_board() -> tuple[cairo.ImageSurface, tuple[int, int, int, 
             str(boot_png),
             str(PCB_PATH),
         ]
-        res = subprocess.run(boot_cmd, env=env, capture_output=True, text=True, check=False)
+        res = subprocess.run(
+            boot_cmd, env=env, capture_output=True, text=True, check=False
+        )
         if res.returncode != 0:
-            raise RuntimeError(f"Bootstrap kicad-cli failed:\n{res.stdout}\n{res.stderr}")
+            raise RuntimeError(
+                f"Bootstrap kicad-cli failed:\n{res.stdout}\n{res.stderr}"
+            )
 
         viewer_cfg = cfg_dir / "10.0" / "3d_viewer.json"
         if not viewer_cfg.exists():
@@ -382,9 +379,13 @@ def render_master_smd_board() -> tuple[cairo.ImageSurface, tuple[int, int, int, 
             str(master_png),
             str(PCB_PATH),
         ]
-        res = subprocess.run(master_cmd, env=env, capture_output=True, text=True, check=False)
+        res = subprocess.run(
+            master_cmd, env=env, capture_output=True, text=True, check=False
+        )
         if res.returncode != 0:
-            raise RuntimeError(f"Master kicad-cli render failed:\n{res.stdout}\n{res.stderr}")
+            raise RuntimeError(
+                f"Master kicad-cli render failed:\n{res.stdout}\n{res.stderr}"
+            )
 
         surf = cairo.ImageSurface.create_from_png(str(master_png))
         bbox = _find_alpha_bbox(surf)
@@ -396,7 +397,7 @@ def render_master_smd_board() -> tuple[cairo.ImageSurface, tuple[int, int, int, 
             )
         print(
             f"Master render OK: {surf.get_width()}x{surf.get_height()} px, "
-            f"board bbox=({bx0},{by0})..({bx1},{by1}) [{bx1-bx0}x{by1-by0}], aspect={aspect:.4f}"
+            f"board bbox=({bx0},{by0})..({bx1},{by1}) [{bx1 - bx0}x{by1 - by0}], aspect={aspect:.4f}"
         )
         return surf, bbox
 
@@ -575,13 +576,11 @@ def _deconflict_y(
     for _ in range(12):
         # Forward push
         for i in range(1, n):
-            if ys[i] < ys[i - 1] + min_gap:
-                ys[i] = ys[i - 1] + min_gap
+            ys[i] = max(ys[i], ys[i - 1] + min_gap)
         # Backward push from bottom clamp
         ys[-1] = min(ys[-1], y_max)
         for i in range(n - 2, -1, -1):
-            if ys[i] > ys[i + 1] - min_gap:
-                ys[i] = ys[i + 1] - min_gap
+            ys[i] = min(ys[i], ys[i + 1] - min_gap)
         ys[0] = max(ys[0], y_min)
         # Gentle relaxation back toward target
         for i in range(n):
@@ -648,7 +647,9 @@ def render_overview(
     ctx.rectangle(OV_BX0 - 0.5, OV_BY0 - 0.5, OV_BW + 1.0, OV_BH + 1.0)
     ctx.stroke()
 
-    _draw_text(ctx, "back_X = 0", OV_BX0, OV_BY0 - 6, size=10.0, color=TEXT_MUTED, mono=True)
+    _draw_text(
+        ctx, "back_X = 0", OV_BX0, OV_BY0 - 6, size=10.0, color=TEXT_MUTED, mono=True
+    )
     _draw_text(
         ctx,
         "back_X = 30 mm",
@@ -710,7 +711,11 @@ def render_overview(
             accent = _part_accent(part.ref)
             # Stagger elbow x slightly by row parity so nearby vertical lines separate cleanly
             elbow_offset = 16.0 + (idx % 3) * 7.0
-            elbow_x = OV_BX0 - elbow_offset if side == "left" else OV_BX0 + OV_BW + elbow_offset
+            elbow_x = (
+                OV_BX0 - elbow_offset
+                if side == "left"
+                else OV_BX0 + OV_BW + elbow_offset
+            )
 
             # Leader line: pill -> elbow -> component center
             ctx.save()
@@ -740,7 +745,9 @@ def render_overview(
                 pill_edge_x,
                 py,
                 label,
-                EXT_ORANGE if part.jlcpcb_class == "Extended" and part.ref[0] == "R" else accent,
+                EXT_ORANGE
+                if part.jlcpcb_class == "Extended" and part.ref[0] == "R"
+                else accent,
                 font_size=10.5,
                 pad_x=8.0,
                 height=20.0,
@@ -759,34 +766,58 @@ def _draw_section_a_callouts(
     pad_box_mm: tuple[float, float, float, float],
 ) -> None:
     """Add crisp non-obscuring polarity / Pin-1 / lead callouts for Section A parts."""
-    bx0_p, by0_p, bx1_p, by1_p = pad_box_mm
+    bx0_p, _, bx1_p, _ = pad_box_mm
 
     if part.ref == "U1":
         pill_x, pill_y = mm_to_vp(20.9, 89.9)
         target = mm_to_vp(18.65, 87.31)
         _draw_pointer(ctx, (pill_x - 10, pill_y), target, BRACKET_CRIT)
         _draw_pill(
-            ctx, pill_x, pill_y, "PIN 1 (BOTTOM-RIGHT)", BRACKET_CRIT, font_size=9.5, height=18.0
+            ctx,
+            pill_x,
+            pill_y,
+            "PIN 1 (BOTTOM-RIGHT)",
+            BRACKET_CRIT,
+            font_size=9.5,
+            height=18.0,
         )
     elif part.ref == "U2":
         pill_x, pill_y = mm_to_vp(7.7, 92.2)
         target = mm_to_vp(11.35, 94.69)
         _draw_pointer(ctx, (pill_x + 16, pill_y), target, BRACKET_CRIT)
         _draw_pill(
-            ctx, pill_x, pill_y, "PIN 1 (TOP-LEFT)", BRACKET_CRIT, font_size=9.5, height=18.0
+            ctx,
+            pill_x,
+            pill_y,
+            "PIN 1 (TOP-LEFT)",
+            BRACKET_CRIT,
+            font_size=9.5,
+            height=18.0,
         )
     elif part.ref == "D3":
         # 1 pin on left (Pin 3), 2 pins on right (Pin 2 top-right, Pin 1 bottom-right)
         p1_x, p1_y = mm_to_vp(21.2, 77.6)
         _draw_pointer(ctx, (p1_x + 28, p1_y), mm_to_vp(25.30, 79.30), BRACKET_CRIT)
         _draw_pill(
-            ctx, p1_x, p1_y, "1 PIN LEFT (Pin 3)", BRACKET_CRIT, font_size=9.2, height=17.0
+            ctx,
+            p1_x,
+            p1_y,
+            "1 PIN LEFT (Pin 3)",
+            BRACKET_CRIT,
+            font_size=9.2,
+            height=17.0,
         )
 
         p2_x, p2_y = mm_to_vp(20.8, 81.6)
         _draw_pointer(ctx, (p2_x + 32, p2_y), mm_to_vp(27.45, 80.25), BRACKET_CRIT)
         _draw_pill(
-            ctx, p2_x, p2_y, "2 PINS RIGHT (Pin 1 BR)", BRACKET_CRIT, font_size=9.2, height=17.0
+            ctx,
+            p2_x,
+            p2_y,
+            "2 PINS RIGHT (Pin 1 BR)",
+            BRACKET_CRIT,
+            font_size=9.2,
+            height=17.0,
         )
     elif part.ref in ("D1", "D2", "D5"):
         # Cathode band faces LEFT
@@ -794,24 +825,76 @@ def _draw_section_a_callouts(
         target = mm_to_vp(part.p1_bx, part.y - 0.55)
         _draw_pointer(ctx, (pill_x + 16, pill_y), target, BRACKET_CRIT)
         _draw_pill(
-            ctx, pill_x, pill_y, "CATHODE (LEFT)", BRACKET_CRIT, font_size=9.5, height=18.0
+            ctx,
+            pill_x,
+            pill_y,
+            "CATHODE (LEFT)",
+            BRACKET_CRIT,
+            font_size=9.5,
+            height=18.0,
         )
         lx, ly = mm_to_vp(bx0_p - 0.35, part.y + 0.35)
         rx, ry = mm_to_vp(bx1_p + 0.35, part.y + 0.35)
-        _draw_text(ctx, "K", lx, ly, size=11.0, color=BRACKET_CRIT, bold=True, align="right", halo=True)
-        _draw_text(ctx, "A", rx, ry, size=11.0, color=TEXT_PRIMARY, bold=True, align="left", halo=True)
+        _draw_text(
+            ctx,
+            "K",
+            lx,
+            ly,
+            size=11.0,
+            color=BRACKET_CRIT,
+            bold=True,
+            align="right",
+            halo=True,
+        )
+        _draw_text(
+            ctx,
+            "A",
+            rx,
+            ry,
+            size=11.0,
+            color=TEXT_PRIMARY,
+            bold=True,
+            align="left",
+            halo=True,
+        )
     elif part.ref == "D4":
         # Cathode band faces RIGHT
         pill_x, pill_y = mm_to_vp(part.back_x + 2.7, part.y - 3.0)
         target = mm_to_vp(part.p1_bx, part.y - 0.55)
         _draw_pointer(ctx, (pill_x - 16, pill_y), target, BRACKET_CRIT)
         _draw_pill(
-            ctx, pill_x, pill_y, "CATHODE (RIGHT)", BRACKET_CRIT, font_size=9.5, height=18.0
+            ctx,
+            pill_x,
+            pill_y,
+            "CATHODE (RIGHT)",
+            BRACKET_CRIT,
+            font_size=9.5,
+            height=18.0,
         )
         lx, ly = mm_to_vp(bx0_p - 0.35, part.y + 0.35)
         rx, ry = mm_to_vp(bx1_p + 0.35, part.y + 0.35)
-        _draw_text(ctx, "A", lx, ly, size=11.0, color=TEXT_PRIMARY, bold=True, align="right", halo=True)
-        _draw_text(ctx, "K", rx, ry, size=11.0, color=BRACKET_CRIT, bold=True, align="left", halo=True)
+        _draw_text(
+            ctx,
+            "A",
+            lx,
+            ly,
+            size=11.0,
+            color=TEXT_PRIMARY,
+            bold=True,
+            align="right",
+            halo=True,
+        )
+        _draw_text(
+            ctx,
+            "K",
+            rx,
+            ry,
+            size=11.0,
+            color=BRACKET_CRIT,
+            bold=True,
+            align="left",
+            halo=True,
+        )
 
 
 def render_part_card(
@@ -840,7 +923,7 @@ def render_part_card(
     ctx.stroke()
 
     # Left header: ref pill + value + package + LCSC + optional EXT pill
-    bx0, _, bx1, _ = _draw_pill(
+    _, _, bx1, _ = _draw_pill(
         ctx,
         12.0,
         HEADER_H / 2.0,
@@ -873,7 +956,7 @@ def render_part_card(
         )
 
     # Right header: coordinates + KiCad rotation
-    coord_txt = f"back=({part.back_x:.2f}, {part.y:.2f}) | Rot {int(round(part.rot))}°"
+    coord_txt = f"back=({part.back_x:.2f}, {part.y:.2f}) | Rot {round(part.rot)}°"
     _draw_text(
         ctx,
         coord_txt,
@@ -905,11 +988,13 @@ def render_part_card(
         )
 
     # Paint zoomed 3D board crop
-    _paint_master_region(ctx, master_surf, bbox, (VX0, VY0, VW, VH), (cx0, cy0, cx1, cy1))
+    _paint_master_region(
+        ctx, master_surf, bbox, (VX0, VY0, VW, VH), (cx0, cy0, cx1, cy1)
+    )
 
     # Subtle ruler ticks & labels
     _draw_text(ctx, "mm", 8.0, 54.0, size=9.5, color=TEXT_MUTED, mono=True)
-    num_x = int(math.ceil(BOARD_W / tick_step)) + 1
+    num_x = math.ceil(BOARD_W / tick_step) + 1
     for i in range(num_x):
         tx_mm = round(i * tick_step, 3)
         if tx_mm < cx0 - 1e-6 or tx_mm > cx1 + 1e-6:
@@ -934,7 +1019,7 @@ def render_part_card(
             align="center",
         )
 
-    num_y = int(math.ceil(BOARD_H / tick_step)) + 1
+    num_y = math.ceil(BOARD_H / tick_step) + 1
     for i in range(num_y):
         ty_mm = round(i * tick_step, 3)
         if ty_mm < cy0 - 1e-6 or ty_mm > cy1 + 1e-6:
