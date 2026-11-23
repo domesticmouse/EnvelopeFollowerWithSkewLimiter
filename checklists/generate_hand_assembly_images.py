@@ -20,8 +20,8 @@ import pathlib
 import re
 import subprocess
 import tempfile
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
 import cairo
 
@@ -75,12 +75,12 @@ TEXT_PRIMARY = (238 / 255, 242 / 255, 248 / 255)
 TEXT_MUTED = (156 / 255, 166 / 255, 182 / 255)
 DARK_HALO = (12 / 255, 14 / 255, 18 / 255)
 
-ACCENT_CRIT = (245 / 255, 158 / 255, 11 / 255)     # Amber (keyed/polarized/switched)
-BRACKET_CRIT = (250 / 255, 204 / 255, 21 / 255)    # Bright yellow
-ACCENT_CAP = (56 / 255, 189 / 255, 248 / 255)      # Sky blue (film caps / jacks / TP sig)
-BRACKET_PASSIVE = (34 / 255, 211 / 255, 238 / 255) # Cyan
-ACCENT_POT = (52 / 255, 211 / 255, 153 / 255)      # Emerald (pots / GND TPs)
-EXT_ORANGE = (249 / 255, 115 / 255, 22 / 255)      # Feature/warning badge
+ACCENT_CRIT = (245 / 255, 158 / 255, 11 / 255)  # Amber (keyed/polarized/switched)
+BRACKET_CRIT = (250 / 255, 204 / 255, 21 / 255)  # Bright yellow
+ACCENT_CAP = (56 / 255, 189 / 255, 248 / 255)  # Sky blue (film caps / jacks / TP sig)
+BRACKET_PASSIVE = (34 / 255, 211 / 255, 238 / 255)  # Cyan
+ACCENT_POT = (52 / 255, 211 / 255, 153 / 255)  # Emerald (pots / GND TPs)
+EXT_ORANGE = (249 / 255, 115 / 255, 22 / 255)  # Feature/warning badge
 
 FONT_SANS = "Helvetica Neue"
 FONT_MONO = "Menlo"
@@ -118,29 +118,195 @@ class PartSpec:
 
 PART_SPECS: dict[str, PartSpec] = {
     # Back-side (B.Cu) THT parts (7)
-    "C7": PartSpec("470 nF / 63 V", "5 mm Box Film", None, "cap", 22.0, 16.5, 5.0, 0.30, "C7 · 470nF Film"),
-    "C11": PartSpec("470 nF / 63 V", "5 mm Box Film", None, "cap", 22.0, 16.5, 5.0, 0.30, "C11 · 470nF Film"),
-    "C12": PartSpec("2.2 µF / 50 V", "5 mm Box Film", None, "cap", 22.0, 16.5, 5.0, 0.30, "C12 · 2.2µF Film"),
-    "C13": PartSpec("2.2 µF / 50 V", "5 mm Box Film", None, "cap", 22.0, 16.5, 5.0, 0.30, "C13 · 2.2µF Film"),
-    "J_PWR": PartSpec("2×5 IDC Power", "Shrouded", "KEYED", "crit", 36.0, 27.0, 5.0, 0.35, "J_PWR · 2×5 IDC (Key Inward)"),
-    "C1": PartSpec("47 µF / 35 V", "+12V · A-7257", "POL", "crit", 24.0, 18.0, 5.0, 0.30, "C1 · 47µF (+ Right)"),
-    "C2": PartSpec("47 µF / 35 V", "-12V · A-7257", "REVERSED", "crit", 24.0, 18.0, 5.0, 0.30, "C2 · 47µF (+ Left! Rev)"),
+    "C7": PartSpec(
+        "470 nF / 63 V",
+        "5 mm Box Film",
+        None,
+        "cap",
+        22.0,
+        16.5,
+        5.0,
+        0.30,
+        "C7 · 470nF Film",
+    ),
+    "C11": PartSpec(
+        "470 nF / 63 V",
+        "5 mm Box Film",
+        None,
+        "cap",
+        22.0,
+        16.5,
+        5.0,
+        0.30,
+        "C11 · 470nF Film",
+    ),
+    "C12": PartSpec(
+        "2.2 µF / 50 V",
+        "5 mm Box Film",
+        None,
+        "cap",
+        22.0,
+        16.5,
+        5.0,
+        0.30,
+        "C12 · 2.2µF Film",
+    ),
+    "C13": PartSpec(
+        "2.2 µF / 50 V",
+        "5 mm Box Film",
+        None,
+        "cap",
+        22.0,
+        16.5,
+        5.0,
+        0.30,
+        "C13 · 2.2µF Film",
+    ),
+    "J_PWR": PartSpec(
+        "2×5 IDC Power",
+        "Shrouded",
+        "KEYED",
+        "crit",
+        36.0,
+        27.0,
+        5.0,
+        0.35,
+        "J_PWR · 2×5 IDC (Key Inward)",
+    ),
+    "C1": PartSpec(
+        "47 µF / 35 V",
+        "+12V · A-7257",
+        "POL",
+        "crit",
+        24.0,
+        18.0,
+        5.0,
+        0.30,
+        "C1 · 47µF (+ Right)",
+    ),
+    "C2": PartSpec(
+        "47 µF / 35 V",
+        "-12V · A-7257",
+        "REVERSED",
+        "crit",
+        24.0,
+        18.0,
+        5.0,
+        0.30,
+        "C2 · 47µF (+ Left! Rev)",
+    ),
     # Front-side (F.Cu) panel controls (11)
-    "RV1": PartSpec("GAIN · A100K", "Alpha · A-1855", None, "pot", 32.0, 24.0, 5.0, 0.25, "RV1 · GAIN A100K (A-1855)"),
-    "RV2": PartSpec("ATK · A1M", "Alpha · A-1672", None, "pot", 32.0, 24.0, 5.0, 0.25, "RV2 · ATK A1M (A-1672)"),
-    "RV3": PartSpec("REL · A1M", "Alpha · A-1672", None, "pot", 32.0, 24.0, 5.0, 0.25, "RV3 · REL A1M (A-1672)"),
-    "RV4": PartSpec("OFFSET · B10K", "Alpha · A-8401", "DETENT", "pot", 32.0, 24.0, 5.0, 0.25, "RV4 · OFFSET B10K Detent"),
-    "SW1": PartSpec("SMOOTH", "2MS1 · A-6087", None, "crit", 24.0, 18.0, 5.0, 0.30, "SW1 · SMOOTH (A-6087)"),
-    "SW2": PartSpec("FAST / SLOW", "2MS1 · A-6087", None, "crit", 24.0, 18.0, 5.0, 0.30, "SW2 · FAST/SLOW (A-6087)"),
-    "LED1": PartSpec("3 mm R/G LED", "A-1076", "POL", "crit", 24.0, 18.0, 5.0, 0.25, "LED1 · R/G LED (A-1076)"),
-    "J1": PartSpec("IN", "WQP-PJ398SM", None, "cap", 32.0, 24.0, 5.0, 0.30, "J1 · IN (PJ398SM)"),
-    "J2": PartSpec("SLEW IN", "WQP-PJ398SM", None, "cap", 32.0, 24.0, 5.0, 0.30, "J2 · SLEW IN (PJ398SM)"),
-    "J3": PartSpec("OUT", "WQP-PJ398SM", None, "cap", 32.0, 24.0, 5.0, 0.30, "J3 · OUT (PJ398SM)"),
-    "J4": PartSpec("INV_OUT", "WQP-PJ398SM", None, "cap", 32.0, 24.0, 5.0, 0.30, "J4 · INV_OUT (PJ398SM)"),
+    "RV1": PartSpec(
+        "GAIN · A100K",
+        "Alpha · A-1855",
+        None,
+        "pot",
+        32.0,
+        24.0,
+        5.0,
+        0.25,
+        "RV1 · GAIN A100K (A-1855)",
+    ),
+    "RV2": PartSpec(
+        "ATK · A1M",
+        "Alpha · A-1672",
+        None,
+        "pot",
+        32.0,
+        24.0,
+        5.0,
+        0.25,
+        "RV2 · ATK A1M (A-1672)",
+    ),
+    "RV3": PartSpec(
+        "REL · A1M",
+        "Alpha · A-1672",
+        None,
+        "pot",
+        32.0,
+        24.0,
+        5.0,
+        0.25,
+        "RV3 · REL A1M (A-1672)",
+    ),
+    "RV4": PartSpec(
+        "OFFSET · B10K",
+        "Alpha · A-8401",
+        "DETENT",
+        "pot",
+        32.0,
+        24.0,
+        5.0,
+        0.25,
+        "RV4 · OFFSET B10K Detent",
+    ),
+    "SW1": PartSpec(
+        "SMOOTH",
+        "2MS1 · A-6087",
+        None,
+        "crit",
+        24.0,
+        18.0,
+        5.0,
+        0.30,
+        "SW1 · SMOOTH (A-6087)",
+    ),
+    "SW2": PartSpec(
+        "FAST / SLOW",
+        "2MS1 · A-6087",
+        None,
+        "crit",
+        24.0,
+        18.0,
+        5.0,
+        0.30,
+        "SW2 · FAST/SLOW (A-6087)",
+    ),
+    "LED1": PartSpec(
+        "3 mm R/G LED",
+        "A-1076",
+        "POL",
+        "crit",
+        24.0,
+        18.0,
+        5.0,
+        0.25,
+        "LED1 · R/G LED (A-1076)",
+    ),
+    "J1": PartSpec(
+        "IN", "WQP-PJ398SM", None, "cap", 32.0, 24.0, 5.0, 0.30, "J1 · IN (PJ398SM)"
+    ),
+    "J2": PartSpec(
+        "SLEW IN",
+        "WQP-PJ398SM",
+        None,
+        "cap",
+        32.0,
+        24.0,
+        5.0,
+        0.30,
+        "J2 · SLEW IN (PJ398SM)",
+    ),
+    "J3": PartSpec(
+        "OUT", "WQP-PJ398SM", None, "cap", 32.0, 24.0, 5.0, 0.30, "J3 · OUT (PJ398SM)"
+    ),
+    "J4": PartSpec(
+        "INV_OUT",
+        "WQP-PJ398SM",
+        None,
+        "cap",
+        32.0,
+        24.0,
+        5.0,
+        0.30,
+        "J4 · INV_OUT (PJ398SM)",
+    ),
 }
 
 
-def _category_colors(cat: str) -> tuple[tuple[float, float, float], tuple[float, float, float]]:
+def _category_colors(
+    cat: str,
+) -> tuple[tuple[float, float, float], tuple[float, float, float]]:
     if cat == "crit":
         return ACCENT_CRIT, BRACKET_CRIT
     if cat == "pot":
@@ -237,7 +403,11 @@ def load_hand_assembly_parts() -> tuple[dict[str, HandPart], dict[str, HandPart]
                     ys.append(vy)
 
         side_prefix = layer[0]
-        ok_layers = {f"{side_prefix}.SilkS", f"{side_prefix}.Fab", f"{side_prefix}.CrtYd"}
+        ok_layers = {
+            f"{side_prefix}.SilkS",
+            f"{side_prefix}.Fab",
+            f"{side_prefix}.CrtYd",
+        }
         for gkind in ("fp_line", "fp_rect"):
             for gblk in _iter_subblocks(blk, gkind):
                 lm = re.search(r'\(layer "([^"]+)"\)', gblk)
@@ -250,7 +420,9 @@ def load_hand_assembly_parts() -> tuple[dict[str, HandPart], dict[str, HandPart]
                         (float(sm.group(1)), float(sm.group(2))),
                         (float(em.group(1)), float(em.group(2))),
                     ):
-                        vx, vy = _kicad_to_view(*_transform_local_point(fx, fy, fp_rot, lx, ly), layer)
+                        vx, vy = _kicad_to_view(
+                            *_transform_local_point(fx, fy, fp_rot, lx, ly), layer
+                        )
                         xs.append(vx)
                         ys.append(vy)
 
@@ -264,7 +436,9 @@ def load_hand_assembly_parts() -> tuple[dict[str, HandPart], dict[str, HandPart]
                 cx, cy = float(cm.group(1)), float(cm.group(2))
                 r = math.hypot(float(em.group(1)) - cx, float(em.group(2)) - cy)
                 for lx, ly in ((cx - r, cy - r), (cx + r, cy + r)):
-                    vx, vy = _kicad_to_view(*_transform_local_point(fx, fy, fp_rot, lx, ly), layer)
+                    vx, vy = _kicad_to_view(
+                        *_transform_local_point(fx, fy, fp_rot, lx, ly), layer
+                    )
                     xs.append(vx)
                     ys.append(vy)
 
@@ -276,9 +450,13 @@ def load_hand_assembly_parts() -> tuple[dict[str, HandPart], dict[str, HandPart]
 
         # Physical mechanical centers for pots (shaft) & jacks (bushing)
         if ref.startswith("RV"):
-            cx, cy = _kicad_to_view(*_transform_local_point(fx, fy, fp_rot, 7.5, 2.5), layer)
+            cx, cy = _kicad_to_view(
+                *_transform_local_point(fx, fy, fp_rot, 7.5, 2.5), layer
+            )
         elif ref in ("J1", "J2", "J3", "J4"):
-            cx, cy = _kicad_to_view(*_transform_local_point(fx, fy, fp_rot, 0.0, 6.48), layer)
+            cx, cy = _kicad_to_view(
+                *_transform_local_point(fx, fy, fp_rot, 0.0, 6.48), layer
+            )
         else:
             cx = 0.5 * (bmin_x + bmax_x)
             cy = 0.5 * (bmin_y + bmax_y)
@@ -304,9 +482,13 @@ def load_hand_assembly_parts() -> tuple[dict[str, HandPart], dict[str, HandPart]
             tp_parts[ref] = part
 
     if len(manual_parts) != 18:
-        raise RuntimeError(f"Expected 18 Manual THT parts, found {len(manual_parts)}: {sorted(manual_parts)}")
+        raise RuntimeError(
+            f"Expected 18 Manual THT parts, found {len(manual_parts)}: {sorted(manual_parts)}"
+        )
     if len(tp_parts) != 12:
-        raise RuntimeError(f"Expected 12 DNP THT test points, found {len(tp_parts)}: {sorted(tp_parts)}")
+        raise RuntimeError(
+            f"Expected 12 DNP THT test points, found {len(tp_parts)}: {sorted(tp_parts)}"
+        )
 
     return manual_parts, tp_parts
 
@@ -322,19 +504,15 @@ def _find_alpha_bbox(surf: cairo.ImageSurface) -> tuple[int, int, int, int]:
     for py in range(h):
         alphas = buf[py * stride : py * stride + w * 4][3::4]
         if any(alphas):
-            if py < min_y:
-                min_y = py
-            if py > max_y:
-                max_y = py
+            min_y = min(min_y, py)
+            max_y = max(max_y, py)
             for px, a in enumerate(alphas):
                 if a > 0:
-                    if px < min_x:
-                        min_x = px
+                    min_x = min(min_x, px)
                     break
             for px in range(w - 1, -1, -1):
                 if alphas[px] > 0:
-                    if px > max_x:
-                        max_x = px
+                    max_x = max(max_x, px)
                     break
 
     if max_x < 0:
@@ -342,7 +520,9 @@ def _find_alpha_bbox(surf: cairo.ImageSurface) -> tuple[int, int, int, int]:
     return min_x, min_y, max_x + 1, max_y + 1
 
 
-def render_master_boards() -> dict[str, tuple[cairo.ImageSurface, tuple[int, int, int, int]]]:
+def render_master_boards() -> dict[
+    str, tuple[cairo.ImageSurface, tuple[int, int, int, int]]
+]:
     """Render high-res Bottom (B.Cu) & Top (F.Cu) boards with SMDs visible & THT hidden."""
     if not KICAD_CLI.exists():
         raise RuntimeError(f"kicad-cli not found at {KICAD_CLI}")
@@ -374,9 +554,13 @@ def render_master_boards() -> dict[str, tuple[cairo.ImageSurface, tuple[int, int
             str(boot_png),
             str(PCB_PATH),
         ]
-        res = subprocess.run(boot_cmd, env=env, capture_output=True, text=True, check=False)
+        res = subprocess.run(
+            boot_cmd, env=env, capture_output=True, text=True, check=False
+        )
         if res.returncode != 0:
-            raise RuntimeError(f"Bootstrap kicad-cli failed:\n{res.stdout}\n{res.stderr}")
+            raise RuntimeError(
+                f"Bootstrap kicad-cli failed:\n{res.stdout}\n{res.stderr}"
+            )
 
         viewer_cfg = cfg_dir / "10.0" / "3d_viewer.json"
         if not viewer_cfg.exists():
@@ -415,9 +599,13 @@ def render_master_boards() -> dict[str, tuple[cairo.ImageSurface, tuple[int, int
                 str(master_png),
                 str(PCB_PATH),
             ]
-            res = subprocess.run(cmd, env=env, capture_output=True, text=True, check=False)
+            res = subprocess.run(
+                cmd, env=env, capture_output=True, text=True, check=False
+            )
             if res.returncode != 0:
-                raise RuntimeError(f"Master kicad-cli ({side_flag}) failed:\n{res.stdout}\n{res.stderr}")
+                raise RuntimeError(
+                    f"Master kicad-cli ({side_flag}) failed:\n{res.stdout}\n{res.stderr}"
+                )
 
             surf = cairo.ImageSurface.create_from_png(str(master_png))
             bbox = _find_alpha_bbox(surf)
@@ -429,7 +617,7 @@ def render_master_boards() -> dict[str, tuple[cairo.ImageSurface, tuple[int, int
                 )
             print(
                 f"Master {side_flag} render OK: {surf.get_width()}x{surf.get_height()} px, "
-                f"bbox=({bx0},{by0})..({bx1},{by1}) [{bx1-bx0}x{by1-by0}], aspect={aspect:.4f}"
+                f"bbox=({bx0},{by0})..({bx1},{by1}) [{bx1 - bx0}x{by1 - by0}], aspect={aspect:.4f}"
             )
             renders[layer_key] = (surf, bbox)
 
@@ -492,7 +680,12 @@ def _draw_text(
 
 
 def _measure_text(
-    ctx: cairo.Context, text: str, *, size: float, bold: bool = False, mono: bool = False
+    ctx: cairo.Context,
+    text: str,
+    *,
+    size: float,
+    bold: bool = False,
+    mono: bool = False,
 ) -> float:
     ctx.save()
     ctx.select_font_face(
@@ -624,12 +817,10 @@ def _deconflict_y(
     ys = [max(y_min, min(y_max, y)) for y in targets]
     for _ in range(14):
         for i in range(1, n):
-            if ys[i] < ys[i - 1] + min_gap:
-                ys[i] = ys[i - 1] + min_gap
+            ys[i] = max(ys[i], ys[i - 1] + min_gap)
         ys[-1] = min(ys[-1], y_max)
         for i in range(n - 2, -1, -1):
-            if ys[i] > ys[i + 1] - min_gap:
-                ys[i] = ys[i + 1] - min_gap
+            ys[i] = min(ys[i], ys[i + 1] - min_gap)
         ys[0] = max(ys[0], y_min)
         for i in range(n):
             lo = y_min if i == 0 else ys[i - 1] + min_gap
@@ -681,7 +872,9 @@ def _draw_overview_frame(
     ctx.rectangle(OV_BX0 - 0.5, OV_BY0 - 0.5, OV_BW + 1.0, OV_BH + 1.0)
     ctx.stroke()
 
-    _draw_text(ctx, x_left_label, OV_BX0, OV_BY0 - 6, size=10.0, color=TEXT_MUTED, mono=True)
+    _draw_text(
+        ctx, x_left_label, OV_BX0, OV_BY0 - 6, size=10.0, color=TEXT_MUTED, mono=True
+    )
     _draw_text(
         ctx,
         x_right_label,
@@ -842,7 +1035,9 @@ def render_test_points_overview(
         if ref == "TP3":
             # Route cleanly along top edge above TP2 before dropping straight to TP3 pad
             wps = [(_to_ov(18.8, 0.65)[0], py)]
-        _draw_ov_leader_and_pill(ctx, "left", py, (tx, ty), elbow, lbl, accent, waypoints=wps)
+        _draw_ov_leader_and_pill(
+            ctx, "left", py, (tx, ty), elbow, lbl, accent, waypoints=wps
+        )
 
     right_order = [
         ("TP12", "TP12 · GND2 (Ground Clip)"),
@@ -862,7 +1057,9 @@ def render_test_points_overview(
         y_min=OV_BY0 + 16.0,
         y_max=OV_BY0 + OV_BH - 16.0,
     )
-    for idx, ((ref, lbl), part, py) in enumerate(zip(right_order, right_parts, right_ys)):
+    for idx, ((ref, lbl), part, py) in enumerate(
+        zip(right_order, right_parts, right_ys)
+    ):
         accent = _tp_accent(ref)
         _draw_ov_bbox_highlight(ctx, part, accent)
         _draw_ov_leader_and_pill(
@@ -1042,36 +1239,92 @@ def _draw_card_callouts(
     if ref == "J_PWR":
         # Open right half around back_x = 20.5
         p_top = mm_to_vp(20.5, 7.60)
-        _draw_pointer(ctx, (p_top[0] - 58, p_top[1]), mm_to_vp(7.60, 7.84), BRACKET_CRIT)
-        _draw_pill(ctx, *p_top, "PINS 9–10 (+12V) TOP", BRACKET_CRIT, font_size=9.3, height=18.0)
+        _draw_pointer(
+            ctx, (p_top[0] - 58, p_top[1]), mm_to_vp(7.60, 7.84), BRACKET_CRIT
+        )
+        _draw_pill(
+            ctx,
+            *p_top,
+            "PINS 9–10 (+12V) TOP",
+            BRACKET_CRIT,
+            font_size=9.3,
+            height=18.0,
+        )
 
         p_mid = mm_to_vp(20.5, 13.10)
-        _draw_pointer(ctx, (p_mid[0] - 64, p_mid[1]), mm_to_vp(9.40, 12.92), BRACKET_CRIT)
-        _draw_pill(ctx, *p_mid, "KEYING NOTCH (INWARD)", BRACKET_CRIT, font_size=9.3, height=18.0)
+        _draw_pointer(
+            ctx, (p_mid[0] - 64, p_mid[1]), mm_to_vp(9.40, 12.92), BRACKET_CRIT
+        )
+        _draw_pill(
+            ctx,
+            *p_mid,
+            "KEYING NOTCH (INWARD)",
+            BRACKET_CRIT,
+            font_size=9.3,
+            height=18.0,
+        )
 
         p_bot = mm_to_vp(20.5, 19.60)
-        _draw_pointer(ctx, (p_bot[0] - 64, p_bot[1]), mm_to_vp(7.45, 18.45), BRACKET_CRIT)
-        _draw_pill(ctx, *p_bot, "PIN 1–2 (-12V) BOT SQ", BRACKET_CRIT, font_size=9.3, height=18.0)
+        _draw_pointer(
+            ctx, (p_bot[0] - 64, p_bot[1]), mm_to_vp(7.45, 18.45), BRACKET_CRIT
+        )
+        _draw_pill(
+            ctx,
+            *p_bot,
+            "PIN 1–2 (-12V) BOT SQ",
+            BRACKET_CRIT,
+            font_size=9.3,
+            height=18.0,
+        )
 
     elif ref == "C1":
         # Pad 1 (+, sq) at back=(6.45, 27.75); Pad 2 (-, round) at back=(3.95, 27.75)
         p_neg = mm_to_vp(16.0, 22.8)
-        _draw_pointer(ctx, (p_neg[0] - 56, p_neg[1]), mm_to_vp(3.95, 26.60), TEXT_PRIMARY)
-        _draw_pill(ctx, *p_neg, "– STRIPE (LEFT / GND)", TEXT_MUTED, font_size=9.3, height=18.0)
+        _draw_pointer(
+            ctx, (p_neg[0] - 56, p_neg[1]), mm_to_vp(3.95, 26.60), TEXT_PRIMARY
+        )
+        _draw_pill(
+            ctx, *p_neg, "– STRIPE (LEFT / GND)", TEXT_MUTED, font_size=9.3, height=18.0
+        )
 
         p_pos = mm_to_vp(16.5, 31.8)
-        _draw_pointer(ctx, (p_pos[0] - 68, p_pos[1]), mm_to_vp(6.45, 28.45), BRACKET_CRIT)
-        _draw_pill(ctx, *p_pos, "+ LONG LEAD (RIGHT SQ / +12V)", BRACKET_CRIT, font_size=9.3, height=18.0)
+        _draw_pointer(
+            ctx, (p_pos[0] - 68, p_pos[1]), mm_to_vp(6.45, 28.45), BRACKET_CRIT
+        )
+        _draw_pill(
+            ctx,
+            *p_pos,
+            "+ LONG LEAD (RIGHT SQ / +12V)",
+            BRACKET_CRIT,
+            font_size=9.3,
+            height=18.0,
+        )
 
     elif ref == "C2":
         # Reversed relative to C1: Pad 1 (+, sq) at back=(3.95, 35.75); Pad 2 (-, round) at back=(6.45, 35.75)
         p_pos = mm_to_vp(16.0, 31.0)
-        _draw_pointer(ctx, (p_pos[0] - 64, p_pos[1]), mm_to_vp(3.95, 34.70), BRACKET_CRIT)
-        _draw_pill(ctx, *p_pos, "+ LONG LEAD (LEFT SQ / GND)", BRACKET_CRIT, font_size=9.3, height=18.0)
+        _draw_pointer(
+            ctx, (p_pos[0] - 64, p_pos[1]), mm_to_vp(3.95, 34.70), BRACKET_CRIT
+        )
+        _draw_pill(
+            ctx,
+            *p_pos,
+            "+ LONG LEAD (LEFT SQ / GND)",
+            BRACKET_CRIT,
+            font_size=9.3,
+            height=18.0,
+        )
 
         p_neg = mm_to_vp(16.5, 40.5)
         _draw_pointer(ctx, (p_neg[0] - 58, p_neg[1]), mm_to_vp(6.45, 36.45), EXT_ORANGE)
-        _draw_pill(ctx, *p_neg, "– STRIPE (RIGHT / -12V)", EXT_ORANGE, font_size=9.3, height=18.0)
+        _draw_pill(
+            ctx,
+            *p_neg,
+            "– STRIPE (RIGHT / -12V)",
+            EXT_ORANGE,
+            font_size=9.3,
+            height=18.0,
+        )
 
     elif ref in ("C7", "C11", "C12", "C13"):
         pill_coords = {
@@ -1082,8 +1335,12 @@ def _draw_card_callouts(
         }
         px_mm, ptr_dx, tgt_mm = pill_coords[ref]
         pill_pos = mm_to_vp(*px_mm)
-        _draw_pointer(ctx, (pill_pos[0] + ptr_dx, pill_pos[1]), mm_to_vp(*tgt_mm), BRACKET_PASSIVE)
-        _draw_pill(ctx, *pill_pos, "NON-POLARIZED", BRACKET_PASSIVE, font_size=9.2, height=18.0)
+        _draw_pointer(
+            ctx, (pill_pos[0] + ptr_dx, pill_pos[1]), mm_to_vp(*tgt_mm), BRACKET_PASSIVE
+        )
+        _draw_pill(
+            ctx, *pill_pos, "NON-POLARIZED", BRACKET_PASSIVE, font_size=9.2, height=18.0
+        )
 
     elif ref.startswith("RV"):
         if ref == "RV1":
@@ -1094,7 +1351,14 @@ def _draw_card_callouts(
                 mm_to_vp(16.4, part.center_y - 4.8),
                 ACCENT_POT,
             )
-            _draw_pill(ctx, *pill_pos, "BRACKET TABS (×2)", ACCENT_POT, font_size=9.2, height=17.5)
+            _draw_pill(
+                ctx,
+                *pill_pos,
+                "BRACKET TABS (×2)",
+                ACCENT_POT,
+                font_size=9.2,
+                height=17.5,
+            )
         else:
             pill_y = part.center_y + 1.4 if ref == "RV2" else part.center_y - 4.8
             pill_pos = mm_to_vp(24.6, pill_y)
@@ -1104,7 +1368,14 @@ def _draw_card_callouts(
                 mm_to_vp(16.4, part.center_y - 4.8),
                 ACCENT_POT,
             )
-            _draw_pill(ctx, *pill_pos, "BRACKET TABS (×2)", ACCENT_POT, font_size=9.2, height=17.5)
+            _draw_pill(
+                ctx,
+                *pill_pos,
+                "BRACKET TABS (×2)",
+                ACCENT_POT,
+                font_size=9.2,
+                height=17.5,
+            )
 
             if ref == "RV4":
                 det_pos = mm_to_vp(24.6, part.center_y + 2.2)
@@ -1114,13 +1385,22 @@ def _draw_card_callouts(
                     mm_to_vp(15.0, part.center_y),
                     EXT_ORANGE,
                 )
-                _draw_pill(ctx, *det_pos, "CENTER DETENT", EXT_ORANGE, font_size=9.2, height=17.5)
+                _draw_pill(
+                    ctx,
+                    *det_pos,
+                    "CENTER DETENT",
+                    EXT_ORANGE,
+                    font_size=9.2,
+                    height=17.5,
+                )
 
     elif ref == "LED1":
         # LED1 Pad 1 sq at front=(13.73, 72.00), Pad 2 round at (16.27, 72.00)
         p1 = mm_to_vp(8.6, 65.0)
         _draw_pointer(ctx, (p1[0] + 44, p1[1]), mm_to_vp(13.73, 71.10), BRACKET_CRIT)
-        _draw_pill(ctx, *p1, "PAD 1 SQ (+V = GREEN)", BRACKET_CRIT, font_size=9.2, height=17.5)
+        _draw_pill(
+            ctx, *p1, "PAD 1 SQ (+V = GREEN)", BRACKET_CRIT, font_size=9.2, height=17.5
+        )
 
         p2 = mm_to_vp(21.4, 65.0)
         _draw_pointer(ctx, (p2[0] - 40, p2[1]), mm_to_vp(16.27, 71.10), TEXT_MUTED)
@@ -1137,18 +1417,37 @@ def _draw_card_callouts(
         target_x_offset = 1.15 if is_left_col else -1.15
 
         ps = mm_to_vp(pill_x_mm, s_y)
-        _draw_pointer(ctx, (ps[0] + edge_dx, ps[1]), mm_to_vp(s_x + target_x_offset, s_y), BRACKET_PASSIVE)
-        _draw_pill(ctx, *ps, "SLEEVE (S, TOP SQ)", BRACKET_PASSIVE, font_size=9.0, height=17.5)
+        _draw_pointer(
+            ctx,
+            (ps[0] + edge_dx, ps[1]),
+            mm_to_vp(s_x + target_x_offset, s_y),
+            BRACKET_PASSIVE,
+        )
+        _draw_pill(
+            ctx, *ps, "SLEEVE (S, TOP SQ)", BRACKET_PASSIVE, font_size=9.0, height=17.5
+        )
 
         ptn = mm_to_vp(pill_x_mm, tn_y + 1.0)
-        _draw_pointer(ctx, (ptn[0] + edge_dx, ptn[1]), mm_to_vp(tn_x + target_x_offset, tn_y), TEXT_MUTED)
+        _draw_pointer(
+            ctx,
+            (ptn[0] + edge_dx, ptn[1]),
+            mm_to_vp(tn_x + target_x_offset, tn_y),
+            TEXT_MUTED,
+        )
         _draw_pill(ctx, *ptn, "NORM SW (TN)", TEXT_MUTED, font_size=9.0, height=17.5)
 
         # Keep J3/J4 TIP pill above TP1 (GND) at (15.0, 105.6)
         tip_pill_y = t_y - 3.2 if ref in ("J3", "J4") else t_y
         pt = mm_to_vp(pill_x_mm, tip_pill_y)
-        _draw_pointer(ctx, (pt[0] + edge_dx, pt[1]), mm_to_vp(t_x + target_x_offset, t_y), BRACKET_PASSIVE)
-        _draw_pill(ctx, *pt, "TIP (T, BOTTOM)", BRACKET_PASSIVE, font_size=9.0, height=17.5)
+        _draw_pointer(
+            ctx,
+            (pt[0] + edge_dx, pt[1]),
+            mm_to_vp(t_x + target_x_offset, t_y),
+            BRACKET_PASSIVE,
+        )
+        _draw_pill(
+            ctx, *pt, "TIP (T, BOTTOM)", BRACKET_PASSIVE, font_size=9.0, height=17.5
+        )
 
 
 def _draw_sw_callouts(
@@ -1161,7 +1460,9 @@ def _draw_sw_callouts(
         # SW1 at (7.0, 72.0): LED1 silkscreen sits around x=11.5..18.5, y=66..76.
         p1 = mm_to_vp(14.0, 64.5)
         _draw_pointer(ctx, (p1[0] - 48, p1[1]), mm_to_vp(8.0, 69.46), BRACKET_CRIT)
-        _draw_pill(ctx, *p1, "PIN 1 (NC, TOP SQ)", BRACKET_CRIT, font_size=9.2, height=17.5)
+        _draw_pill(
+            ctx, *p1, "PIN 1 (NC, TOP SQ)", BRACKET_CRIT, font_size=9.2, height=17.5
+        )
 
         p2 = mm_to_vp(12.6, 77.6)
         _draw_pointer(ctx, (p2[0] - 30, p2[1]), mm_to_vp(8.0, 72.00), TEXT_MUTED)
@@ -1169,12 +1470,16 @@ def _draw_sw_callouts(
 
         p3 = mm_to_vp(13.5, 80.2)
         _draw_pointer(ctx, (p3[0] - 48, p3[1]), mm_to_vp(8.0, 74.54), ACCENT_POT)
-        _draw_pill(ctx, *p3, "PIN 3 (UP = SMOOTH)", ACCENT_POT, font_size=9.2, height=17.5)
+        _draw_pill(
+            ctx, *p3, "PIN 3 (UP = SMOOTH)", ACCENT_POT, font_size=9.2, height=17.5
+        )
     elif part.ref == "SW2":
         # SW2 at (23.0, 72.0): open left side above/below LED1 silkscreen
         p1 = mm_to_vp(15.5, 64.5)
         _draw_pointer(ctx, (p1[0] + 48, p1[1]), mm_to_vp(22.0, 69.46), BRACKET_CRIT)
-        _draw_pill(ctx, *p1, "PIN 1 (NC, TOP SQ)", BRACKET_CRIT, font_size=9.2, height=17.5)
+        _draw_pill(
+            ctx, *p1, "PIN 1 (NC, TOP SQ)", BRACKET_CRIT, font_size=9.2, height=17.5
+        )
 
         p2 = mm_to_vp(13.5, 77.6)
         _draw_pointer(ctx, (p2[0] + 32, p2[1]), mm_to_vp(22.0, 72.00), TEXT_MUTED)
@@ -1182,7 +1487,9 @@ def _draw_sw_callouts(
 
         p3 = mm_to_vp(15.0, 80.2)
         _draw_pointer(ctx, (p3[0] + 46, p3[1]), mm_to_vp(22.0, 74.54), ACCENT_POT)
-        _draw_pill(ctx, *p3, "PIN 3 (UP = SLOW)", ACCENT_POT, font_size=9.2, height=17.5)
+        _draw_pill(
+            ctx, *p3, "PIN 3 (UP = SLOW)", ACCENT_POT, font_size=9.2, height=17.5
+        )
 
 
 def render_part_card(
@@ -1280,11 +1587,13 @@ def render_part_card(
         )
 
     # Paint zoomed 3D board crop
-    _paint_master_region(ctx, master_surf, bbox, (VX0, VY0, VW, VH), (cx0, cy0, cx1, cy1))
+    _paint_master_region(
+        ctx, master_surf, bbox, (VX0, VY0, VW, VH), (cx0, cy0, cx1, cy1)
+    )
 
     # Ruler ticks & labels (clamped to board boundaries 0..BOARD_W, 0..BOARD_H)
     _draw_text(ctx, "mm", 8.0, 54.0, size=9.5, color=TEXT_MUTED, mono=True)
-    num_x = int(math.ceil(BOARD_W / tick_step)) + 1
+    num_x = math.ceil(BOARD_W / tick_step) + 1
     for i in range(num_x):
         tx_mm = round(i * tick_step, 3)
         if tx_mm < -1e-6 or tx_mm > BOARD_W + 1e-6:
@@ -1311,7 +1620,7 @@ def render_part_card(
             align="center",
         )
 
-    num_y = int(math.ceil(BOARD_H / tick_step)) + 1
+    num_y = math.ceil(BOARD_H / tick_step) + 1
     for i in range(num_y):
         ty_mm = round(i * tick_step, 3)
         if ty_mm < -1e-6 or ty_mm > BOARD_H + 1e-6:
@@ -1397,9 +1706,36 @@ def render_part_card(
     _draw_text(ctx, caption, VX0, VY0 + VH + 14.0, size=9.3, color=TEXT_MUTED)
 
     # Right-hand Full-Board Mini-Map
-    _draw_text(ctx, "BOARD MAP", MX0 + MW / 2.0, 52.0, size=9.5, color=TEXT_MUTED, bold=True, align="center")
-    _draw_text(ctx, "TOP", MX0 + MW / 2.0, 63.0, size=8.5, color=TEXT_MUTED, mono=True, align="center")
-    _draw_text(ctx, "BOT", MX0 + MW / 2.0, MY0 + MH + 12.0, size=8.5, color=TEXT_MUTED, mono=True, align="center")
+    _draw_text(
+        ctx,
+        "BOARD MAP",
+        MX0 + MW / 2.0,
+        52.0,
+        size=9.5,
+        color=TEXT_MUTED,
+        bold=True,
+        align="center",
+    )
+    _draw_text(
+        ctx,
+        "TOP",
+        MX0 + MW / 2.0,
+        63.0,
+        size=8.5,
+        color=TEXT_MUTED,
+        mono=True,
+        align="center",
+    )
+    _draw_text(
+        ctx,
+        "BOT",
+        MX0 + MW / 2.0,
+        MY0 + MH + 12.0,
+        size=8.5,
+        color=TEXT_MUTED,
+        mono=True,
+        align="center",
+    )
 
     _paint_master_region(
         ctx, master_surf, bbox, (MX0, MY0, MW, MH), (0.0, 0.0, BOARD_W, BOARD_H)
@@ -1458,7 +1794,9 @@ def render_part_card(
 def main() -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     manual_parts, tp_parts = load_hand_assembly_parts()
-    print(f"Loaded {len(manual_parts)} Manual THT parts and {len(tp_parts)} DNP test points.")
+    print(
+        f"Loaded {len(manual_parts)} Manual THT parts and {len(tp_parts)} DNP test points."
+    )
 
     renders = render_master_boards()
     bot_surf, bot_bbox = renders["B.Cu"]
@@ -1473,7 +1811,7 @@ def main() -> None:
     front_ov = render_front_overview(manual_parts, top_surf, top_bbox)
     print(f"Wrote {front_ov.relative_to(ROOT)}")
 
-    for ref, part in manual_parts.items():
+    for part in manual_parts.values():
         surf, bbox = renders[part.layer]
         render_part_card(part, surf, bbox)
     print(f"Wrote {len(manual_parts)} part cards to {OUT_DIR.relative_to(ROOT)}/")
