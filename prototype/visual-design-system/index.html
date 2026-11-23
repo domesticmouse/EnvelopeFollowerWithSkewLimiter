@@ -1,0 +1,120 @@
+<!-- THROWAWAY UI PROTOTYPE (Issue #8): Three radically different visual design system variants for ENV / SKEW, switchable via ?variant=A|B|C and floating bottom bar. -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ENV / SKEW — Visual Design System Prototype (Issue #8)</title>
+    <!-- MANDATORY per dark-mode guidance: declare support for both light and dark themes -->
+    <meta name="color-scheme" content="light dark" />
+    <script>
+      try {
+        var params = new URLSearchParams(window.location.search);
+        var variant = (params.get("variant") || "A").toUpperCase();
+        var schemeParam = (params.get("scheme") || "").toLowerCase();
+        var printParam = params.get("print") === "1";
+        var meta = document.querySelector('meta[name="color-scheme"]');
+        if (meta) {
+          if (variant === "C") {
+            meta.content = printParam ? "light" : "dark";
+          } else if (variant === "B") {
+            if (schemeParam === "light" || schemeParam === "dark") {
+              meta.content = schemeParam;
+            } else if (schemeParam === "system") {
+              meta.content = "light dark";
+            } else {
+              meta.content = localStorage.getItem("envskew-proto-scheme-b") || "light dark";
+            }
+          } else {
+            if (schemeParam === "light" || schemeParam === "dark") {
+              meta.content = schemeParam;
+            } else {
+              meta.content = localStorage.getItem("envskew-proto-scheme-a") || "dark";
+            }
+          }
+        }
+      } catch (err) {
+        /* Ignore storage errors */
+      }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
+      crossorigin="anonymous"
+    />
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+
+    <div id="app-root"></div>
+
+    <!-- Native modal Search dialog (no role="dialog" or aria-modal per dialog guidance) -->
+    <dialog id="search-dialog" class="proto-dialog" closedby="any" aria-labelledby="search-dialog-title">
+      <div class="proto-dialog-inner">
+        <div class="proto-dialog-header">
+          <h2 id="search-dialog-title">Search ENV / SKEW</h2>
+          <form method="dialog">
+            <button type="submit" class="proto-dialog-close" aria-label="Close search">Close</button>
+          </form>
+        </div>
+        <div class="search-field-wrap">
+          <label for="search-input" class="visually-hidden">Search patches, test points, components, or specs</label>
+          <input
+            id="search-input"
+            type="search"
+            placeholder="Search e.g. BAT54S, TP7, A-1076, SMOOTH, Sidechain..."
+            autocomplete="off"
+            autofocus
+          />
+        </div>
+        <ul id="search-results" class="search-results" aria-live="polite"></ul>
+        <p class="search-hint">Press <kbd>Esc</kbd> or click outside to dismiss. Static index preview (24 planned pages).</p>
+      </div>
+    </dialog>
+
+    <!-- Native modal Mobile Navigation Drawer (no role="dialog" or aria-modal per dialog guidance) -->
+    <dialog id="mobile-drawer" class="proto-drawer" closedby="any" aria-labelledby="mobile-drawer-title">
+      <div class="proto-drawer-sheet">
+        <div class="proto-drawer-header">
+          <h2 id="mobile-drawer-title">ENV / SKEW Navigation</h2>
+          <form method="dialog">
+            <button type="submit" class="proto-dialog-close" autofocus aria-label="Close navigation menu">Close</button>
+          </form>
+        </div>
+        <nav aria-label="Mobile navigation">
+          <ul id="mobile-drawer-links" class="mobile-drawer-links"></ul>
+        </nav>
+      </div>
+    </dialog>
+
+    <!-- Visually distinct Floating Prototype Variant Switcher -->
+    <aside class="proto-switcher" role="region" aria-label="Prototype Variant Switcher">
+      <span class="proto-badge">PROTOTYPE</span>
+      <div class="proto-switcher-controls">
+        <button type="button" id="proto-prev" class="proto-arrow" aria-label="Previous design variant">←</button>
+        <span id="proto-label" class="proto-label">A — Faceplate Instrument</span>
+        <button type="button" id="proto-next" class="proto-arrow" aria-label="Next design variant">→</button>
+      </div>
+      <div id="proto-state" class="proto-state" aria-live="polite">?variant=A · view=home · scheme=dark</div>
+    </aside>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
