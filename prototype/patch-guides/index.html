@@ -1,0 +1,93 @@
+<!-- THROWAWAY UI PROTOTYPE (Issue #10): Three structurally different Patch Guides UX & panel-state visualizer variants, switchable via ?variant=A|B|C and floating bottom bar. -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ENV / SKEW — Patch Guides UX & Visualizer Prototype (Issue #10)</title>
+    <!-- Locked dark-only screen palette from Issue #8 Visual Design System -->
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href="data:," />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+
+    <div id="app-root"></div>
+
+    <!-- Native modal Search dialog (no redundant role="dialog" or aria-modal) -->
+    <dialog id="search-dialog" class="proto-dialog" closedby="any" aria-labelledby="search-dialog-title">
+      <div class="proto-dialog-inner">
+        <div class="proto-dialog-header">
+          <h2 id="search-dialog-title">Search Patch Guides & Controls</h2>
+          <form method="dialog">
+            <button type="submit" class="proto-dialog-close" aria-label="Close search">Close</button>
+          </form>
+        </div>
+        <div class="search-field-wrap">
+          <label for="search-input" class="visually-hidden">Search patches, controls, companion modules, or troubleshooting symptoms</label>
+          <input
+            id="search-input"
+            type="search"
+            placeholder="Search e.g. sidechain, 303, SLEW IN, SMOOTH, VCA, vactrol, Amber..."
+            autocomplete="off"
+            autofocus
+          />
+        </div>
+        <ul id="search-results" class="search-results" aria-live="polite"></ul>
+        <p class="dialog-hint">Press <kbd>Esc</kbd> or click outside to dismiss. Jumps straight into the active variant.</p>
+      </div>
+    </dialog>
+
+    <!-- Native modal Mobile Navigation Drawer -->
+    <dialog id="mobile-drawer" class="proto-drawer" closedby="any" aria-labelledby="mobile-drawer-title">
+      <div class="proto-drawer-sheet">
+        <div class="proto-drawer-header">
+          <h2 id="mobile-drawer-title">ENV / SKEW Navigation</h2>
+          <form method="dialog">
+            <button type="submit" class="proto-dialog-close" autofocus aria-label="Close navigation menu">Close</button>
+          </form>
+        </div>
+        <nav aria-label="Mobile site navigation">
+          <ul id="mobile-drawer-links" class="mobile-drawer-links"></ul>
+        </nav>
+      </div>
+    </dialog>
+
+    <!-- Native modal Sidecar Metadata Inspector -->
+    <dialog id="metadata-dialog" class="proto-dialog proto-dialog-wide" closedby="any" aria-labelledby="metadata-dialog-title">
+      <div class="proto-dialog-inner">
+        <div class="proto-dialog-header">
+          <h2 id="metadata-dialog-title">Zero-Duplication Sidecar Metadata (<code>patch-states.ts</code>)</h2>
+          <div class="dialog-actions">
+            <button type="button" id="copy-metadata-btn" class="action-pill-btn">Copy JSON</button>
+            <form method="dialog">
+              <button type="submit" class="proto-dialog-close" aria-label="Close metadata inspector">Close</button>
+            </form>
+          </div>
+        </div>
+        <p id="metadata-subtitle" class="dialog-hint"></p>
+        <pre id="metadata-pre" class="metadata-pre"><code></code></pre>
+      </div>
+    </dialog>
+
+    <!-- Visually distinct Floating Prototype Variant Switcher -->
+    <aside class="proto-switcher" role="region" aria-label="Prototype Variant Switcher">
+      <span class="proto-badge">PROTOTYPE</span>
+      <div class="proto-switcher-controls">
+        <button type="button" id="proto-prev" class="proto-arrow" aria-label="Previous UI variant">←</button>
+        <span id="proto-label" class="proto-label">A — Studio Rack Workbench</span>
+        <button type="button" id="proto-next" class="proto-arrow" aria-label="Next UI variant">→</button>
+      </div>
+      <div id="proto-state" class="proto-state" aria-live="polite">?variant=A · patch=hub · signal=idle</div>
+    </aside>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
