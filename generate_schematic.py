@@ -711,7 +711,12 @@ class SchematicBuilder:
             for jx, jy in self._compute_junctions()
         ]
 
-        today = datetime.date.today().isoformat()
+        today = (
+            datetime.datetime.now(tz=datetime.timezone.utc)
+            .astimezone()
+            .date()
+            .isoformat()
+        )
         tree: list = [
             "kicad_sch",
             ["version", 20250114],
