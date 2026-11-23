@@ -1,0 +1,36 @@
+/* Derived from prototype/visual-design-system (locked dark-only screen subset) */
+:root {
+  color-scheme: dark;
+  --bg-void: #0d0e11;           /* Landing Showcase obsidian canvas */
+  --bg-canvas: #141518;         /* Matte Black FR4 primary canvas */
+  --bg-surface: #1b1d22;        /* Elevated cards / table headers */
+  --bg-surface-elevated: #1d2028;
+  --bg-code: #090a0d;           /* Code & KaTeX card wells */
+  --bg-code-elevated: #101216;
+  --ink-primary: #e8eaef;       /* Low-glare body ink (14.7:1–15.4:1 AAA) */
+  --ink-silk: #f4f5f7;          /* High-emphasis silkscreen white (17.1:1 AAA) */
+  --ink-muted: #a6acb8;         /* Secondary ink (7.9:1 AAA) */
+  --accent-gold: #d8b154;       /* ENIG Gold (9.06:1 AAA; #141518 knocked-out ink) */
+  --accent-gold-bright: #e2be66;/* Hover / emphasis gold (10.4:1 AAA) */
+  --accent-gold-ink: #141518;   /* Knocked-out ink on ENIG Gold */
+  --accent-gold-tint: #262013;  /* Warm brass highlight surface */
+  --border-ui: #6e7485;         /* Interactive UI borders (3.97:1 >= 3:1) */
+  --border-subtle: #2b2f3b;     /* Grid hairlines */
+  --border-grid: #323642;
+  --led-green: #4ade80;
+  --led-green-bg: #102819;      /* +V (+ ● GREEN) */
+  --led-red: #f87171;
+  --led-red-bg: #2c1416;        /* −V / Danger (● RED / ▲ ABORT) */
+  --led-dark: #c5cad4;
+  --led-dark-bg: #1e2128;       /* 0 V (○ DARK) */
+  accent-color: var(--accent-gold);
+  scrollbar-color: #7b8294 #141518; /* Never transition/animate scrollbar-color */
+
+  --font-slab: 'Barlow Condensed', 'DIN Condensed', system-ui, sans-serif;
+  --font-display: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  --font-body: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --page-max-inline: 1200px;
+  --focus-ring: 2px solid var(--accent-gold-bright);
+}

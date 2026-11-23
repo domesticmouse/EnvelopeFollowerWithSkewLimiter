@@ -1,0 +1,51 @@
+---
+import { GITHUB_REPO_URL, PRIMARY_NAV_ITEMS, withBase } from '../lib/routes.ts';
+---
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <nav class="footer-nav" aria-label="Footer navigation">
+      <a href={withBase('/')}>Overview</a>
+      {
+        PRIMARY_NAV_ITEMS.map((item) => (
+          <a href={withBase(item.href)}>{item.label}</a>
+        ))
+      }
+      <a href={withBase('/specs/')}>Reference Specs</a>
+      <a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+    </nav>
+
+    <div class="footer-meta">
+      <p>
+        <strong>ENV / SKEW</strong> · 6 HP Eurorack Envelope Follower &amp; Asymmetric Skew Limiter ·
+        Inspired by{' '}
+        <a
+          href="https://note.com/solder_state/n/n110e9ba066b3?hl=en"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          HAGIWO/ハギヲ (No. 43: $4 Envelope Follower)
+        </a>{' '}
+        and{' '}
+        <a
+          href="https://github.com/domesticmouse/EnvelopeFollower"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          domesticmouse/EnvelopeFollower
+        </a>
+        .
+      </p>
+      <p>
+        <a
+          href={`${GITHUB_REPO_URL}/blob/main/LICENSE`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Apache License 2.0
+        </a>{' '}
+        · This is not an officially supported Google product.
+      </p>
+    </div>
+  </div>
+</footer>
