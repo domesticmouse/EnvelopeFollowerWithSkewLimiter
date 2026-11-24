@@ -284,11 +284,21 @@
  * ============================================================================ */
 .doc-prose {
   min-inline-size: 0;
+  max-inline-size: 100%;
   color: var(--ink-primary);
 }
 
-.doc-prose > * {
+.doc-prose > *,
+.doc-prose ul,
+.doc-prose ol,
+.doc-prose li {
   min-inline-size: 0;
+  max-inline-size: 100%;
+}
+
+.doc-prose img {
+  max-inline-size: 100%;
+  height: auto;
 }
 
 .doc-prose :is(h1, h2, h3, h4, h5, h6) {
@@ -384,7 +394,10 @@
   background: var(--bg-code);
   border: 1px solid var(--border-ui);
   overflow-x: auto;
+  inline-size: 100%;
   max-inline-size: 100%;
+  box-sizing: border-box;
+  contain: inline-size;
   font-size: 0.84rem;
   line-height: 1.5;
 }
@@ -588,12 +601,17 @@ table.layout-table {
   margin: 1.25rem 0;
   background: var(--bg-code);
   border: 1px solid var(--border-ui);
+  min-inline-size: 0;
+  max-inline-size: 100%;
 }
 
 .mermaid-scroll {
   overflow-x: auto;
   padding: 1rem;
+  inline-size: 100%;
   max-inline-size: 100%;
+  box-sizing: border-box;
+  contain: inline-size;
 }
 
 .mermaid-scroll pre.mermaid {

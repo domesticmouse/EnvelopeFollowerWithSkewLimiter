@@ -25,6 +25,63 @@ function setTriggersExpanded(doc: Document, dialogId: string, expanded: boolean)
   }
 }
 
+/** Safely opens a native `<dialog>` modal with `open` attribute fallback in limited test DOMs. */
+export function showModalSafe(dialog: HTMLDialogElement): void {
+  if (typeof dialog.showModal === 'function') {
+    try {
+      dialog.showModal();
+    } catch {
+      dialog.setAttribute('open', '');
+    }
+  } else {
+    dialog.setAttribute('open', '');
+  }
+  if (!dialog.open && !dialog.hasAttribute('open')) {
+    dialog.setAttribute('open', '');
+  }
+}
+
+/**
+ * Attaches Safari `closedby="any"` press-and-release outside backdrop dismissal to a `<dialog>`.
+ * Requires both pointerdown and pointerup outside bounds so drag-selections ending outside don't dismiss.
+ */
+export function wireBackdropLightDismiss(
+  dialog: HTMLDialogElement,
+  signal?: AbortSignal,
+): void {
+  const supportsClosedBy =
+    typeof HTMLDialogElement !== 'undefined' && 'closedBy' in HTMLDialogElement.prototype;
+  if (supportsClosedBy || dialog.getAttribute('closedby') !== 'any') {
+    return;
+  }
+
+  let pressedOutside = false;
+  dialog.addEventListener(
+    'pointerdown',
+    (event) => {
+      if (!dialog.open) {
+        pressedOutside = false;
+        return;
+      }
+      pressedOutside = isPointerOutsideDialog(event, dialog);
+    },
+    signal ? { signal } : undefined,
+  );
+
+  dialog.addEventListener(
+    'pointerup',
+    (event) => {
+      if (dialog.open && pressedOutside && isPointerOutsideDialog(event, dialog)) {
+        pressedOutside = false;
+        dialog.close();
+        return;
+      }
+      pressedOutside = false;
+    },
+    signal ? { signal } : undefined,
+  );
+}
+
 /**
  * Wire accessible modal <dialog> returnValue cleanup, aria-expanded sync,
  * conditional invokers-polyfill loading, and Safari closedby="any" light-dismiss fallback.
@@ -47,7 +104,9 @@ export function initDialogChrome(
 
   for (const dialog of doc.querySelectorAll<HTMLDialogElement>('dialog')) {
     dialog.addEventListener('close', () => {
-      dialog.returnValue = '';
+      if (!dialog.hasAttribute('data-managed-dialog')) {
+        dialog.returnValue = '';
+      }
       setTriggersExpanded(doc, dialog.id, false);
     });
     dialog.addEventListener('command', () => {
@@ -56,25 +115,8 @@ export function initDialogChrome(
       });
     });
 
-    if (!supportsClosedBy && dialog.getAttribute('closedby') === 'any') {
-      let pressedOutside = false;
-
-      dialog.addEventListener('pointerdown', (event) => {
-        if (!dialog.open) {
-          pressedOutside = false;
-          return;
-        }
-        pressedOutside = isPointerOutsideDialog(event, dialog);
-      });
-
-      dialog.addEventListener('pointerup', (event) => {
-        if (dialog.open && pressedOutside && isPointerOutsideDialog(event, dialog)) {
-          pressedOutside = false;
-          dialog.close();
-          return;
-        }
-        pressedOutside = false;
-      });
+    if (!supportsClosedBy && !dialog.hasAttribute('data-managed-dialog')) {
+      wireBackdropLightDismiss(dialog);
     }
   }
 

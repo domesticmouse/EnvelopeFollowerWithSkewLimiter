@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { CANONICAL_ROUTES } from '../src/lib/routes.ts';
 import { verifyBuiltSite } from '../src/lib/site-contract.ts';
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
@@ -10,14 +11,9 @@ const distDir = path.join(siteDir, 'dist');
 const result = verifyBuiltSite({
   distDir,
   repoRoot,
-  implementedRoutes: [
-    '/',
-    '/specs/',
-    '/specs/design-spec/',
-    '/specs/base-circuit/',
-    '/specs/circuit-review/',
-    '/specs/panel-svg-spec/',
-  ],
+  implementedRoutes: CANONICAL_ROUTES,
+  requirePagefind: true,
+  verifyReadme: true,
 });
 
 if (result.errors.length > 0) {

@@ -317,4 +317,171 @@ flowchart LR
       cleanup();
     }
   });
+
+  it('suppresses only ## Patch Guides Index on patches/README.md while keeping reference sections verbatim', async () => {
+    const md = fs.readFileSync(path.join(REPO_ROOT, 'patches/README.md'), 'utf8');
+    const { doc, cleanup } = await renderMarkdown(md, 'patches/README.md');
+    try {
+      expect(doc.getElementById('two-modules-in-6-hp')).not.toBeNull();
+      expect(doc.getElementById('front-panel-control-reference')).not.toBeNull();
+      expect(doc.getElementById('timing-quick-reference')).not.toBeNull();
+      expect(doc.getElementById('hardware--technical-references')).not.toBeNull();
+
+      // Nested GFM table inside Front-Panel Control Reference <td> must survive
+      expect(doc.querySelector('table.layout-table')).not.toBeNull();
+      expect(doc.querySelector('.table-wrapper table[data-table-kind="narrow"]')).not.toBeNull();
+
+      // Static ## Patch Guides Index must be suppressed
+      expect(doc.getElementById('patch-guides-index')).toBeNull();
+      expect(doc.getElementById('envelope-follower-mode-in-patched-slew-in-unpatched')).toBeNull();
+      expect(doc.getElementById('asymmetric-skew-limiter-mode-slew-in-patched')).toBeNull();
+      expect(doc.textContent).not.toContain('Companion Modules Needed');
+    } finally {
+      cleanup();
+    }
+  });
+
+  it('strips GitHub-only top/bottom nav lines and tags Front-Panel Starting Settings rows with data-control on patches/01..08', async () => {
+    const md03 = fs.readFileSync(
+      path.join(REPO_ROOT, 'patches/03-compression-expansion-gating.md'),
+      'utf8',
+    );
+    const res03 = await renderMarkdown(md03, 'patches/03-compression-expansion-gating.md');
+    try {
+      expect(res03.doc.textContent).not.toContain('← All Patch Guides');
+      expect(res03.doc.textContent).not.toContain('← Previous:');
+      expect(res03.doc.textContent).not.toContain('Next: 04');
+
+      // Both A and B tables remain visible and tagged
+      const tables = [...res03.doc.querySelectorAll('table[data-preset-index]')];
+      expect(tables).toHaveLength(2);
+      expect(tables[0]?.getAttribute('data-preset-index')).toBe('0');
+      expect(tables[1]?.getAttribute('data-preset-index')).toBe('1');
+
+      const controls = [...res03.doc.querySelectorAll('tr[data-control]')].map((tr) =>
+        tr.getAttribute('data-control'),
+      );
+      expect(controls).toEqual([
+        'rv1',
+        'rv2',
+        'rv3',
+        'rv4',
+        'sw1',
+        'sw2',
+        'rv1',
+        'rv2',
+        'rv3',
+        'rv4',
+        'sw1',
+        'sw2',
+      ]);
+    } finally {
+      res03.cleanup();
+    }
+
+    // Synthetic check for jack label disambiguation (SLEW IN vs IN, INV OUT vs OUT)
+    const syntheticPatch = `
+[← All Patch Guides](README.md)
+
+# 99 — Synthetic Jack Test
+
+## Front-Panel Starting Settings
+
+| Control | Starting Position | Purpose |
+| :--- | :--- | :--- |
+| **\`IN\`** | Patched | Audio in |
+| **\`SLEW IN\`** | Unpatched | Normaled |
+| **\`OUT\`** | Patched | Positive out |
+| **\`INV OUT\`** | Patched | Inverted out |
+| **\`+ / −\` LED** | Dark | Zero |
+
+---
+
+[← Previous: 01](01-sidechain-ducking.md) · [All Patch Guides](README.md)
+`;
+    const resSyn = await renderMarkdown(syntheticPatch, 'patches/08-gate-to-ar-envelope-and-slewed-mod.md');
+    try {
+      expect(resSyn.doc.textContent).not.toContain('All Patch Guides');
+      const controls = [...resSyn.doc.querySelectorAll('tr[data-control]')].map((tr) =>
+        tr.getAttribute('data-control'),
+      );
+      expect(controls).toEqual(['j1', 'j2', 'j3', 'j4', 'led1']);
+    } finally {
+      resSyn.cleanup();
+    }
+  });
+
+  it('transforms build checklists cleanly: interactive unchecked inputs, critical callouts, copyable blocks, ibom _blank, and lightbox/placement cards', async () => {
+    const readRepoMd = (rel: string) =>
+      fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8');
+
+    // checklists/README.md suppresses ## Workflow Order
+    const hubRes = await renderMarkdown(readRepoMd('checklists/README.md'), 'checklists/README.md');
+    try {
+      expect(hubRes.doc.getElementById('workflow-order')).toBeNull();
+    } finally {
+      hubRes.cleanup();
+    }
+
+    // Checklists 01..05 totals: 42 + 22 + 54 + 22 + 41 + 30 = 211 checkboxes; 81 lightbox triggers
+    const files: Array<{ file: string; expectedItems: number; expectedImages: number }> = [
+      { file: 'checklists/01-main-board-ordering.md', expectedItems: 42, expectedImages: 0 },
+      { file: 'checklists/01b-front-panel-ordering.md', expectedItems: 22, expectedImages: 0 },
+      { file: 'checklists/02-pcba-part-alignment.md', expectedItems: 54, expectedImages: 51 },
+      { file: 'checklists/03-tayda-ordering.md', expectedItems: 22, expectedImages: 0 },
+      { file: 'checklists/04-hand-assembly.md', expectedItems: 41, expectedImages: 21 },
+      { file: 'checklists/05-board-bringup.md', expectedItems: 30, expectedImages: 9 },
+    ];
+
+    let totalCheckboxes = 0;
+    let totalImages = 0;
+    for (const entry of files) {
+      const res = await renderMarkdown(readRepoMd(entry.file), entry.file);
+      try {
+        const checkboxes = [...res.doc.querySelectorAll<HTMLInputElement>('[data-checklist-checkbox]')];
+        expect(checkboxes).toHaveLength(entry.expectedItems);
+        expect(checkboxes.every((cb) => !cb.disabled && !cb.checked)).toBe(true);
+
+        const uniqueIds = new Set(checkboxes.map((cb) => cb.getAttribute('data-item-id')));
+        expect(uniqueIds.size).toBe(entry.expectedItems);
+
+        const lightboxes = [...res.doc.querySelectorAll('button.lightbox-trigger[data-lightbox-src]')];
+        expect(lightboxes).toHaveLength(entry.expectedImages);
+
+        totalCheckboxes += checkboxes.length;
+        totalImages += lightboxes.length;
+
+        if (entry.file === 'checklists/01-main-board-ordering.md' || entry.file === 'checklists/01b-front-panel-ordering.md') {
+          expect(res.doc.querySelectorAll('[data-copy-trigger]').length).toBeGreaterThanOrEqual(2);
+          const remarkTrigger = [...res.doc.querySelectorAll('[data-copy-trigger]')].find((el) =>
+            (el.getAttribute('data-copy-text') ?? '').includes('5x5mm'),
+          );
+          expect(remarkTrigger).toBeDefined();
+        }
+
+        if (entry.file === 'checklists/02-pcba-part-alignment.md') {
+          expect(res.doc.querySelector('.callout-critical')?.textContent).toContain('CRITICAL');
+          expect(res.doc.querySelectorAll('[data-placement-card]').length).toBe(50);
+        }
+
+        if (entry.file === 'checklists/04-hand-assembly.md') {
+          const ibomLinks = [...res.doc.querySelectorAll('a[data-ibom-link]')];
+          expect(ibomLinks.length).toBeGreaterThanOrEqual(2);
+          expect(ibomLinks.every((a) => a.getAttribute('target') === '_blank')).toBe(true);
+          expect(res.doc.querySelectorAll('[data-placement-card]').length).toBeGreaterThan(0);
+        }
+
+        if (entry.file === 'checklists/05-board-bringup.md') {
+          const critical = res.doc.querySelector('[data-alert="critical"]');
+          expect(critical?.textContent).toContain('ABORT IMMEDIATELY');
+          expect(critical?.querySelector('.callout-badge')?.textContent).toBe('▲');
+        }
+      } finally {
+        res.cleanup();
+      }
+    }
+
+    expect(totalCheckboxes).toBe(211);
+    expect(totalImages).toBe(81);
+  });
 });

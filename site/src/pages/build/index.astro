@@ -1,0 +1,152 @@
+---
+import '../../styles/build.css';
+import { getEntry, render } from 'astro:content';
+import IbomLaunchCard from '../../components/IbomLaunchCard.astro';
+import {
+  BUILD_CHECKLISTS_CATALOG,
+  BUILD_CHECKLIST_NAV_ITEMS,
+  TOTAL_CHECKLIST_ITEMS,
+} from '../../data/build-checklists.ts';
+import DocLayout from '../../layouts/DocLayout.astro';
+import { extractDocumentTitle } from '../../lib/content-manifest.ts';
+import { withBase } from '../../lib/routes.ts';
+
+const hubEntry = await getEntry('buildChecklists', 'index');
+if (!hubEntry) {
+  throw new Error('Missing checklists/README.md in buildChecklists collection');
+}
+
+const { Content, headings } = await render(hubEntry);
+const pageTitle = extractDocumentTitle(hubEntry.body ?? '') || 'Build & Verification Checklists';
+const firstStep = BUILD_CHECKLISTS_CATALOG[0]!;
+---
+
+<DocLayout
+  title={`${pageTitle} · ENV / SKEW`}
+  description="Interactive 6-phase Build & Verification hub tracking all 211 checklist items across JLCPCB fabrication, PCBA alignment, Tayda sourcing, hand assembly, and bench bringup."
+  currentPath="/build/"
+  sectionTitle="Build Checklists"
+  navItems={BUILD_CHECKLIST_NAV_ITEMS}
+  breadcrumbs={[
+    { label: 'Overview', href: '/' },
+    { label: 'Build Checklists' },
+  ]}
+  headings={headings}
+  companionBanner={{
+    prompt: 'Visual companions: Download fabrication ZIPs/CSVs or inspect PCB and schematic plates.',
+    links: [
+      { label: 'Fabrication Downloads →', href: '/downloads/' },
+      { label: 'PCB F.Cu / B.Cu Plates →', href: '/hardware/#pcb' },
+      { label: '9-Block Schematic →', href: '/hardware/#schematic' },
+    ],
+  }}
+  next={{ label: `${firstStep.num}. ${firstStep.shortTitle}`, href: firstStep.route }}
+  hasMermaid={false}
+  showOutline={false}
+  shellAttributes={{ 'data-build-hub': 'true' }}
+>
+  <Content />
+
+  <Fragment slot="after-prose">
+    <section class="build-hub-tracker" aria-label="Build Progress Tracker">
+      <div class="build-hub-head">
+        <div>
+          <p class="build-hub-kicker mono">Persistent Bench State · localStorage v1</p>
+          <h2 class="build-hub-title">Build Progress Tracker ({TOTAL_CHECKLIST_ITEMS} Items)</h2>
+        </div>
+
+        <div class="build-hub-metrics">
+          <strong class="build-hub-count" data-hub-total>0 / {TOTAL_CHECKLIST_ITEMS}</strong>
+          <span class="build-hub-percent" data-hub-percent>0% complete</span>
+          <a href={withBase('/downloads/')} class="reset-step-btn" style="text-decoration: none;">
+            Fab Downloads →
+          </a>
+          <button type="button" class="reset-step-btn" data-hub-reset-open>
+            Reset All Progress
+          </button>
+        </div>
+      </div>
+
+      <progress
+        class="checklist-progress"
+        max={TOTAL_CHECKLIST_ITEMS}
+        value={0}
+        data-hub-total-progress
+        aria-label="Overall build checklist completion"
+      ></progress>
+
+      <ol class="build-steps-grid">
+        {
+          BUILD_CHECKLISTS_CATALOG.map((step) => (
+            <li class="build-step-card" data-hub-step={step.slug}>
+              <div>
+                <div class="build-step-card-top">
+                  <span class="build-step-num chamfer-sm mono">{step.num}</span>
+                  <span class="build-step-status" data-hub-step-status={step.slug} data-status="pending">
+                    Not started
+                  </span>
+                </div>
+                <p class="build-step-phase mono">{step.phaseLabel}</p>
+                <h3 class="build-step-title">{step.shortTitle}</h3>
+                <p class="build-step-desc">{step.summary}</p>
+              </div>
+
+              <div class="build-step-foot">
+                <div class="build-step-counts">
+                  <span data-hub-step-count={step.slug}>0 / {step.totalItems}</span>
+                  {step.imageCount > 0 && <span>{step.imageCount} photos</span>}
+                </div>
+                <progress
+                  class="checklist-progress checklist-mini-progress"
+                  max={step.totalItems}
+                  value={0}
+                  data-hub-step-progress={step.slug}
+                  aria-label={`${step.shortTitle} completion`}
+                ></progress>
+                <a href={withBase(step.route)} class="build-step-link">
+                  <span>Open {step.shortTitle}</span>
+                  <span aria-hidden="true">→</span>
+                </a>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <IbomLaunchCard />
+  </Fragment>
+
+  <dialog
+    slot="dialogs"
+    id="hub-reset-dialog"
+    class="confirm-dialog"
+    data-hub-reset-dialog
+    data-managed-dialog
+    closedby="any"
+    aria-labelledby="hub-reset-title"
+  >
+    <form method="dialog">
+      <h2 id="hub-reset-title" class="confirm-dialog-title">Reset all 211 build checkboxes?</h2>
+      <p class="confirm-dialog-body">
+        This permanently clears saved checklist progress across all six build phases in this
+        browser. This cannot be undone.
+      </p>
+      <div class="confirm-dialog-actions">
+        <button type="submit" value="cancel" class="dialog-btn-cancel" data-reset-cancel autofocus>
+          Cancel
+        </button>
+        <button type="submit" value="confirm" class="dialog-btn-confirm" data-reset-confirm>
+          Reset all phases
+        </button>
+      </div>
+    </form>
+  </dialog>
+
+  <Fragment slot="scripts">
+    <script>
+      import { initBuildHubPage } from '../../lib/checklist-controller.ts';
+      initBuildHubPage();
+    </script>
+  </Fragment>
+</DocLayout>

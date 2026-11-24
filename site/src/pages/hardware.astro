@@ -1,0 +1,429 @@
+---
+import '../styles/docs.css';
+import '../styles/hardware.css';
+import MermaidHydrator from '../components/MermaidHydrator.astro';
+import SiteLayout from '../layouts/SiteLayout.astro';
+import { SCHEMATIC_BLOCKS, SCHEMATIC_IMAGE_PX } from '../data/hardware-schematic.ts';
+import { getInlinedPanelSpecGeometry } from '../lib/panel-keepouts-inline.ts';
+import { withBase } from '../lib/routes.ts';
+
+const panelSpec = getInlinedPanelSpecGeometry();
+
+const SIGNAL_FLOW_MERMAID = `flowchart LR
+    IN["J1 IN (1M bleed, C7 470nF)"] --> ATT["RV1 100k A Atten (90.9k Zin)"]
+    ATT --> PRE["U1A Non-Inv x2 Preamp (10k 0.1%, C9 10uF)"]
+    PRE --> HWR["U1B HWR (BAT54S, 10k 0.1%)"]
+    PRE --> FF["Feedforward (R11+R12 20k)"]
+    HWR --> SUM["U1C FWR Summer (R13+R14 20k = 1.000x)"]
+    FF --> SUM
+    SUM -->|"1k R15 to normal"| SLEWJ["J2 SLEW IN (Normaled Jack)"]
+    SLEWJ -->|"10k R17, 1M R16"| DRV["U1D Skew Driver (R18 10k, C10 2.2nF C0G, D4/D5 1N4148W)"]
+    DRV -->|"R19/R20 1k + RV2/RV3 A1M"| CAP["C11 470nF + SW2 FAST/SLOW (C12+C13 4.4uF)"]
+    CAP --> BUF["U2A Hold Buffer"]
+    BUF -->|"R18 10k feedback"| DRV
+    BUF --> SMOOTH["R21/R22 49.9k + SW1 SMOOTH (C14 220nF)"]
+    SMOOTH --> INV["U2B Inverting Unity Summer (100k, RV4 B10K OFFSET)"]
+    INV -->|"R25 1k"| INVOUT["J4 INV_OUT"]
+    INV --> OUTAMP["U2C Unity Inverter (10k 0.1%)"]
+    OUTAMP -->|"R32 1k"| OUTJ["J3 OUT"]
+    OUTAMP -->|"pre-R32 tap"| LEDDRV["U2D V-to-I Driver (LED1 A-1076, R33 2.2k)"]`;
+
+const OPAMP_ROWS = [
+  {
+    ic: 'U1',
+    section: 'U1A',
+    pins: '3, 2, 1',
+    role: 'Non-inverting ×2.00 Eurorack preamp (C9 = 10 µF keeps DC gain 1.00×, C8 = 33 pF)',
+  },
+  {
+    ic: 'U1',
+    section: 'U1B',
+    pins: '5, 6, 7',
+    role: 'Precision half-wave rectifier (10 kΩ ±0.1% R8–R9, BAT54S D3)',
+  },
+  {
+    ic: 'U1',
+    section: 'U1C',
+    pins: '10, 9, 8',
+    role: 'Full-wave rectifier summing amplifier (10 kΩ ±0.1% R10–R14 = exact 1.000×)',
+  },
+  {
+    ic: 'U1',
+    section: 'U1D',
+    pins: '12, 13, 14',
+    role: 'Active skew-limiter driver (R18 = 10 kΩ, C10 = 2.2 nF C0G, D4/D5 1N4148W)',
+  },
+  {
+    ic: 'U2',
+    section: 'U2A',
+    pins: '3, 2, 1',
+    role: 'Hold-capacitor (C11–C13) unity-gain buffer (V_env; feeds U1D & SMOOTH T-filter)',
+  },
+  {
+    ic: 'U2',
+    section: 'U2B',
+    pins: '5, 6, 7',
+    role: 'Virtual-ground inverting unity summer (100 kΩ R23–R24, RV4 OFFSET) → INV_OUT',
+  },
+  {
+    ic: 'U2',
+    section: 'U2C',
+    pins: '10, 9, 8',
+    role: 'Unity-gain inverter (10 kΩ ±0.1% R30–R31) → OUT (+(V_env + V_off))',
+  },
+  {
+    ic: 'U2',
+    section: 'U2D',
+    pins: '12, 13, 14',
+    role: 'Post-offset active V-to-I bi-color LED driver (LED1 A-1076, R33 = 2.2 kΩ)',
+  },
+] as const;
+---
+
+<SiteLayout
+  title="Hardware Showcase · ENV / SKEW"
+  description="Interactive Hardware Showcase for ENV / SKEW: signal-flow architecture, 9-block A3 KiCad schematic inspector, F.Cu/B.Cu PCB 3D plates, and 4-layer front-panel inspector."
+  currentPath="/hardware/"
+>
+  <div class="hardware-shell" data-hardware-page>
+    <header class="hardware-hero">
+      <p class="hardware-kicker">KiCad 10 · SKiDL · VectorCraft · Zero DRC/ERC Errors</p>
+      <h1>Hardware Architecture &amp; Inspection Showcase</h1>
+      <p class="hardware-lead">
+        Inspect the complete <code>2× TL074HIDR</code> electrical topology, zoom across all{' '}
+        <code>9</code> A3 schematic blocks, inspect <code>F.Cu</code> / <code>B.Cu</code> PCB
+        placements, and verify the Matte Black + ENIG front-panel layers.
+      </p>
+
+      <nav class="hardware-jump-nav" aria-label="Hardware sections">
+        <a href="#overview" class="hardware-jump-link">01 · Overview &amp; Op-Amps</a>
+        <a href="#schematic" class="hardware-jump-link">02 · 9-Block A3 Schematic</a>
+        <a href="#pcb" class="hardware-jump-link">03 · F.Cu / B.Cu PCB Plates</a>
+        <a href="#panel" class="hardware-jump-link">04 · Front-Panel Layers</a>
+      </nav>
+    </header>
+
+    <section id="overview" class="hardware-section" aria-labelledby="overview-heading">
+      <div class="hardware-section-head">
+        <div>
+          <h2 id="overview-heading">1. Circuit Overview &amp; Op-Amp Allocation</h2>
+          <p class="hardware-section-sub">
+            Single-SKU <code>2× TL074HIDR</code> architecture using 8/8 sections, 0 trimmers, and 48 active nets.
+          </p>
+        </div>
+        <a href={withBase('/specs/design-spec/')} class="hw-action-link">
+          Full Design Spec →
+        </a>
+      </div>
+
+      <ul class="spec-chip-row" aria-label="Key hardware specifications">
+        <li class="spec-chip tabular">Panel: 30.0 × 128.5 mm (6 HP × 3U)</li>
+        <li class="spec-chip tabular">Main PCB: 30.0 × 108.0 mm (2L FR4)</li>
+        <li class="spec-chip tabular">80 Footprints (50 SMD + 18 THT + 12 DNP TP)</li>
+        <li class="spec-chip tabular">±12 V (~8.5 mA idle · ~13 mA typ)</li>
+        <li class="spec-chip">3 Extended JLCPCB SKUs</li>
+      </ul>
+
+      <figure class="mermaid-card" data-mermaid-card="true" data-pagefind-ignore>
+        <div class="mermaid-scroll" tabindex="0" role="region" aria-label="Circuit signal flow diagram">
+          <pre class="mermaid">{SIGNAL_FLOW_MERMAID}</pre>
+        </div>
+      </figure>
+
+      <h3 id="opamp-table-heading">Op-Amp Section Allocation (<code>2× TL074HIDR</code>, <code>0</code> Unused)</h3>
+      <div class="table-wrapper" tabindex="0" role="region" aria-labelledby="opamp-table-heading">
+        <table data-table-kind="narrow">
+          <thead>
+            <tr>
+              <th scope="col">Section</th>
+              <th scope="col">IC</th>
+              <th scope="col">Pins (+, −, OUT)</th>
+              <th scope="col">Functional Role</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              OPAMP_ROWS.map((row) => (
+                <tr>
+                  <th scope="row">
+                    <code>{row.section}</code>
+                  </th>
+                  <td>
+                    <code>{row.ic}</code>
+                  </td>
+                  <td class="tabular">
+                    <code>{row.pins}</code>
+                  </td>
+                  <td>{row.role}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="schematic" class="hardware-section" aria-labelledby="schematic-heading">
+      <div class="hardware-section-head">
+        <div>
+          <h2 id="schematic-heading">2. 9-Block A3 Schematic Inspector</h2>
+          <p class="hardware-section-sub">
+            Scroll-safe inline canvas (<code>Ctrl</code>/<code>⌘</code> + wheel zooms; click a zone chip to jump directly).
+          </p>
+        </div>
+      </div>
+
+      <div class="schematic-toolbar">
+        <div class="schematic-actions">
+          <button
+            type="button"
+            class="hw-action-btn"
+            data-night-blueprint-toggle
+            aria-pressed="false"
+          >
+            Night Blueprint
+          </button>
+        </div>
+        <div class="schematic-actions">
+          <a
+            href={withBase('/envelope_follower.pdf')}
+            class="hw-action-link"
+            target="_blank"
+            rel="noopener"
+          >
+            Open A3 PDF ↗
+          </a>
+          <a
+            href={withBase('/envelope_follower.pdf')}
+            class="hw-action-link"
+            download="envelope_follower.pdf"
+          >
+            Download A3 PDF ↓
+          </a>
+        </div>
+      </div>
+
+      <div class="focus-chip-bar" role="group" aria-label="9-block circuit stage focus">
+        <button type="button" class="focus-chip" data-focus-block="full" aria-pressed="true">
+          Full Sheet
+        </button>
+        {
+          SCHEMATIC_BLOCKS.map((block) => (
+            <button
+              type="button"
+              class="focus-chip"
+              data-focus-block={String(block.num)}
+              aria-pressed="false"
+            >
+              {block.label}
+            </button>
+          ))
+        }
+      </div>
+
+      <div class="focus-readout" aria-live="polite">
+        <p class="focus-readout-text" data-focus-readout-text>
+          Full Sheet (A3 420 × 297 mm) — 9 circuit stages, 128 symbol instances, 48 nets, 0 ERC errors.
+        </p>
+        <a
+          href={withBase('/specs/design-spec/')}
+          class="focus-readout-link"
+          data-focus-readout-link
+        >
+          Read Final Design Spec →
+        </a>
+      </div>
+
+      <zoom-pan-viewer
+        data-schematic-viewer
+        src={withBase('/images/schematic.png')}
+        alt="ENV / SKEW 9-block A3 KiCad 10 schematic"
+        width={String(SCHEMATIC_IMAGE_PX.width)}
+        height={String(SCHEMATIC_IMAGE_PX.height)}
+      ></zoom-pan-viewer>
+    </section>
+
+    <section id="pcb" class="hardware-section" aria-labelledby="pcb-heading">
+      <div class="hardware-section-head">
+        <div>
+          <h2 id="pcb-heading">3. Two-Layer Sandwich PCB (<code>F.Cu</code> / <code>B.Cu</code>)</h2>
+          <p class="hardware-section-sub">
+            Click either 3D board plate to inspect SMD orientation and <code>TP1</code>–<code>TP12</code> up to <code>300%</code> zoom.
+          </p>
+        </div>
+      </div>
+
+      <div class="pcb-mobile-switcher" role="group" aria-label="Filter PCB board view">
+        <button type="button" class="hw-action-btn" data-pcb-view="both" aria-pressed="true">
+          Both
+        </button>
+        <button type="button" class="hw-action-btn" data-pcb-view="front" aria-pressed="false">
+          Front (F.Cu)
+        </button>
+        <button type="button" class="hw-action-btn" data-pcb-view="back" aria-pressed="false">
+          Back (B.Cu)
+        </button>
+      </div>
+
+      <div class="pcb-layout-grid" data-pcb-grid data-pcb-mobile-view="both">
+        <figure class="pcb-plate-card" data-pcb-plate="front">
+          <button
+            type="button"
+            class="pcb-plate-btn"
+            data-pcb-lightbox-index="0"
+            aria-label="Inspect Front PCB F.Cu up to 300% zoom"
+          >
+            <img
+              src={withBase('/images/pcb_front.png')}
+              alt="ENV / SKEW main PCB front 3D render (F.Cu panel controls)"
+              width="744"
+              height="2416"
+              loading="lazy"
+              decoding="async"
+            />
+          </button>
+          <figcaption class="pcb-plate-caption">
+            <strong>Front (<code>F.Cu</code>)</strong>
+            <span class="mono">11 Panel THT Controls · −12V Keying Bar</span>
+          </figcaption>
+        </figure>
+
+        <figure class="pcb-plate-card" data-pcb-plate="back">
+          <button
+            type="button"
+            class="pcb-plate-btn"
+            data-pcb-lightbox-index="1"
+            aria-label="Inspect Back PCB B.Cu up to 300% zoom"
+          >
+            <img
+              src={withBase('/images/pcb_back.png')}
+              alt="ENV / SKEW main PCB back 3D render (B.Cu 50 SMDs and TP1–TP12)"
+              width="744"
+              height="2416"
+              loading="lazy"
+              decoding="async"
+            />
+          </button>
+          <figcaption class="pcb-plate-caption">
+            <strong>Back (<code>B.Cu</code>)</strong>
+            <span class="mono">50 JLCPCB SMDs · 7 THT · 12 DNP TPs</span>
+          </figcaption>
+        </figure>
+
+        <aside class="highlights-card" aria-label="Sandwich Architecture and DFM Highlights">
+          <h3>Sandwich Architecture &amp; DFM</h3>
+          <ul class="highlights-list">
+            <li>
+              <strong>Single-sided Economic PCBA:</strong> All <code>50</code> SMDs live on{' '}
+              <code>B.Cu</code> using <code>3</code> Extended SKUs (<code>TL074HIDR</code>,{' '}
+              <code>BAT54S</code>, <code>10k 0.1%</code>) + <code>14</code> Basic rows.
+            </li>
+            <li>
+              <strong>Mated 6 HP Clearance:</strong> <code>30.0 × 108.0 mm</code> main PCB sits
+              behind the <code>128.5 mm</code> panel (<code>10.25 mm</code> top/bottom rail overhang).
+            </li>
+            <li>
+              <strong>Bench-Ready Testability:</strong> <code>12</code> labeled{' '}
+              <code>1.0 mm</code> DNP test points (<code>TP1</code>–<code>TP12</code>) and{' '}
+              <code>3</code> <code>B.Cu</code> fiducials.
+            </li>
+            <li>
+              <strong>18 Manual THT Parts:</strong> <code>11</code> <code>F.Cu</code> panel
+              controls + <code>7</code> <code>B.Cu</code> bulk/timing parts mapped in{' '}
+              <code>bom/ibom.html</code>.
+            </li>
+          </ul>
+          <div class="highlights-actions">
+            <a href={withBase('/bom/ibom.html')} target="_blank" rel="noopener">
+              Launch Interactive BOM ↗
+            </a>
+            <a href={withBase('/build/02-pcba-part-alignment/')}>PCBA Alignment Check →</a>
+            <a href={withBase('/build/04-hand-assembly/')}>Hand Assembly →</a>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="panel" class="hardware-section" aria-labelledby="panel-heading">
+      <div class="hardware-section-head">
+        <div>
+          <h2 id="panel-heading">4. Interactive Front-Panel Layer Inspector</h2>
+          <p class="hardware-section-sub">
+            Matte Black FR4 + ENIG Gold (<code>F.Mask</code>) + White Silkscreen (<code>F.SilkS</code>) ·{' '}
+            <code>{panelSpec.canvas.width_mm.toFixed(2)} × {panelSpec.canvas.height_mm.toFixed(2)} mm</code>.
+          </p>
+        </div>
+        <a href={withBase('/specs/panel-svg-spec/')} class="hw-action-link">
+          Panel SVG Spec →
+        </a>
+      </div>
+
+      <div class="panel-stage-grid">
+        <panel-layer-inspector></panel-layer-inspector>
+
+        <aside class="highlights-card" aria-label="Front-panel fabrication highlights">
+          <h3>Fabrication Highlights (<code>panel_svg_spec.md</code>)</h3>
+          <ul class="highlights-list">
+            <li>
+              <strong>Canvas &amp; Finish:</strong> <code>{panelSpec.metadata.hp} HP</code> (
+              <code>{panelSpec.canvas.width_mm.toFixed(1)} × {panelSpec.canvas.height_mm.toFixed(1)} mm</code>),
+              <code>1.6 mm</code> FR4, Matte Black solder mask, <code>ENIG-RoHS</code> gold, White silkscreen.
+            </li>
+            <li>
+              <strong>Artwork Separation:</strong> Minimum stroke{' '}
+              <code>{panelSpec.fabrication_rules.min_silk_stroke_mm.toFixed(2)} mm</code>, minimum
+              silk-to-mask clearance{' '}
+              <code>{panelSpec.fabrication_rules.min_silk_to_mask_clearance_mm.toFixed(2)} mm</code>, copper edge
+              pullback <code>{panelSpec.fabrication_rules.copper_edge_pullback_mm.toFixed(2)} mm</code>.
+            </li>
+            <li>
+              <strong>Drills &amp; Slots:</strong> <code>{panelSpec.components.length}</code> front controls +{' '}
+              <code>{panelSpec.mounting_slots.length}</code> Doepfer M3 oval mounting slots (
+              <code>5.5 × 3.2 mm</code> NPTH).
+            </li>
+            <li>
+              <strong>Order Workflow:</strong> Upload{' '}
+              <code>manufacturing/envelope_follower_panel_gerbers.zip</code> alongside main PCB for combined shipping.
+            </li>
+          </ul>
+
+          <div class="panel-download-stack">
+            <a
+              href={withBase('/panel_art/front_soldermask.svg')}
+              class="hw-action-link"
+              download="front_soldermask.svg"
+            >
+              Download F.Mask SVG ↓
+            </a>
+            <a
+              href={withBase('/panel_art/front_silkscreen.svg')}
+              class="hw-action-link"
+              download="front_silkscreen.svg"
+            >
+              Download F.SilkS SVG ↓
+            </a>
+          </div>
+
+          <div class="highlights-actions">
+            <a href={withBase('/build/01b-front-panel-ordering/')}>Front Panel Checklist →</a>
+            <a href={withBase('/downloads/')}>All Fabrication Downloads →</a>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </div>
+
+  <Fragment slot="scripts">
+    <MermaidHydrator />
+    <script>
+      import '../components/zoom-pan-viewer.ts';
+      import '../components/panel-layer-inspector.ts';
+      import { initHardwarePage } from '../lib/hardware-controller.ts';
+
+      const pageRoot = document.querySelector('[data-hardware-page]');
+      if (pageRoot) {
+        initHardwarePage(pageRoot);
+      }
+    </script>
+  </Fragment>
+</SiteLayout>

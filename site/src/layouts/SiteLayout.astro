@@ -2,6 +2,7 @@
 import '../styles/fonts.css';
 import '../styles/tokens.css';
 import '../styles/global.css';
+import SearchModal from '../components/SearchModal.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 
@@ -55,7 +56,12 @@ const hasSearchSlot = Astro.slots.has('search-trigger');
     </main>
 
     <SiteFooter />
+    <SearchModal />
     <slot name="dialogs" />
     <slot name="scripts" />
+    <script>
+      import { initSearchModal } from '../lib/search-modal.ts';
+      initSearchModal();
+    </script>
   </body>
 </html>

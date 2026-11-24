@@ -9,6 +9,7 @@ export interface DocNavItem {
   label: string;
   href: string;
   badge?: string;
+  slug?: string;
 }
 
 export interface DocBreadcrumb {
@@ -39,6 +40,8 @@ interface Props {
   prev?: DocNavItem;
   next?: DocNavItem;
   hasMermaid?: boolean;
+  showOutline?: boolean;
+  shellAttributes?: Record<string, string>;
 }
 
 const {
@@ -53,15 +56,19 @@ const {
   prev,
   next,
   hasMermaid = false,
+  showOutline = true,
+  shellAttributes = {},
 } = Astro.props;
 
 const normalizedCurrent = normalizeRoutePath(currentPath);
 const outlineHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
+const hasDialogsSlot = Astro.slots.has('dialogs');
+const hasScriptsSlot = Astro.slots.has('scripts');
 ---
 
 <SiteLayout title={title} description={description} currentPath={currentPath}>
-  <div class="doc-shell">
-    <aside class="doc-rail" aria-label={sectionTitle}>
+  <div class="doc-shell" {...shellAttributes}>
+    <aside class="doc-rail" aria-label={sectionTitle} data-pagefind-ignore>
       <details class="doc-rail-panel" open>
         <summary class="doc-rail-summary">{sectionTitle}</summary>
         <nav aria-label={`${sectionTitle} navigation`}>
@@ -78,6 +85,9 @@ const outlineHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
                     >
                       {item.badge && <span class="rail-badge">{item.badge}</span>}
                       <span class="rail-label">{item.label}</span>
+                      {item.slug && (
+                        <span class="rail-progress tabular" data-rail-slug={item.slug} />
+                      )}
                     </a>
                   </li>
                 );
@@ -89,7 +99,7 @@ const outlineHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
     </aside>
 
     <div class="doc-main">
-      <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <nav class="breadcrumbs" aria-label="Breadcrumb" data-pagefind-ignore>
         {
           breadcrumbs.map((crumb, idx) => {
             const isLast = idx === breadcrumbs.length - 1;
@@ -109,20 +119,32 @@ const outlineHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
 
       {
         companionBanner && (
-          <aside class="companion-banner" aria-label="Visual companion">
+          <aside class="companion-banner" aria-label="Visual companion" data-pagefind-ignore>
             <p class="companion-prompt">{companionBanner.prompt}</p>
             <div class="companion-links">
-              {companionBanner.links.map((link) => (
-                <a href={withBase(link.href)}>{link.label}</a>
-              ))}
+              {companionBanner.links.map((link) => {
+                const isIbom = link.href.endsWith('/bom/ibom.html');
+                return (
+                  <a
+                    href={withBase(link.href)}
+                    target={isIbom ? '_blank' : undefined}
+                    rel={isIbom ? 'noopener noreferrer' : undefined}
+                    data-ibom-link={isIbom ? 'true' : undefined}
+                  >
+                    {link.label}
+                  </a>
+                );
+              })}
             </div>
           </aside>
         )
       }
 
+      <slot name="before-prose" />
+
       {
-        outlineHeadings.length > 0 && (
-          <details class="toc-outline">
+        showOutline && outlineHeadings.length > 0 && (
+          <details class="toc-outline" data-pagefind-ignore>
             <summary class="toc-outline-summary">
               <span>On-Page Outline</span>
               <span class="toc-count tabular">{outlineHeadings.length} sections</span>
@@ -142,9 +164,11 @@ const outlineHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
         <slot />
       </article>
 
+      <slot name="after-prose" />
+
       {
         (prev || next) && (
-          <nav class="doc-prev-next" aria-label="Previous and next document">
+          <nav class="doc-prev-next" aria-label="Previous and next document" data-pagefind-ignore>
             {prev && (
               <a href={withBase(prev.href)} class="prev-next-card" data-dir="prev">
                 <span class="prev-next-kicker">← Previous</span>
@@ -163,5 +187,13 @@ const outlineHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
     </div>
   </div>
 
-  {hasMermaid && <MermaidHydrator slot="scripts" />}
+  {hasDialogsSlot && <slot name="dialogs" slot="dialogs" />}
+  {
+    (hasMermaid || hasScriptsSlot) && (
+      <Fragment slot="scripts">
+        {hasMermaid && <MermaidHydrator />}
+        {hasScriptsSlot && <slot name="scripts" />}
+      </Fragment>
+    )
+  }
 </SiteLayout>

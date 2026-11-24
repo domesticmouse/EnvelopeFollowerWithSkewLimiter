@@ -1,0 +1,171 @@
+---
+import '../../styles/build.css';
+import { getEntry, render } from 'astro:content';
+import IbomLaunchCard from '../../components/IbomLaunchCard.astro';
+import JlcpcbUploadStrip from '../../components/JlcpcbUploadStrip.astro';
+import {
+  BUILD_CHECKLISTS_CATALOG,
+  BUILD_CHECKLIST_NAV_ITEMS,
+  type BuildChecklistMeta,
+} from '../../data/build-checklists.ts';
+import DocLayout from '../../layouts/DocLayout.astro';
+import { extractDocumentTitle } from '../../lib/content-manifest.ts';
+
+export function getStaticPaths() {
+  return BUILD_CHECKLISTS_CATALOG.map((meta, index) => {
+    const prevMeta = index > 0 ? BUILD_CHECKLISTS_CATALOG[index - 1] : undefined;
+    const nextMeta =
+      index < BUILD_CHECKLISTS_CATALOG.length - 1 ? BUILD_CHECKLISTS_CATALOG[index + 1] : undefined;
+
+    return {
+      params: { slug: meta.slug },
+      props: { meta, prevMeta, nextMeta },
+    };
+  });
+}
+
+interface Props {
+  meta: BuildChecklistMeta;
+  prevMeta?: BuildChecklistMeta;
+  nextMeta?: BuildChecklistMeta;
+}
+
+const { meta, prevMeta, nextMeta } = Astro.props;
+const entry = await getEntry('buildChecklists', meta.slug);
+if (!entry) {
+  throw new Error(`Missing buildChecklists entry for slug "${meta.slug}"`);
+}
+
+const { Content, headings } = await render(entry);
+const docTitle = extractDocumentTitle(entry.body ?? '') || meta.fullTitle;
+
+const bringupJumpLinks = [
+  { label: 'TP1–TP12 Map', href: '#test-point-reference-12-bcu-test-points' },
+  { label: 'Initial Controls', href: '#bench-equipment--initial-control-state' },
+  { label: '1 Cold Checks', href: '#phase-1--unpowered-cold-checks-power-off' },
+  { label: '2 Power-Up', href: '#phase-2--first-power-up-smoke-test--supply-rails' },
+  { label: '3 Bias & LED1', href: '#phase-3--quiescent-dc-bias-offset--led1-verification-no-input' },
+  { label: '4 Signal Path', href: '#phase-4--audio-signal-path-verification-100200-hz-10-vpp--5-v-sine-into-j1-in' },
+  { label: '5 SLEW IN', href: '#phase-5--slew-in-j2-normaling--bipolar-timing-verification' },
+  { label: '6 Sign-Off', href: '#phase-6--musical-workflow-check--final-sign-off' },
+  { label: 'Troubleshooting', href: '#troubleshooting-quick-reference' },
+] as const;
+---
+
+<DocLayout
+  title={`${docTitle} · ENV / SKEW`}
+  description={meta.summary}
+  currentPath={meta.route}
+  sectionTitle="Build Checklists"
+  navItems={BUILD_CHECKLIST_NAV_ITEMS}
+  breadcrumbs={[
+    { label: 'Overview', href: '/' },
+    { label: 'Build Checklists', href: '/build/' },
+    { label: meta.shortTitle },
+  ]}
+  headings={headings}
+  companionBanner={{
+    prompt: meta.companionPrompt,
+    links: meta.companionLinks,
+  }}
+  prev={
+    prevMeta
+      ? { label: `${prevMeta.num}. ${prevMeta.shortTitle}`, href: prevMeta.route }
+      : { label: 'Build Checklists Overview', href: '/build/' }
+  }
+  next={
+    nextMeta
+      ? { label: `${nextMeta.num}. ${nextMeta.shortTitle}`, href: nextMeta.route }
+      : undefined
+  }
+  hasMermaid={false}
+  showOutline={true}
+  shellAttributes={{ 'data-checklist-page': meta.slug }}
+>
+  <Fragment slot="before-prose">
+    <section class="checklist-toolbar" aria-label="Checklist Progress Controls" data-pagefind-ignore>
+      <div class="checklist-toolbar-row">
+        <div class="checklist-toolbar-summary">
+          <span class="checklist-phase-pill">Step {meta.num}</span>
+          <strong class="checklist-summary-text" data-checklist-summary>
+            0 / {meta.totalItems} completed (0%)
+          </strong>
+        </div>
+
+        <div class="checklist-toolbar-controls">
+          <label class="hide-completed-toggle">
+            <input type="checkbox" data-hide-completed />
+            <span>Hide completed</span>
+          </label>
+          <button type="button" class="reset-step-btn" data-reset-open>Reset Step</button>
+        </div>
+      </div>
+
+      <progress
+        class="checklist-progress"
+        max={meta.totalItems}
+        value={0}
+        data-checklist-progress
+        aria-label={`${meta.shortTitle} progress`}
+      ></progress>
+    </section>
+
+    {
+      meta.slug === '05-board-bringup' && (
+        <nav class="bringup-jump-strip" aria-label="Bringup bench sections" data-pagefind-ignore>
+          {bringupJumpLinks.map((item) => (
+            <a href={item.href} class="bringup-jump-chip">
+              {item.label}
+            </a>
+          ))}
+        </nav>
+      )
+    }
+
+    {
+      meta.showsJlcpcbStrip && (
+        <JlcpcbUploadStrip focus={meta.slug === '01b-front-panel-ordering' ? 'panel' : 'main'} />
+      )
+    }
+    {meta.showsIbomCard && <IbomLaunchCard compact />}
+  </Fragment>
+
+  <Content />
+
+  <div slot="after-prose" aria-live="polite" class="sr-only" data-checklist-live></div>
+
+  <dialog
+    slot="dialogs"
+    id="step-reset-dialog"
+    class="confirm-dialog"
+    data-reset-dialog
+    data-managed-dialog
+    closedby="any"
+    aria-labelledby="step-reset-title"
+  >
+    <form method="dialog">
+      <h2 id="step-reset-title" class="confirm-dialog-title">
+        Reset {meta.shortTitle} checkboxes?
+      </h2>
+      <p class="confirm-dialog-body">
+        Clears all saved checkmarks for Step {meta.num} in this browser. Your other build steps
+        remain untouched.
+      </p>
+      <div class="confirm-dialog-actions">
+        <button type="submit" value="cancel" class="dialog-btn-cancel" data-reset-cancel autofocus>
+          Cancel
+        </button>
+        <button type="submit" value="confirm" class="dialog-btn-confirm" data-reset-confirm>
+          Reset step
+        </button>
+      </div>
+    </form>
+  </dialog>
+
+  <Fragment slot="scripts">
+    <script>
+      import { initChecklistDetailPage } from '../../lib/checklist-controller.ts';
+      initChecklistDetailPage();
+    </script>
+  </Fragment>
+</DocLayout>
