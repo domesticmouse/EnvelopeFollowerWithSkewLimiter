@@ -11,7 +11,7 @@ import {
   loadCheckedItemIds,
   saveCheckedItemIds,
 } from './checklist-storage.ts';
-import { wireBackdropLightDismiss } from './dialog-chrome.ts';
+import { showModalSafe, wireBackdropLightDismiss } from './dialog-chrome.ts';
 
 /** Optional dependencies injected cleanly for deterministic unit tests. */
 export interface ChecklistControllerOptions {
@@ -68,11 +68,7 @@ function wireConfirmResetDialog(
         | { focus?: () => void; isConnected?: boolean }
         | null;
       previousActive = active && typeof active.focus === 'function' ? active : trigger;
-      if (typeof dialog.showModal === 'function') {
-        dialog.showModal();
-      } else {
-        dialog.setAttribute('open', '');
-      }
+      showModalSafe(dialog);
     },
     { signal },
   );
@@ -117,6 +113,7 @@ export function initChecklistDetailPage(options: ChecklistControllerOptions = {}
   const checkboxes = [...container.querySelectorAll<HTMLInputElement>('[data-checklist-checkbox]')];
   const hideToggle = container.querySelector<HTMLInputElement>('[data-hide-completed]');
   const summaryEl = container.querySelector<HTMLElement>('[data-checklist-summary]');
+  const progressEl = container.querySelector<HTMLProgressElement>('[data-checklist-progress]');
   const meterBarEl = container.querySelector<HTMLElement>('[data-checklist-meter-bar]');
   const liveEl = container.querySelector<HTMLElement>('[data-checklist-live]');
 
@@ -171,6 +168,10 @@ export function initChecklistDetailPage(options: ChecklistControllerOptions = {}
     const percent = total > 0 ? Math.round((doneCount / total) * 100) : 0;
     if (summaryEl) {
       summaryEl.textContent = `${doneCount} / ${total} completed (${percent}%)`;
+    }
+    if (progressEl) {
+      progressEl.max = total;
+      progressEl.value = doneCount;
     }
     if (meterBarEl) {
       meterBarEl.style.width = `${percent}%`;
@@ -322,6 +323,7 @@ export function initBuildHubPage(options: ChecklistControllerOptions = {}): () =
   const refresh = (): void => {
     const summary = computeAllChecklistsProgress(options.storage);
     const totalEl = hub.querySelector<HTMLElement>('[data-hub-total]');
+    const totalProgressEl = hub.querySelector<HTMLProgressElement>('[data-hub-total-progress]');
     const totalBarEl = hub.querySelector<HTMLElement>('[data-hub-total-bar]');
     const percentEl = hub.querySelector<HTMLElement>('[data-hub-percent]');
     if (totalEl) {
@@ -330,6 +332,10 @@ export function initBuildHubPage(options: ChecklistControllerOptions = {}): () =
     if (percentEl) {
       percentEl.textContent = `${summary.percent}% complete`;
     }
+    if (totalProgressEl) {
+      totalProgressEl.max = summary.totalItems;
+      totalProgressEl.value = summary.totalDone;
+    }
     if (totalBarEl) {
       totalBarEl.style.width = `${summary.percent}%`;
     }
@@ -337,9 +343,16 @@ export function initBuildHubPage(options: ChecklistControllerOptions = {}): () =
     for (const step of summary.steps) {
       const countEl = hub.querySelector<HTMLElement>(`[data-hub-step-count="${step.slug}"]`);
       const statusEl = hub.querySelector<HTMLElement>(`[data-hub-step-status="${step.slug}"]`);
+      const stepProgressEl = hub.querySelector<HTMLProgressElement>(
+        `[data-hub-step-progress="${step.slug}"]`,
+      );
       const barEl = hub.querySelector<HTMLElement>(`[data-hub-step-bar="${step.slug}"]`);
       if (countEl) {
         countEl.textContent = `${step.done} / ${step.total}`;
+      }
+      if (stepProgressEl) {
+        stepProgressEl.max = step.total;
+        stepProgressEl.value = step.done;
       }
       if (barEl) {
         barEl.style.width = `${step.percent}%`;

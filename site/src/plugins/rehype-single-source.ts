@@ -6,9 +6,10 @@ import type { Element, ElementContent, Parent, Properties, Root, RootContent } f
 import type { Plugin } from 'unified';
 import { visit } from 'unist-util-visit';
 import type { VFile } from 'vfile';
-import { readImageDimensions } from '../lib/image-dimensions.ts';
 import { generateChecklistItemId } from '../lib/checklist-id.ts';
 import { resolveRelativeRepoPath, resolveRepoHref } from '../lib/content-manifest.ts';
+import { readImageDimensions } from '../lib/image-dimensions.ts';
+import type { PanelControlId } from '../lib/panel-svg-shared.ts';
 import { SITE_BASE, withBase } from '../lib/routes.ts';
 import { toPosixPath } from '../lib/static-passthrough.ts';
 
@@ -470,7 +471,7 @@ function markFormulaGrids(tree: Root): void {
 
 const PATCH_GUIDE_FILE_RE = /^patches\/0[1-8][^/]*\.md$/;
 
-function matchControlIdFromCell(rawText: string): string | null {
+function matchControlIdFromCell(rawText: string): PanelControlId | null {
   const norm = rawText.replace(/\s+/g, ' ').trim().toUpperCase();
   if (!norm) return null;
   if (norm.includes('SLEW IN') || norm.includes('J2')) return 'j2';
@@ -668,17 +669,6 @@ function transformChecklistLinksAndCallouts(parent: Parent): void {
       continue;
     }
 
-    if (child.tagName === 'a') {
-      const href = String(child.properties?.href ?? '');
-      if (href.endsWith('/bom/ibom.html') || href.endsWith('bom/ibom.html')) {
-        child.properties ??= {};
-        child.properties.target = '_blank';
-        child.properties.rel = ['noopener', 'noreferrer'];
-        child.properties.dataIbomLink = true;
-      }
-      continue;
-    }
-
     const preInfo = getPreCodeInfo(child);
     if (preInfo && COPYABLE_SHELL_LANGS.has((preInfo.lang ?? '').toLowerCase())) {
       const cmdText = extractText(preInfo.codeChild ?? child, false).replace(/\n$/, '').trim();
@@ -744,6 +734,17 @@ function transformChecklistLinksAndCallouts(parent: Parent): void {
         addClass(child, 'checklist-alert-critical');
         child.properties ??= {};
         child.properties.dataAlert = 'critical';
+        const alreadyHasBadge = child.children.some(
+          (node) => node.type === 'element' && hasClass(node, 'callout-badge'),
+        );
+        if (!alreadyHasBadge) {
+          child.children = [
+            h('span', { className: ['callout-badge'], ariaHidden: 'true' }, [
+              { type: 'text', value: '▲' },
+            ]),
+            h('div', { className: ['callout-content'] }, child.children),
+          ];
+        }
       }
     }
 

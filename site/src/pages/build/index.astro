@@ -2,7 +2,6 @@
 import '../../styles/build.css';
 import { getEntry, render } from 'astro:content';
 import IbomLaunchCard from '../../components/IbomLaunchCard.astro';
-import JlcpcbUploadStrip from '../../components/JlcpcbUploadStrip.astro';
 import {
   BUILD_CHECKLISTS_CATALOG,
   BUILD_CHECKLIST_NAV_ITEMS,
@@ -34,8 +33,9 @@ const firstStep = BUILD_CHECKLISTS_CATALOG[0]!;
   ]}
   headings={headings}
   companionBanner={{
-    prompt: 'Visual companions: Audit bottom-side PCBs and 9-block test points in the Hardware Showcase.',
+    prompt: 'Visual companions: Download fabrication ZIPs/CSVs or inspect PCB and schematic plates.',
     links: [
+      { label: 'Fabrication Downloads →', href: '/downloads/' },
       { label: 'PCB F.Cu / B.Cu Plates →', href: '/hardware/#pcb' },
       { label: '9-Block Schematic →', href: '/hardware/#schematic' },
     ],
@@ -58,15 +58,22 @@ const firstStep = BUILD_CHECKLISTS_CATALOG[0]!;
         <div class="build-hub-metrics">
           <strong class="build-hub-count" data-hub-total>0 / {TOTAL_CHECKLIST_ITEMS}</strong>
           <span class="build-hub-percent" data-hub-percent>0% complete</span>
+          <a href={withBase('/downloads/')} class="reset-step-btn" style="text-decoration: none;">
+            Fab Downloads →
+          </a>
           <button type="button" class="reset-step-btn" data-hub-reset-open>
             Reset All Progress
           </button>
         </div>
       </div>
 
-      <div class="checklist-meter" aria-hidden="true">
-        <div data-hub-total-bar style="width: 0%"></div>
-      </div>
+      <progress
+        class="checklist-progress"
+        max={TOTAL_CHECKLIST_ITEMS}
+        value={0}
+        data-hub-total-progress
+        aria-label="Overall build checklist completion"
+      ></progress>
 
       <ol class="build-steps-grid">
         {
@@ -89,9 +96,13 @@ const firstStep = BUILD_CHECKLISTS_CATALOG[0]!;
                   <span data-hub-step-count={step.slug}>0 / {step.totalItems}</span>
                   {step.imageCount > 0 && <span>{step.imageCount} photos</span>}
                 </div>
-                <div class="build-step-mini-meter" aria-hidden="true">
-                  <div data-hub-step-bar={step.slug} style="width: 0%"></div>
-                </div>
+                <progress
+                  class="checklist-progress checklist-mini-progress"
+                  max={step.totalItems}
+                  value={0}
+                  data-hub-step-progress={step.slug}
+                  aria-label={`${step.shortTitle} completion`}
+                ></progress>
                 <a href={withBase(step.route)} class="build-step-link">
                   <span>Open {step.shortTitle}</span>
                   <span aria-hidden="true">→</span>
@@ -103,7 +114,6 @@ const firstStep = BUILD_CHECKLISTS_CATALOG[0]!;
       </ol>
     </section>
 
-    <JlcpcbUploadStrip focus="all" />
     <IbomLaunchCard />
   </Fragment>
 

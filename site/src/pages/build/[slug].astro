@@ -38,6 +38,18 @@ if (!entry) {
 
 const { Content, headings } = await render(entry);
 const docTitle = extractDocumentTitle(entry.body ?? '') || meta.fullTitle;
+
+const bringupJumpLinks = [
+  { label: 'TP1–TP12 Map', href: '#test-point-reference-12-bcu-test-points' },
+  { label: 'Initial Controls', href: '#bench-equipment--initial-control-state' },
+  { label: '1 Cold Checks', href: '#phase-1--unpowered-cold-checks-power-off' },
+  { label: '2 Power-Up', href: '#phase-2--first-power-up-smoke-test--supply-rails' },
+  { label: '3 Bias & LED1', href: '#phase-3--quiescent-dc-bias-offset--led1-verification-no-input' },
+  { label: '4 Signal Path', href: '#phase-4--audio-signal-path-verification-100200-hz-10-vpp--5-v-sine-into-j1-in' },
+  { label: '5 SLEW IN', href: '#phase-5--slew-in-j2-normaling--bipolar-timing-verification' },
+  { label: '6 Sign-Off', href: '#phase-6--musical-workflow-check--final-sign-off' },
+  { label: 'Troubleshooting', href: '#troubleshooting-quick-reference' },
+] as const;
 ---
 
 <DocLayout
@@ -89,10 +101,26 @@ const docTitle = extractDocumentTitle(entry.body ?? '') || meta.fullTitle;
         </div>
       </div>
 
-      <div class="checklist-meter" aria-hidden="true">
-        <div data-checklist-meter-bar style="width: 0%"></div>
-      </div>
+      <progress
+        class="checklist-progress"
+        max={meta.totalItems}
+        value={0}
+        data-checklist-progress
+        aria-label={`${meta.shortTitle} progress`}
+      ></progress>
     </section>
+
+    {
+      meta.slug === '05-board-bringup' && (
+        <nav class="bringup-jump-strip" aria-label="Bringup bench sections" data-pagefind-ignore>
+          {bringupJumpLinks.map((item) => (
+            <a href={item.href} class="bringup-jump-chip">
+              {item.label}
+            </a>
+          ))}
+        </nav>
+      )
+    }
 
     {
       meta.showsJlcpcbStrip && (

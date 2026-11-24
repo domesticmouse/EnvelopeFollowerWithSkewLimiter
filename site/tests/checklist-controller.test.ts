@@ -81,7 +81,7 @@ function buildDetailDomFixture(slug: string, proseHtml: string): {
       <nav>${railHtml}</nav>
       <div class="checklist-toolbar">
         <span data-checklist-summary>0 / 0</span>
-        <div class="checklist-meter"><div data-checklist-meter-bar style="width: 0%"></div></div>
+        <progress data-checklist-progress max="0" value="0"></progress>
         <label><input type="checkbox" data-hide-completed /> Hide completed</label>
         <button type="button" data-reset-open>Reset Progress</button>
       </div>
@@ -203,6 +203,7 @@ describe('checklist-controller and /build/ aggregate tracker', () => {
         'true',
       );
       expect(doc.querySelector('[data-checklist-summary]')?.textContent).toContain('2 / 41');
+      expect(doc.querySelector<HTMLProgressElement>('[data-checklist-progress]')?.value).toBe(2);
       expect(doc.querySelector('[data-rail-slug="04-hand-assembly"]')?.textContent).toBe('2 / 41');
 
       // Reset dialog puts autofocus on Cancel and ignores cancel dismissal
@@ -303,7 +304,7 @@ describe('checklist-controller and /build/ aggregate tracker', () => {
         <article data-hub-step="${step.slug}">
           <span data-hub-step-count="${step.slug}">0 / ${step.totalItems}</span>
           <span data-hub-step-status="${step.slug}">Not started</span>
-          <div data-hub-step-bar="${step.slug}" style="width: 0%"></div>
+          <progress data-hub-step-progress="${step.slug}" max="${step.totalItems}" value="0"></progress>
         </article>
       `,
     ).join('');
@@ -311,7 +312,7 @@ describe('checklist-controller and /build/ aggregate tracker', () => {
     win.document.body.innerHTML = `
       <div data-build-hub>
         <strong data-hub-total>0 / 211</strong>
-        <div data-hub-total-bar style="width: 0%"></div>
+        <progress data-hub-total-progress max="211" value="0"></progress>
         <button type="button" data-hub-reset-open>Reset all</button>
         ${cardsHtml}
         <dialog data-hub-reset-dialog closedby="any">

@@ -47,41 +47,50 @@ const evolutionRows = [
     aspect: 'Op-Amp Silicon Architecture',
     hagiwo: '6 op-amp sections (dual/quad mix + spare)',
     envSkew: '2× TL074HIDR (8/8 sections used, zero unused buffers)',
+    link: { label: 'Hardware Overview →', href: '/hardware/#overview' },
   },
   {
     aspect: 'Trimming & Calibration',
     hagiwo: 'Manual trimpots on offset/balance paths',
     envSkew: '0 trimmers (matched 10 kΩ 0.1% thin-film FWR balance)',
+    link: { label: 'Design Spec →', href: '/specs/design-spec/' },
   },
   {
     aspect: 'Full-Wave Rectifier',
     hagiwo: 'Passive / semi-buffered diode drops',
     envSkew: 'Precision U1B + U1C w/ BAT54S (1.000× |V_pre| lobes)',
+    link: { label: '9-Block Schematic →', href: '/hardware/#schematic' },
   },
   {
     aspect: 'Skew Limiter Core (J2)',
     hagiwo: 'Envelope follower path only',
     envSkew: 'Dedicated SLEW IN normaled switch breaking audio path cleanly',
+    link: { label: 'Base Circuit Spec →', href: '/specs/base-circuit/' },
   },
   {
     aspect: 'Time Constants (SW2)',
     hagiwo: 'Single capacitor range',
     envSkew: 'FAST (470 nF) & SLOW (4.87 µF w/ parallel WIMA film bank)',
+    link: { label: 'Circuit Review →', href: '/specs/circuit-review/' },
   },
   {
     aspect: 'Post-Rectifier Ripple Filter',
     hagiwo: 'Fixed smoothing behavior',
-    envSkew: 'SW1 SMOOTH split-R Sallen-Key LPF (−11.1 dB @ 100 Hz, 0% DC shift)',
+    envSkew:
+      'SW1 SMOOTH split-resistor passive T-filter (49.9 kΩ + 220 nF, fc = 29.0 Hz, −11.1 dB @ 100 Hz, 0% DC drop)',
+    link: { label: 'Schematic Filter Block →', href: '/hardware/#schematic' },
   },
   {
     aspect: 'PCB & PCBA Manufacturing',
     hagiwo: 'Perfboard / stripboard DIY layout',
     envSkew: '50 Bottom-Side SMDs (Economic JLCPCB PCBA) + 18 Manual THT parts',
+    link: { label: 'F.Cu / B.Cu PCB Plates →', href: '/hardware/#pcb' },
   },
   {
     aspect: 'Panel Aesthetics & Ergonomics',
     hagiwo: 'Custom DIY front panel',
     envSkew: '6 HP (30.0 × 128.5 mm) Matte Black + ENIG-RoHS + White Silkscreen',
+    link: { label: 'Panel SVG Spec →', href: '/specs/panel-svg-spec/' },
   },
 ];
 ---
@@ -243,7 +252,7 @@ const evolutionRows = [
         role="region"
         aria-labelledby="evolution-table-heading"
       >
-        <table data-table-kind="wide" style='--label-1: "Aspect"; --label-2: "HAGIWO No. 43"; --label-3: "ENV / SKEW R1.0";'>
+        <table data-table-kind="wide" style='--label-1: "Aspect"; --label-2: "HAGIWO No. 43"; --label-3: "ENV / SKEW R1.0"; --label-4: "Reference";'>
           <caption id="evolution-table-heading" class="sr-only">
             Comparison between HAGIWO No. 43 baseline and ENV / SKEW R1.0 production architecture
           </caption>
@@ -252,6 +261,7 @@ const evolutionRows = [
               <th scope="col">Aspect</th>
               <th scope="col">HAGIWO No. 43 Baseline</th>
               <th scope="col">ENV / SKEW R1.0 Production</th>
+              <th scope="col">Reference</th>
             </tr>
           </thead>
           <tbody>
@@ -261,6 +271,9 @@ const evolutionRows = [
                   <th scope="row">{row.aspect}</th>
                   <td>{row.hagiwo}</td>
                   <td>{row.envSkew}</td>
+                  <td>
+                    <a href={withBase(row.link.href)}>{row.link.label}</a>
+                  </td>
                 </tr>
               ))
             }

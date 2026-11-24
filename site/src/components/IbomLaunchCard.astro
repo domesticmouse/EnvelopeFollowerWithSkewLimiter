@@ -20,9 +20,11 @@ const ibomHref = withBase('/bom/ibom.html');
     <p class="ibom-kicker mono">bom/ibom.html · Dedicated Tab · {fileSize}</p>
     <h2 class="ibom-title">Interactive Hand-Assembly BOM &amp; Placement Map</h2>
     <p class="ibom-desc">
-      Opens KiCad InteractiveHtmlBom standalone (pre-filtered to the <code>18</code> Manual THT
-      parts alongside all <code>50</code> bottom-side SMDs) with Front/Back pad highlighting and
-      built-in <strong>Sourced</strong> / <strong>Placed</strong> tracking.
+      Opens KiCad InteractiveHtmlBom pre-filtered strictly to the <code>18</code>{' '}
+      <code>Manual THT</code> components (<code>14</code> BOM rows: <code>11</code> Front /{' '}
+      <code>7</code> Back; excludes SMDs and DNP test points) with <code>F</code> / <code>B</code>{' '}
+      board-side toggles, independent <strong>Sourced</strong> / <strong>Placed</strong> browser
+      tracking, and gear-menu Dark Mode.
     </p>
   </div>
 
@@ -36,14 +38,6 @@ const ibomHref = withBase('/bom/ibom.html');
     >
       <span>Launch Interactive BOM</span>
       <span aria-hidden="true">↗</span>
-    </a>
-    <a
-      href={ibomHref}
-      download="env-skew-ibom.html"
-      class="ibom-download-link"
-      data-ibom-link="true"
-    >
-      Download offline HTML ({fileSize})
     </a>
   </div>
 </aside>

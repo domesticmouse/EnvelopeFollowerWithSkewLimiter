@@ -1,4 +1,4 @@
-import { wireBackdropLightDismiss } from './dialog-chrome.ts';
+import { showModalSafe, wireBackdropLightDismiss } from './dialog-chrome.ts';
 import { SITE_BASE } from './routes.ts';
 
 /** Pagefind search result payload returned by result.data(). */
@@ -249,11 +249,7 @@ export function initSearchModal(options: SearchModalOptions = {}): () => void {
     const focused = trigger ?? (root.activeElement as HTMLElement | null);
     activeTrigger = focused && typeof focused.focus === 'function' ? focused : null;
 
-    if (typeof dialog.showModal === 'function') {
-      dialog.showModal();
-    } else {
-      dialog.setAttribute('open', '');
-    }
+    showModalSafe(dialog);
     input.focus();
 
     void loadIndex().then(

@@ -472,7 +472,9 @@ flowchart LR
         }
 
         if (entry.file === 'checklists/05-board-bringup.md') {
-          expect(res.doc.querySelector('[data-alert="critical"]')?.textContent).toContain('ABORT IMMEDIATELY');
+          const critical = res.doc.querySelector('[data-alert="critical"]');
+          expect(critical?.textContent).toContain('ABORT IMMEDIATELY');
+          expect(critical?.querySelector('.callout-badge')?.textContent).toBe('▲');
         }
       } finally {
         res.cleanup();

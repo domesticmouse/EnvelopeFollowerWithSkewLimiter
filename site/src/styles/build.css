@@ -52,20 +52,69 @@
   font-variant-numeric: tabular-nums;
 }
 
-.checklist-meter {
+progress.checklist-progress {
+  display: block;
   width: 100%;
-  height: 0.5rem;
-  border-radius: 999px;
-  background: var(--bg-void);
-  border: 1px solid var(--border-subtle);
-  overflow: hidden;
+  height: 0.52rem;
   margin-bottom: 1.15rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-void);
+  appearance: none;
+  overflow: hidden;
 }
 
-.checklist-meter > div {
-  height: 100%;
+progress.checklist-progress.checklist-mini-progress {
+  height: 0.34rem;
+  margin-bottom: 0;
+}
+
+progress.checklist-progress::-webkit-progress-bar {
+  background: var(--bg-void);
+}
+
+progress.checklist-progress::-webkit-progress-value {
   background: linear-gradient(90deg, var(--accent-gold), var(--accent-gold-bright));
-  transition: width 0.2s ease;
+}
+
+progress.checklist-progress::-moz-progress-bar {
+  background: linear-gradient(90deg, var(--accent-gold), var(--accent-gold-bright));
+}
+
+.checklist-toolbar progress.checklist-progress {
+  margin-bottom: 0;
+  height: 0.42rem;
+}
+
+.bringup-jump-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-block: 0.75rem 1.15rem;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  background: var(--bg-surface);
+}
+
+.bringup-jump-chip {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 36px;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid var(--border-ui);
+  border-radius: 4px;
+  background: var(--bg-surface-elevated);
+  color: var(--accent-gold);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.bringup-jump-chip:hover {
+  border-color: var(--accent-gold);
+  color: var(--ink-silk);
 }
 
 .build-steps-grid {
@@ -540,12 +589,21 @@
 }
 
 .checklist-alert-critical {
-  padding: 0.45rem 0.65rem;
-  margin-block: 0.4rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.5rem 0.7rem;
+  margin-block: 0.45rem;
   border-left: 3px solid var(--led-red);
   border-radius: 0 4px 4px 0;
   background: var(--led-red-bg);
   color: var(--ink-primary);
+}
+
+.checklist-alert-critical .callout-badge {
+  background: var(--led-red);
+  color: var(--accent-gold-ink);
+  margin-block-start: 0.12rem;
 }
 
 /* Callouts & Copyable CLI / Remark blocks */
@@ -812,6 +870,7 @@ dialog.confirm-dialog[open] {
 
 @media print {
   .checklist-toolbar,
+  .bringup-jump-strip,
   .copy-block-btn,
   .placement-reveal-btn,
   .lightbox-zoom-chip,

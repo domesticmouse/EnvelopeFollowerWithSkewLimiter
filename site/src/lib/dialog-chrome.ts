@@ -25,6 +25,22 @@ function setTriggersExpanded(doc: Document, dialogId: string, expanded: boolean)
   }
 }
 
+/** Safely opens a native `<dialog>` modal with `open` attribute fallback in limited test DOMs. */
+export function showModalSafe(dialog: HTMLDialogElement): void {
+  if (typeof dialog.showModal === 'function') {
+    try {
+      dialog.showModal();
+    } catch {
+      dialog.setAttribute('open', '');
+    }
+  } else {
+    dialog.setAttribute('open', '');
+  }
+  if (!dialog.open && !dialog.hasAttribute('open')) {
+    dialog.setAttribute('open', '');
+  }
+}
+
 /**
  * Attaches Safari `closedby="any"` press-and-release outside backdrop dismissal to a `<dialog>`.
  * Requires both pointerdown and pointerup outside bounds so drag-selections ending outside don't dismiss.

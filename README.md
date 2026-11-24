@@ -19,28 +19,31 @@ An open-source **6 HP × 3U Eurorack** audio-driven **Envelope Follower** and no
 
 ## Key Architecture & Hardware Highlights
 
-- **Two modules in 6 HP (`30.0 × 128.5 mm` panel · `30.0 × 108.0 mm` PCB):** Patch audio into `IN` (`J1`) for **Envelope Follower Mode** (`×2.00` switchless preamp, zero-drop `BAT54S` full-wave rectifier, `SMOOTH` split-R T-filter), or patch CV/audio into `SLEW IN` (`J2`) to break the internal normal for **Asymmetric Skew Limiter Mode**.
+- **Two modules in 6 HP (`30.0 × 128.5 mm` panel · `30.0 × 108.0 mm` PCB):** Patch audio into `IN` (`J1`) for **Envelope Follower Mode** (`×2.00` switchless preamp, zero-drop `BAT54S` full-wave rectifier, `SMOOTH` split-resistor passive T-filter), or patch CV/audio into `SLEW IN` (`J2`) to break the internal normal for **Asymmetric Skew Limiter Mode**.
 - **Single-SKU silicon, zero trimmers:** Uses **`2× TL074HIDR`** (`8/8` op-amp sections utilized) and `14× 10 kΩ ±0.1%` thin-film resistors for `1.000×` rectifier symmetry and `0.00%` offset amplitude cross-talk across `±4.98 V` `OFFSET` (`RV4` center-detent).
 - **Tuned for techno & ambient:** `FAST` (`470 nF`: `0.29–289 ms`) and `SLOW` (`4.87 µF`: `3.0 ms–3.00 s`) ranges, active post-offset *V*-to-*I* bi-color LED driver (`LED1`, Tayda `A-1076`: Green `+V` / Dark `0 V` / Red `−V`), and mirrored `OUT` (`J3`) + `INV OUT` (`J4`) outputs.
 - **Friendly DIY/PCBA split:** `50` Bottom-side SMDs (`3` JLCPCB Extended SKUs + `14` Basic rows), `18` manual through-hole parts (`14` BOM rows in [`bom/ibom.html`](https://domesticmouse.github.io/EnvelopeFollowerWithSkewLimiter/bom/ibom.html)), and `12` optional DNP test points (`TP1`–`TP12`).
-
-[![KiCad 10 9-Block A3 Schematic (click for printable PDF)](images/schematic.png)](envelope_follower.pdf)
+- **A3 Schematic & Inspection:** Explore the [interactive 9-block schematic viewer](https://domesticmouse.github.io/EnvelopeFollowerWithSkewLimiter/hardware/#schematic) or open [`envelope_follower.pdf`](envelope_follower.pdf) directly for printable bench reference.
 
 ---
 
 ## Live Documentation Site & Repository Layout
 
-Visit the full interactive site at **[domesticmouse.github.io/EnvelopeFollowerWithSkewLimiter](https://domesticmouse.github.io/EnvelopeFollowerWithSkewLimiter/)** (including client-side `⌘K` search, interactive 6 HP patch visualizer, zoomable A3 schematic, panel layer keepout inspector, and offline-capable browser build checklists):
+Visit **[domesticmouse.github.io/EnvelopeFollowerWithSkewLimiter](https://domesticmouse.github.io/EnvelopeFollowerWithSkewLimiter/)** for client-side `⌘K` search, interactive 6 HP patch presets, zoomable A3 schematic blocks, front-panel keepout layers, and offline-capable browser build checklists:
 
-| Area | Local Repository Source | Live Documentation Portal |
+| Category | Repository Sources | Documentation Portal |
 | :--- | :--- | :--- |
 | **Patch Guides (01–08)** | [`patches/`](patches/) · [`patches/README.md`](patches/README.md) | [Studio Rack Workbench (`/patches/`)](https://domesticmouse.github.io/EnvelopeFollowerWithSkewLimiter/patches/) |
 | **Build Checklists (211 steps)** | [`checklists/`](checklists/) · [`checklists/README.md`](checklists/README.md) | [Interactive Bench Checklists (`/build/`)](https://domesticmouse.github.io/EnvelopeFollowerWithSkewLimiter/build/) |
 | **Interactive Assembly BOM** | [`bom/ibom.html`](bom/ibom.html) | [Launch Standalone iBOM (`/bom/ibom.html`)](https://domesticmouse.github.io/EnvelopeFollowerWithSkewLimiter/bom/ibom.html) |
 | **Manufacturing Packs** | [`manufacturing/`](manufacturing/) · [`jlcpcb_bom.csv`](jlcpcb_bom.csv) | [Fabrication & Source Downloads (`/downloads/`)](https://domesticmouse.github.io/EnvelopeFollowerWithSkewLimiter/downloads/) |
-| **Reference Specs (01–04)** | [`EnvelopeFollower.md`](EnvelopeFollower.md), [`EnvelopeFollowerImprovements.md`](EnvelopeFollowerImprovements.md), [`DesignSpec.md`](DesignSpec.md), [`panel_svg_spec.md`](panel_svg_spec.md) | [Engineering Lineage & Specs (`/specs/`)](https://domesticmouse.github.io/EnvelopeFollowerWithSkewLimiter/specs/) |
-| **CAD & Artwork Generators** | [`envelope_follower.py`](envelope_follower.py), [`generate_schematic.py`](generate_schematic.py), [`generate_kicad_pcb.py`](generate_kicad_pcb.py), [`panel_art/`](panel_art/), [`envelope_follower.kicad_pcb`](envelope_follower.kicad_pcb), [`envelope_follower_panel.kicad_pcb`](envelope_follower_panel.kicad_pcb) | [Hardware Showcase (`/hardware/`)](https://domesticmouse.github.io/EnvelopeFollowerWithSkewLimiter/hardware/) |
-| **Origin & Static Site Engine** | [`site/`](site/) · [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) | [HAGIWO No. 43 Lineage (`/origin/`)](https://domesticmouse.github.io/EnvelopeFollowerWithSkewLimiter/origin/) |
+| **Baseline & Critique Specs** | [`EnvelopeFollower.md`](EnvelopeFollower.md) · [`EnvelopeFollowerImprovements.md`](EnvelopeFollowerImprovements.md) | [Base Circuit & Review (`/specs/`)](https://domesticmouse.github.io/EnvelopeFollowerWithSkewLimiter/specs/) |
+| **Production & Panel Specs** | [`DesignSpec.md`](DesignSpec.md) · [`panel_svg_spec.md`](panel_svg_spec.md) | [Final Design & Panel Specs (`/specs/design-spec/`)](https://domesticmouse.github.io/EnvelopeFollowerWithSkewLimiter/specs/design-spec/) |
+| **Circuit & Schematic CAD** | [`envelope_follower.py`](envelope_follower.py) · [`generate_schematic.py`](generate_schematic.py) · [`envelope_follower.kicad_sch`](envelope_follower.kicad_sch) · [`envelope_follower.pdf`](envelope_follower.pdf) | [9-Block A3 Schematic (`/hardware/#schematic`)](https://domesticmouse.github.io/EnvelopeFollowerWithSkewLimiter/hardware/#schematic) |
+| **Main PCB CAD & Renders** | [`generate_kicad_pcb.py`](generate_kicad_pcb.py) · [`silk_layout.json`](silk_layout.json) · [`envelope_follower.kicad_pcb`](envelope_follower.kicad_pcb) · [`images/`](images/) | [F.Cu / B.Cu PCB Plates (`/hardware/#pcb`)](https://domesticmouse.github.io/EnvelopeFollowerWithSkewLimiter/hardware/#pcb) |
+| **Front Panel CAD & Artwork** | [`envelope_follower_panel.kicad_pcb`](envelope_follower_panel.kicad_pcb) · [`panel_art/`](panel_art/) | [4-Layer Panel Inspector (`/hardware/#panel`)](https://domesticmouse.github.io/EnvelopeFollowerWithSkewLimiter/hardware/#panel) |
+| **Static Site & CI/CD** | [`site/`](site/) · [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) | [Origin Story & Lineage (`/origin/`)](https://domesticmouse.github.io/EnvelopeFollowerWithSkewLimiter/origin/) |
+| **Agent Tooling & Docs** | [`AGENTS.md`](AGENTS.md) · [`GLOSSARY.md`](GLOSSARY.md) · [`docs/agents/`](docs/agents/) · [`.agents/skills/`](.agents/skills/) | — |
 
 ---
 

@@ -1,4 +1,5 @@
 import { computeFocusTransform, type SchematicBlock } from '../data/hardware-schematic.ts';
+import { showModalSafe, wireBackdropLightDismiss } from '../lib/dialog-chrome.ts';
 import {
   clampPan,
   clampScale,
@@ -601,31 +602,6 @@ if (!customElements.get('zoom-pan-viewer')) {
 let activeDialog: HTMLDialogElement | null = null;
 let keydownCleanup: (() => void) | null = null;
 
-function isOutsideDialogRect(event: PointerEvent, dialog: HTMLDialogElement): boolean {
-  const rect = dialog.getBoundingClientRect();
-  return (
-    event.clientX < rect.left ||
-    event.clientX > rect.right ||
-    event.clientY < rect.top ||
-    event.clientY > rect.bottom
-  );
-}
-
-function showModalSafe(dialog: HTMLDialogElement): void {
-  if (typeof dialog.showModal === 'function') {
-    try {
-      dialog.showModal();
-    } catch {
-      dialog.setAttribute('open', '');
-    }
-  } else {
-    dialog.setAttribute('open', '');
-  }
-  if (!dialog.open) {
-    dialog.setAttribute('open', '');
-  }
-}
-
 export function closeFullscreenLightbox(): void {
   if (keydownCleanup) {
     keydownCleanup();
@@ -661,21 +637,7 @@ export function openFullscreenLightbox(
     dialog.setAttribute('closedby', 'any');
     dialog.setAttribute('aria-labelledby', 'lightbox-dialog-title');
 
-    // Safari fallback for closedby="any"
-    if (!(typeof HTMLDialogElement !== 'undefined' && 'closedBy' in HTMLDialogElement.prototype)) {
-      let pressedOutside = false;
-      dialog.addEventListener('pointerdown', (e) => {
-        pressedOutside = dialog!.open && isOutsideDialogRect(e, dialog!);
-      });
-      dialog.addEventListener('pointerup', (e) => {
-        if (dialog!.open && pressedOutside && isOutsideDialogRect(e, dialog!)) {
-          pressedOutside = false;
-          closeFullscreenLightbox();
-          return;
-        }
-        pressedOutside = false;
-      });
-    }
+    wireBackdropLightDismiss(dialog);
 
     dialog.addEventListener('close', () => {
       dialog!.returnValue = '';

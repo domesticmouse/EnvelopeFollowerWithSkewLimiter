@@ -96,7 +96,7 @@ const hasMultiplePresets = stateEntry.presets.length > 1;
     data-patch-workbench
     data-patch-slug={stateEntry.slug}
   >
-    <aside class="doc-rail" aria-label="Patch Guides">
+    <aside class="doc-rail" aria-label="Patch Guides" data-pagefind-ignore>
       <details class="doc-rail-panel" open>
         <summary class="doc-rail-summary">Patch Guides</summary>
         <nav aria-label="Patch Guides navigation">
@@ -159,7 +159,7 @@ const hasMultiplePresets = stateEntry.presets.length > 1;
     </aside>
 
     <div class="doc-main">
-      <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <nav class="breadcrumbs" aria-label="Breadcrumb" data-pagefind-ignore>
         <a href={withBase('/')}>Overview</a>
         <span aria-hidden="true">/</span>
         <a href={withBase('/patches/')}>Patch Guides</a>
@@ -168,7 +168,7 @@ const hasMultiplePresets = stateEntry.presets.length > 1;
       </nav>
 
       {/* Mobile / Tablet compact panel status bar (< 1120px) — no duplicate outline disclosure */}
-      <details class="mobile-panel-dock">
+      <details class="mobile-panel-dock" data-pagefind-ignore>
         <summary class="mobile-panel-summary">
           <span class="mobile-panel-summary-title">
             6 HP Panel · <span data-mobile-preset-name>{initialPreset.name}</span>
@@ -232,7 +232,7 @@ const hasMultiplePresets = stateEntry.presets.length > 1;
 
       {
         (prev || next) && (
-          <nav class="doc-prev-next" aria-label="Previous and next Patch Guide">
+          <nav class="doc-prev-next" aria-label="Previous and next Patch Guide" data-pagefind-ignore>
             {prev && (
               <a href={withBase(prev.href)} class="prev-next-card" data-dir="prev">
                 <span class="prev-next-kicker">← Previous</span>
@@ -251,7 +251,7 @@ const hasMultiplePresets = stateEntry.presets.length > 1;
     </div>
 
     {/* Sticky Desktop Right Panel Dock (>= 1120px) */}
-    <aside class="patch-dock-aside" aria-label="Front-Panel Dock and Control Inspector">
+    <aside class="patch-dock-aside" aria-label="Front-Panel Dock and Control Inspector" data-pagefind-ignore>
       <div class="patch-dock-card">
         <div class="preview-dock-head">
           <p class="preview-dock-kicker">6 HP Live Panel</p>

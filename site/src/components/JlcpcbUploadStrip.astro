@@ -56,6 +56,8 @@ const assets: UploadAsset[] = [
     group: 'panel',
   },
 ];
+const filteredAssets =
+  focus === 'all' ? assets : assets.filter((asset) => asset.group === focus);
 ---
 
 <section
@@ -66,32 +68,32 @@ const assets: UploadAsset[] = [
   <header class="jlcpcb-strip-head">
     <p class="jlcpcb-strip-kicker mono">JLCPCB Upload Pack · Direct Static Artifacts</p>
     <p class="jlcpcb-strip-note">
-      Order the <strong>Main PCB + Economic Bottom PCBA</strong> and bare{' '}
-      <strong>Matte Black ENIG 6 HP Panel</strong> in one combined cart.
+      {focus === 'panel' ? (
+        <>Bare <strong>Matte Black ENIG 6 HP Panel</strong> Gerber archive for combined JLCPCB cart checkout.</>
+      ) : (
+        <>Upload Gerbers, Bottom-Side BOM CSV, and Layer=B CPL CSV for <strong>Main PCB + Economic PCBA</strong>.</>
+      )}
     </p>
   </header>
 
   <ul class="jlcpcb-strip-grid">
     {
-      assets.map((asset) => {
-        const isEmphasized = focus === 'all' || focus === asset.group;
-        return (
-          <li class:list={['jlcpcb-pack-item', isEmphasized && 'is-highlighted']}>
-            <a
-              href={withBase(`/${asset.repoPath}`)}
-              download={asset.filename}
-              class="jlcpcb-pack-link"
-            >
-              <span class="jlcpcb-pack-title">{asset.label}</span>
-              <span class="jlcpcb-pack-meta">{asset.meta}</span>
-              <span class="jlcpcb-pack-foot mono">
-                <span>Download · {asset.size}</span>
-                <span aria-hidden="true">↓</span>
-              </span>
-            </a>
-          </li>
-        );
-      })
+      filteredAssets.map((asset) => (
+        <li class="jlcpcb-pack-item is-highlighted">
+          <a
+            href={withBase(`/${asset.repoPath}`)}
+            download={asset.filename}
+            class="jlcpcb-pack-link"
+          >
+            <span class="jlcpcb-pack-title">{asset.label}</span>
+            <span class="jlcpcb-pack-meta">{asset.meta}</span>
+            <span class="jlcpcb-pack-foot mono">
+              <span>Download · {asset.size}</span>
+              <span aria-hidden="true">↓</span>
+            </span>
+          </a>
+        </li>
+      ))
     }
   </ul>
 </section>

@@ -494,9 +494,21 @@ export function verifyBuiltSite(options: VerifyBuiltSiteOptions): SiteContractRe
         if (doc.querySelectorAll('[data-hub-step]').length !== 6) {
           errors.push('/build/: expected 6 workflow step cards');
         }
+        if (!doc.querySelector('progress[data-hub-total-progress]')) {
+          errors.push('/build/: missing native <progress> aggregate bar');
+        }
+        if (!doc.querySelector(`a[href="${SITE_BASE}/downloads/"]`)) {
+          errors.push('/build/: missing /downloads/ companion or hub link');
+        }
       }
       const checklistMeta = CHECKLIST_DETAIL_META_BY_ROUTE.get(route);
       if (checklistMeta) {
+        if (!doc.querySelector('progress[data-checklist-progress]')) {
+          errors.push(`${route}: missing native <progress data-checklist-progress> element`);
+        }
+        if (checklistMeta.slug === '05-board-bringup' && !doc.querySelector('.bringup-jump-strip a')) {
+          errors.push(`${route}: missing bench jump strip (.bringup-jump-strip)`);
+        }
         const cbs = [...doc.querySelectorAll<HTMLInputElement>('[data-checklist-checkbox]')];
         if (cbs.length !== checklistMeta.totalItems) {
           errors.push(
