@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { PATCH_STATES } from '../src/data/patch-states.ts';
 import { verifyBuiltSite } from '../src/lib/site-contract.ts';
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
@@ -13,6 +14,7 @@ const result = verifyBuiltSite({
   implementedRoutes: [
     '/',
     '/patches/',
+    ...PATCH_STATES.map((p) => `/patches/${p.slug}/`),
     '/specs/',
     '/specs/design-spec/',
     '/specs/base-circuit/',

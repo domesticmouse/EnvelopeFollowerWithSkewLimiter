@@ -137,6 +137,35 @@ function verifyReferenceSpecRoute(route: string, doc: Document, errors: string[]
   }
 }
 
+function verifyPatchGuideDetailRoute(route: string, doc: Document, errors: string[]): void {
+  const prose = doc.querySelector('.doc-prose');
+  if (!prose) {
+    errors.push(`${route}: missing .doc-prose container`);
+    return;
+  }
+
+  const text = prose.textContent ?? '';
+  if (text.includes('← All Patch Guides') || text.includes('← Previous:')) {
+    errors.push(`${route}: GitHub-only top/bottom nav line was not stripped`);
+  }
+
+  if (doc.querySelectorAll('tr[data-control]').length === 0) {
+    errors.push(`${route}: Front-Panel Starting Settings rows missing data-control attributes`);
+  }
+
+  if (doc.querySelectorAll('.mermaid').length === 0) {
+    errors.push(`${route}: expected at least one .mermaid patch diagram`);
+  }
+
+  if (doc.querySelectorAll('env-skew-panel').length === 0) {
+    errors.push(`${route}: missing <env-skew-panel> visualizer`);
+  }
+}
+
+const PATCH_DETAIL_ROUTE_SET = new Set<string>(
+  PATCH_STATES.map((p) => `/patches/${p.slug}/`),
+);
+
 function verifyPatchesHubRoute(doc: Document, errors: string[]): void {
   if (doc.getElementById('patch-guides-index')) {
     errors.push('/patches/: static #patch-guides-index must be suppressed');
@@ -360,6 +389,9 @@ export function verifyBuiltSite(options: VerifyBuiltSiteOptions): SiteContractRe
       }
       if (route === '/patches/') {
         verifyPatchesHubRoute(doc, errors);
+      }
+      if (PATCH_DETAIL_ROUTE_SET.has(route)) {
+        verifyPatchGuideDetailRoute(route, doc, errors);
       }
     }
 

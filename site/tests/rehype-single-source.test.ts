@@ -340,4 +340,74 @@ flowchart LR
       cleanup();
     }
   });
+
+  it('strips GitHub-only top/bottom nav lines and tags Front-Panel Starting Settings rows with data-control on patches/01..08', async () => {
+    const md03 = fs.readFileSync(
+      path.join(REPO_ROOT, 'patches/03-compression-expansion-gating.md'),
+      'utf8',
+    );
+    const res03 = await renderMarkdown(md03, 'patches/03-compression-expansion-gating.md');
+    try {
+      expect(res03.doc.textContent).not.toContain('← All Patch Guides');
+      expect(res03.doc.textContent).not.toContain('← Previous:');
+      expect(res03.doc.textContent).not.toContain('Next: 04');
+
+      // Both A and B tables remain visible and tagged
+      const tables = [...res03.doc.querySelectorAll('table[data-preset-index]')];
+      expect(tables).toHaveLength(2);
+      expect(tables[0]?.getAttribute('data-preset-index')).toBe('0');
+      expect(tables[1]?.getAttribute('data-preset-index')).toBe('1');
+
+      const controls = [...res03.doc.querySelectorAll('tr[data-control]')].map((tr) =>
+        tr.getAttribute('data-control'),
+      );
+      expect(controls).toEqual([
+        'rv1',
+        'rv2',
+        'rv3',
+        'rv4',
+        'sw1',
+        'sw2',
+        'rv1',
+        'rv2',
+        'rv3',
+        'rv4',
+        'sw1',
+        'sw2',
+      ]);
+    } finally {
+      res03.cleanup();
+    }
+
+    // Synthetic check for jack label disambiguation (SLEW IN vs IN, INV OUT vs OUT)
+    const syntheticPatch = `
+[← All Patch Guides](README.md)
+
+# 99 — Synthetic Jack Test
+
+## Front-Panel Starting Settings
+
+| Control | Starting Position | Purpose |
+| :--- | :--- | :--- |
+| **\`IN\`** | Patched | Audio in |
+| **\`SLEW IN\`** | Unpatched | Normaled |
+| **\`OUT\`** | Patched | Positive out |
+| **\`INV OUT\`** | Patched | Inverted out |
+| **\`+ / −\` LED** | Dark | Zero |
+
+---
+
+[← Previous: 01](01-sidechain-ducking.md) · [All Patch Guides](README.md)
+`;
+    const resSyn = await renderMarkdown(syntheticPatch, 'patches/08-gate-to-ar-envelope-and-slewed-mod.md');
+    try {
+      expect(resSyn.doc.textContent).not.toContain('All Patch Guides');
+      const controls = [...resSyn.doc.querySelectorAll('tr[data-control]')].map((tr) =>
+        tr.getAttribute('data-control'),
+      );
+      expect(controls).toEqual(['j1', 'j2', 'j3', 'j4', 'led1']);
+    } finally {
+      resSyn.cleanup();
+    }
+  });
 });

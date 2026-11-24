@@ -457,6 +457,134 @@ function markFormulaGrids(tree: Root): void {
   });
 }
 
+const PATCH_GUIDE_FILE_RE = /^patches\/0[1-8][^/]*\.md$/;
+
+function matchControlIdFromCell(rawText: string): string | null {
+  const norm = rawText.replace(/\s+/g, ' ').trim().toUpperCase();
+  if (!norm) return null;
+  if (norm.includes('SLEW IN') || norm.includes('J2')) return 'j2';
+  if (norm.includes('INV OUT') || norm.includes('INV_OUT') || norm.includes('J4')) return 'j4';
+  if (/\bIN\b/.test(norm) || norm.includes('J1')) return 'j1';
+  if (/\bOUT\b/.test(norm) || norm.includes('J3')) return 'j3';
+  if (norm.includes('LEFT TOGGLE') || norm.includes('SW1') || norm.includes('SMOOTH')) return 'sw1';
+  if (
+    norm.includes('RIGHT TOGGLE') ||
+    norm.includes('SW2') ||
+    norm.includes('SLOW') ||
+    norm.includes('FAST')
+  ) {
+    return 'sw2';
+  }
+  if (norm.includes('LED')) return 'led1';
+  if (norm.includes('GAIN') || norm.includes('RV1')) return 'rv1';
+  if (norm.includes('ATK') || norm.includes('RV2')) return 'rv2';
+  if (norm.includes('REL') || norm.includes('RV3')) return 'rv3';
+  if (norm.includes('OFFSET') || norm.includes('RV4')) return 'rv4';
+  return null;
+}
+
+function isTopBackLinkParagraph(node: RootContent): boolean {
+  if (node.type !== 'element' || node.tagName !== 'p') return false;
+  const links = findDescendants(node, (el) => el.tagName === 'a');
+  return (
+    links.length === 1 &&
+    (links[0]?.properties?.href === 'README.md' ||
+      /All Patch Guides/i.test(extractText(node, true)))
+  );
+}
+
+function isBottomPatchNavParagraph(node: RootContent): boolean {
+  if (node.type !== 'element' || node.tagName !== 'p') return false;
+  const links = findDescendants(node, (el) => el.tagName === 'a');
+  if (links.length === 0) return false;
+  return links.some((a) => {
+    const href = String(a.properties?.href ?? '');
+    const label = extractText(a, true);
+    return href === 'README.md' || /All Patch Guides/i.test(label);
+  });
+}
+
+function stripPatchGitHubNav(tree: Root): void {
+  const firstH1Idx = tree.children.findIndex(
+    (node) => node.type === 'element' && node.tagName === 'h1',
+  );
+  if (firstH1Idx > 0) {
+    tree.children = tree.children.filter(
+      (node, idx) => idx >= firstH1Idx || !isTopBackLinkParagraph(node),
+    );
+  }
+
+  // Strip trailing GitHub nav paragraph and immediately preceding <hr>
+  while (tree.children.length > 0) {
+    const last = tree.children[tree.children.length - 1];
+    if (!last) break;
+    if (last.type === 'text' && !last.value.trim()) {
+      tree.children.pop();
+      continue;
+    }
+    if (isBottomPatchNavParagraph(last)) {
+      tree.children.pop();
+      // Drop whitespace text before trailing <hr>
+      while (
+        tree.children.length > 0 &&
+        tree.children[tree.children.length - 1]?.type === 'text' &&
+        !(tree.children[tree.children.length - 1] as { value: string }).value.trim()
+      ) {
+        tree.children.pop();
+      }
+      const prev = tree.children[tree.children.length - 1];
+      if (prev?.type === 'element' && prev.tagName === 'hr') {
+        tree.children.pop();
+      }
+    }
+    break;
+  }
+}
+
+function tagPatchSettingsTables(tree: Root): void {
+  let inSettingsSection = false;
+  let presetTableIndex = 0;
+
+  for (const node of tree.children) {
+    if (node.type !== 'element') continue;
+
+    if (node.tagName === 'h2') {
+      const id = String(node.properties?.id ?? '');
+      inSettingsSection = id === 'front-panel-starting-settings';
+      presetTableIndex = 0;
+      continue;
+    }
+
+    if (!inSettingsSection) continue;
+
+    const tables = node.tagName === 'table' ? [node] : findDescendants(node, (el) => el.tagName === 'table');
+    for (const table of tables) {
+      table.properties ??= {};
+      table.properties.dataPresetIndex = String(presetTableIndex);
+      presetTableIndex += 1;
+
+      const tbodies = table.children.filter(
+        (c): c is Element => c.type === 'element' && c.tagName === 'tbody',
+      );
+      for (const tbody of tbodies) {
+        for (const row of tbody.children) {
+          if (row.type !== 'element' || row.tagName !== 'tr') continue;
+          const firstCell = row.children.find(
+            (c): c is Element => c.type === 'element' && (c.tagName === 'td' || c.tagName === 'th'),
+          );
+          if (!firstCell) continue;
+          const ctrlId = matchControlIdFromCell(extractText(firstCell, true));
+          if (ctrlId) {
+            row.properties ??= {};
+            row.properties.dataControl = ctrlId;
+            row.properties.tabIndex = 0;
+          }
+        }
+      }
+    }
+  }
+}
+
 function suppressSectionByHeading(tree: Root, targetHeadingId: string): void {
   const startIdx = tree.children.findIndex(
     (node) =>
@@ -494,6 +622,9 @@ export const rehypeSingleSource: Plugin<[SingleSourceRehypeOptions], Root> = (op
     assignHeadingIds(tree);
     if (sourceRepoPath === 'patches/README.md') {
       suppressSectionByHeading(tree, 'patch-guides-index');
+    } else if (PATCH_GUIDE_FILE_RE.test(sourceRepoPath)) {
+      stripPatchGitHubNav(tree);
+      tagPatchSettingsTables(tree);
     }
     rewriteLinksAndImages(tree, sourceRepoPath, repoRoot);
     transformMermaidFences(tree);

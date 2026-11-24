@@ -650,4 +650,10 @@ dialog::backdrop {
     background: #ffffff;
     color: #000000;
   }
+
+  details::details-content {
+    display: block !important;
+    block-size: auto !important;
+    content-visibility: visible !important;
+  }
 }

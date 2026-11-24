@@ -1,0 +1,353 @@
+---
+import 'katex/dist/katex.min.css';
+import '../../styles/docs.css';
+import '../../styles/patches.css';
+import { getCollection, render } from 'astro:content';
+import MermaidHydrator from '../../components/MermaidHydrator.astro';
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import { PATCH_STATES, ledBadgeInfo, type PatchStateEntry } from '../../data/patch-states.ts';
+import { extractDocumentTitle } from '../../lib/content-manifest.ts';
+import { normalizeRoutePath, withBase } from '../../lib/routes.ts';
+
+interface PatchStaticProps {
+  entry: Awaited<ReturnType<typeof getCollection<'patchGuides'>>>[number];
+  stateEntry: PatchStateEntry;
+  pageTitle: string;
+  allRailItems: readonly {
+    slug: string;
+    num: string;
+    label: string;
+    mode: PatchStateEntry['mode'];
+    href: string;
+  }[];
+  prev?: { label: string; href: string };
+  next?: { label: string; href: string };
+}
+
+export async function getStaticPaths() {
+  const entries = await getCollection('patchGuides');
+  const bySlug = new Map(entries.map((item) => [item.id, item]));
+
+  const ordered = PATCH_STATES.map((stateEntry) => {
+    const mdEntry = bySlug.get(stateEntry.slug);
+    if (!mdEntry) {
+      throw new Error(`Missing Patch Guide entry in Content Layer: patches/${stateEntry.slug}.md`);
+    }
+    const pageTitle = extractDocumentTitle(mdEntry.body ?? '');
+    const num = stateEntry.slug.slice(0, 2);
+    const shortTitle = pageTitle.replace(/^\d+\s*[—–-]\s*/, '');
+    return {
+      stateEntry,
+      mdEntry,
+      pageTitle,
+      num,
+      shortTitle,
+      href: `/patches/${stateEntry.slug}/`,
+    };
+  });
+
+  const allRailItems = ordered.map((item) => ({
+    slug: item.stateEntry.slug,
+    num: item.num,
+    label: item.shortTitle,
+    mode: item.stateEntry.mode,
+    href: item.href,
+  }));
+
+  return ordered.map((item, idx) => {
+    const prevItem = idx > 0 ? ordered[idx - 1] : undefined;
+    const nextItem = idx < ordered.length - 1 ? ordered[idx + 1] : undefined;
+
+    return {
+      params: { slug: item.stateEntry.slug },
+      props: {
+        entry: item.mdEntry,
+        stateEntry: item.stateEntry,
+        pageTitle: item.pageTitle,
+        allRailItems,
+        prev: prevItem ? { label: `${prevItem.num} · ${prevItem.shortTitle}`, href: prevItem.href } : undefined,
+        next: nextItem ? { label: `${nextItem.num} · ${nextItem.shortTitle}`, href: nextItem.href } : undefined,
+      } satisfies PatchStaticProps,
+    };
+  });
+}
+
+const { entry, stateEntry, pageTitle, allRailItems, prev, next } = Astro.props as PatchStaticProps;
+const { Content } = await render(entry);
+
+const currentPath = `/patches/${stateEntry.slug}/`;
+const normalizedCurrent = normalizeRoutePath(currentPath);
+
+const efRailItems = allRailItems.filter((item) => item.mode === 'envelope-follower');
+const skewRailItems = allRailItems.filter((item) => item.mode === 'asymmetric-skew-limiter');
+
+const initialPreset = stateEntry.presets[0]!;
+const initialBadge = ledBadgeInfo(initialPreset.led.idleState);
+const hasMultiplePresets = stateEntry.presets.length > 1;
+---
+
+<SiteLayout
+  title={`${pageTitle} · ENV / SKEW`}
+  description={stateEntry.tagline}
+  currentPath={currentPath}
+>
+  <div
+    class="patch-workbench-shell"
+    data-patch-workbench
+    data-patch-slug={stateEntry.slug}
+  >
+    <aside class="doc-rail" aria-label="Patch Guides">
+      <details class="doc-rail-panel" open>
+        <summary class="doc-rail-summary">Patch Guides</summary>
+        <nav aria-label="Patch Guides navigation">
+          <div class="rail-mode-group">
+            <ul class="doc-rail-list">
+              <li>
+                <a href={withBase('/patches/')} class="doc-rail-link">
+                  <span class="rail-badge">00</span>
+                  <span class="rail-label">All 8 Patches</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="rail-mode-group">
+            <p class="rail-mode-heading">Envelope Follower (01–05)</p>
+            <ul class="doc-rail-list">
+              {
+                efRailItems.map((item) => (
+                  <li>
+                    <a
+                      href={withBase(item.href)}
+                      class="doc-rail-link"
+                      aria-current={
+                        normalizeRoutePath(item.href) === normalizedCurrent ? 'page' : undefined
+                      }
+                    >
+                      <span class="rail-badge">{item.num}</span>
+                      <span class="rail-label">{item.label}</span>
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+
+          <div class="rail-mode-group">
+            <p class="rail-mode-heading">Skew Limiter (06–08)</p>
+            <ul class="doc-rail-list">
+              {
+                skewRailItems.map((item) => (
+                  <li>
+                    <a
+                      href={withBase(item.href)}
+                      class="doc-rail-link"
+                      aria-current={
+                        normalizeRoutePath(item.href) === normalizedCurrent ? 'page' : undefined
+                      }
+                    >
+                      <span class="rail-badge">{item.num}</span>
+                      <span class="rail-label">{item.label}</span>
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        </nav>
+      </details>
+    </aside>
+
+    <div class="doc-main">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href={withBase('/')}>Overview</a>
+        <span aria-hidden="true">/</span>
+        <a href={withBase('/patches/')}>Patch Guides</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">{pageTitle}</span>
+      </nav>
+
+      {/* Mobile / Tablet compact panel status bar (< 1120px) — no duplicate outline disclosure */}
+      <details class="mobile-panel-dock">
+        <summary class="mobile-panel-summary">
+          <span class="mobile-panel-summary-title">
+            6 HP Panel · <span data-mobile-preset-name>{initialPreset.name}</span>
+          </span>
+          <span class="led-pill" data-led-pill data-led={initialBadge.pillColor}>
+            {initialBadge.symbol} {initialBadge.text}
+          </span>
+        </summary>
+
+        <div class="mobile-panel-body">
+          {
+            hasMultiplePresets && (
+              <div class="preset-tablist" role="tablist" aria-label="Patch configurations (mobile)">
+                {stateEntry.presets.map((preset, idx) => (
+                  <button
+                    type="button"
+                    role="tab"
+                    id={`mobile-tab-${preset.id}`}
+                    class="preset-tab"
+                    aria-selected={idx === 0 ? 'true' : 'false'}
+                    tabindex={idx === 0 ? 0 : -1}
+                    data-preset-tab={idx}
+                  >
+                    {idx === 0 ? 'Config A' : 'Config B'}
+                  </button>
+                ))}
+              </div>
+            )
+          }
+
+          <div class="signal-toggle-group" role="group" aria-label="LED preview signal state">
+            <button type="button" class="signal-toggle-btn" data-signal-btn="idle" aria-pressed="true">
+              Idle
+            </button>
+            <button
+              type="button"
+              class="signal-toggle-btn"
+              data-signal-btn="active"
+              aria-pressed="false"
+            >
+              Active Signal
+            </button>
+          </div>
+
+          <div class="panel-stage-frame">
+            <env-skew-panel signal-state="idle"></env-skew-panel>
+          </div>
+
+          <div class="control-inspector" aria-live="polite">
+            <p class="inspector-kicker">Control Inspector</p>
+            <p class="inspector-title" data-inspector-title>Select or hover any panel control</p>
+            <p class="inspector-pos" data-inspector-pos>{initialPreset.name}</p>
+            <p class="inspector-effect" data-inspector-effect>{initialPreset.summary}</p>
+          </div>
+        </div>
+      </details>
+
+      <article class="doc-prose">
+        <Content />
+      </article>
+
+      {
+        (prev || next) && (
+          <nav class="doc-prev-next" aria-label="Previous and next Patch Guide">
+            {prev && (
+              <a href={withBase(prev.href)} class="prev-next-card" data-dir="prev">
+                <span class="prev-next-kicker">← Previous</span>
+                <span class="prev-next-title">{prev.label}</span>
+              </a>
+            )}
+            {next && (
+              <a href={withBase(next.href)} class="prev-next-card" data-dir="next">
+                <span class="prev-next-kicker">Next →</span>
+                <span class="prev-next-title">{next.label}</span>
+              </a>
+            )}
+          </nav>
+        )
+      }
+    </div>
+
+    {/* Sticky Desktop Right Panel Dock (>= 1120px) */}
+    <aside class="patch-dock-aside" aria-label="Front-Panel Dock and Control Inspector">
+      <div class="patch-dock-card">
+        <div class="preview-dock-head">
+          <p class="preview-dock-kicker">6 HP Live Panel</p>
+          <p class="preview-dock-title">
+            {stateEntry.mode === 'envelope-follower'
+              ? 'Envelope Follower Mode'
+              : 'Asymmetric Skew Limiter Mode'}
+          </p>
+        </div>
+
+        {
+          hasMultiplePresets && (
+            <>
+              <div class="preset-tablist" role="tablist" aria-label="Patch configurations">
+                {stateEntry.presets.map((preset, idx) => (
+                  <button
+                    type="button"
+                    role="tab"
+                    id={`tab-${preset.id}`}
+                    class="preset-tab"
+                    aria-selected={idx === 0 ? 'true' : 'false'}
+                    tabindex={idx === 0 ? 0 : -1}
+                    data-preset-tab={idx}
+                  >
+                    {idx === 0 ? 'Config A' : 'Config B'}
+                  </button>
+                ))}
+              </div>
+
+              {stateEntry.presets.map((preset, idx) => (
+                <div
+                  role="tabpanel"
+                  id={`tabpanel-${preset.id}`}
+                  aria-labelledby={`tab-${preset.id}`}
+                  tabindex={idx === 0 ? 0 : undefined}
+                  hidden={idx === 0 ? undefined : ('until-found' as unknown as boolean)}
+                  data-preset-panel={idx}
+                >
+                  <div class="preset-panel-inner">
+                    <p class="preset-panel-name">{preset.name}</p>
+                    <p class="preset-panel-summary">{preset.summary}</p>
+                  </div>
+                </div>
+              ))}
+            </>
+          )
+        }
+
+        <div class="signal-toggle-group" role="group" aria-label="LED preview signal state">
+          <button type="button" class="signal-toggle-btn" data-signal-btn="idle" aria-pressed="true">
+            Idle
+          </button>
+          <button
+            type="button"
+            class="signal-toggle-btn"
+            data-signal-btn="active"
+            aria-pressed="false"
+          >
+            Active Signal
+          </button>
+        </div>
+
+        <div class="panel-stage-frame">
+          <env-skew-panel signal-state="idle"></env-skew-panel>
+        </div>
+
+        <div class="led-readout-box">
+          <span class="led-pill" data-led-pill data-led={initialBadge.pillColor}>
+            {initialBadge.symbol} {initialBadge.text}
+          </span>
+          <p class="led-readout-desc" data-led-desc>{initialPreset.led.idleDesc}</p>
+        </div>
+
+        <div class="control-inspector" aria-live="polite">
+          <p class="inspector-kicker">Control Inspector</p>
+          <p class="inspector-title" data-inspector-title>Select or hover any panel control</p>
+          <p class="inspector-pos" data-inspector-pos>{initialPreset.name}</p>
+          <p class="inspector-effect" data-inspector-effect>{initialPreset.summary}</p>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <Fragment slot="scripts">
+    <MermaidHydrator />
+    <script>
+      import '../../components/env-skew-panel.ts';
+      import { getPatchStateBySlug } from '../../data/patch-states.ts';
+      import { initPatchWorkbench } from '../../lib/patch-workbench-controller.ts';
+
+      const workbenchRoot = document.querySelector<HTMLElement>('[data-patch-workbench]');
+      const slug = workbenchRoot?.dataset.patchSlug;
+      const entry = slug ? getPatchStateBySlug(slug) : undefined;
+      if (workbenchRoot && entry) {
+        initPatchWorkbench(workbenchRoot, entry);
+      }
+    </script>
+  </Fragment>
+</SiteLayout>
