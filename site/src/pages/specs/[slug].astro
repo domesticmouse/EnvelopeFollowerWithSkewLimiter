@@ -1,8 +1,9 @@
 ---
 import { getCollection, render } from 'astro:content';
-import DocLayout, { type DocNavItem } from '../../layouts/DocLayout.astro';
+import DocLayout from '../../layouts/DocLayout.astro';
 import {
   REFERENCE_SPECS_CATALOG,
+  REFERENCE_SPEC_NAV_ITEMS,
   extractDocumentTitle,
   hasMermaidFence,
   type ReferenceSpecMeta,
@@ -42,15 +43,6 @@ const { Content, headings } = await render(entry);
 const rawBody = entry.body ?? '';
 const pageTitle = extractDocumentTitle(rawBody, headings);
 const hasMermaid = hasMermaidFence(rawBody);
-
-const navItems: DocNavItem[] = [
-  { label: 'Overview', href: '/specs/', badge: '00' },
-  ...REFERENCE_SPECS_CATALOG.map((spec) => ({
-    label: spec.shortTitle,
-    href: spec.route,
-    badge: spec.num,
-  })),
-];
 ---
 
 <DocLayout
@@ -58,7 +50,7 @@ const navItems: DocNavItem[] = [
   description={specMeta.summary}
   currentPath={specMeta.route}
   sectionTitle="Reference Specs"
-  navItems={navItems}
+  navItems={REFERENCE_SPEC_NAV_ITEMS}
   breadcrumbs={[
     { label: 'Overview', href: '/' },
     { label: 'Reference Specs', href: '/specs/' },

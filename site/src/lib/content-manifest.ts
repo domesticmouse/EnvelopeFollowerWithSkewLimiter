@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { GITHUB_REPO_URL, SITE_BASE, withBase } from './routes.ts';
-import { REQUIRED_PASSTHROUGH_FILES, isExcludedRepoPath } from './static-passthrough.ts';
+import { REQUIRED_PASSTHROUGH_FILES, isExcludedRepoPath, toPosixPath } from './static-passthrough.ts';
 
 /** Four engineering & mechanical Reference Specs at repository root. */
 export const REFERENCE_SPEC_FILES = [
@@ -135,6 +135,20 @@ export const REFERENCE_SPECS_CATALOG: readonly ReferenceSpecMeta[] = [
   },
 ];
 
+/** Ordered left-rail navigation items for Reference Specs pages. */
+export const REFERENCE_SPEC_NAV_ITEMS: readonly {
+  label: string;
+  href: string;
+  badge: string;
+}[] = [
+  { label: 'Overview', href: '/specs/', badge: '00' },
+  ...REFERENCE_SPECS_CATALOG.map((spec) => ({
+    label: spec.shortTitle,
+    href: spec.route,
+    badge: spec.num,
+  })),
+];
+
 /** Canonical mapping from repository-relative Markdown paths and directory links to site routes. */
 export const MD_TO_ROUTE: Readonly<Record<string, string>> = {
   'DesignSpec.md': '/specs/design-spec/',
@@ -169,28 +183,10 @@ export const MD_TO_ROUTE: Readonly<Record<string, string>> = {
 const PASSTHROUGH_FILE_SET = new Set<string>(REQUIRED_PASSTHROUGH_FILES);
 const EXTERNAL_SCHEME_RE = /^[a-z][a-z0-9+.-]*:/i;
 
-function prefixWithBase(routeOrAsset: string, siteBase: string): string {
-  const cleanBase = siteBase.replace(/\/+$/, '');
-  if (cleanBase === SITE_BASE) {
-    return withBase(routeOrAsset);
-  }
-  if (!routeOrAsset || routeOrAsset === '/') {
-    return `${cleanBase}/`;
-  }
-  if (routeOrAsset.startsWith('#') || EXTERNAL_SCHEME_RE.test(routeOrAsset)) {
-    return routeOrAsset;
-  }
-  const leading = routeOrAsset.startsWith('/') ? routeOrAsset : `/${routeOrAsset}`;
-  if (leading === cleanBase || leading.startsWith(`${cleanBase}/`)) {
-    return leading;
-  }
-  return `${cleanBase}${leading}`;
-}
-
 /** Resolve a relative asset or link path against sourceRepoPath (POSIX repo-relative). */
 export function resolveRelativeRepoPath(rawPathname: string, sourceRepoPath: string): string {
-  const normalizedSource = sourceRepoPath.replaceAll('\\', '/').replace(/^\/+/, '');
-  const sourceDir = path.posix.dirname(normalizedSource);
+  const normalizedSource = toPosixPath(sourceRepoPath);
+  const sourceDir = normalizedSource ? path.posix.dirname(normalizedSource) : '.';
 
   const cleanedInput = rawPathname.replaceAll('\\', '/');
   if (cleanedInput.startsWith('/')) {
@@ -207,17 +203,11 @@ export function resolveRelativeRepoPath(rawPathname: string, sourceRepoPath: str
 
 /** Return true when a normalized repository-relative path belongs to Static Passthrough output. */
 export function isAllowlistedPassthroughPath(repoRelPath: string): boolean {
-  const normalized = repoRelPath.replaceAll('\\', '/').replace(/^\/+/, '');
+  const normalized = toPosixPath(repoRelPath);
   if (isExcludedRepoPath(normalized)) {
     return false;
   }
   return PASSTHROUGH_FILE_SET.has(normalized) || normalized.startsWith('images/');
-}
-
-/** Options controlling canonical route and fallback GitHub URL resolution. */
-export interface ResolveRepoHrefOptions {
-  siteBase?: string;
-  githubRepoUrl?: string;
 }
 
 /**
@@ -226,18 +216,11 @@ export interface ResolveRepoHrefOptions {
  * - Allowlisted Static Passthroughs (images/**, bom/ibom.html, PDF, ZIPs, CSVs, etc.) -> base-prefixed asset URL
  * - Non-site CAD/Python/repo files -> GitHub blob/main fallback URL
  */
-export function resolveRepoHref(
-  rawHref: string,
-  sourceRepoPath: string,
-  options?: ResolveRepoHrefOptions,
-): string {
+export function resolveRepoHref(rawHref: string, sourceRepoPath: string): string {
   const trimmed = rawHref.trim();
   if (!trimmed || trimmed.startsWith('#') || EXTERNAL_SCHEME_RE.test(trimmed)) {
     return trimmed;
   }
-
-  const siteBase = options?.siteBase ?? SITE_BASE;
-  const githubRepoUrl = (options?.githubRepoUrl ?? GITHUB_REPO_URL).replace(/\/+$/, '');
 
   const hashIdx = trimmed.indexOf('#');
   const withoutHash = hashIdx === -1 ? trimmed : trimmed.slice(0, hashIdx);
@@ -251,7 +234,7 @@ export function resolveRepoHref(
     return trimmed;
   }
 
-  if (rawPathname === siteBase || rawPathname.startsWith(`${siteBase}/`)) {
+  if (rawPathname === SITE_BASE || rawPathname.startsWith(`${SITE_BASE}/`)) {
     return `${rawPathname}${querySuffix}${hashSuffix}`;
   }
 
@@ -261,16 +244,16 @@ export function resolveRepoHref(
     const routeBase = mappedRoute.split('#')[0] ?? mappedRoute;
     const routeHash = mappedRoute.includes('#') ? mappedRoute.slice(mappedRoute.indexOf('#')) : '';
     const finalHash = hashSuffix || routeHash;
-    return `${prefixWithBase(routeBase, siteBase)}${querySuffix}${finalHash}`;
+    return `${withBase(routeBase)}${querySuffix}${finalHash}`;
   }
 
   if (isAllowlistedPassthroughPath(repoRelPath)) {
-    return `${prefixWithBase(repoRelPath, siteBase)}${querySuffix}${hashSuffix}`;
+    return `${withBase(repoRelPath)}${querySuffix}${hashSuffix}`;
   }
 
   const gitKind = repoRelPath.endsWith('/') ? 'tree' : 'blob';
   const cleanGitPath = repoRelPath.replace(/\/+$/, '');
-  return `${githubRepoUrl}/${gitKind}/main/${cleanGitPath}${querySuffix}${hashSuffix}`;
+  return `${GITHUB_REPO_URL}/${gitKind}/main/${cleanGitPath}${querySuffix}${hashSuffix}`;
 }
 
 /** Strip inline Markdown punctuation from a heading line for clean plain-text page titles. */

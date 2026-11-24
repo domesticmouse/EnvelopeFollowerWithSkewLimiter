@@ -8,22 +8,17 @@ import { visit } from 'unist-util-visit';
 import type { VFile } from 'vfile';
 import { readImageDimensions } from '../lib/image-dimensions.ts';
 import { resolveRelativeRepoPath, resolveRepoHref } from '../lib/content-manifest.ts';
-import { GITHUB_REPO_URL, SITE_BASE } from '../lib/routes.ts';
+import { SITE_BASE, withBase } from '../lib/routes.ts';
+import { toPosixPath } from '../lib/static-passthrough.ts';
 
 /** Configuration for the single-source Markdown rehype transform module. */
 export interface SingleSourceRehypeOptions {
   repoRoot: string;
-  siteBase?: string;
-  githubRepoUrl?: string;
   sourceRepoPath?: string;
 }
 
 const HEADING_TAGS = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']);
 const EXTERNAL_URL_RE = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
-
-function normalizePosix(value: string): string {
-  return value.replaceAll('\\', '/').replace(/^\.\//, '').replace(/^\/+/, '');
-}
 
 function resolveSourceRepoPath(
   repoRoot: string,
@@ -31,7 +26,7 @@ function resolveSourceRepoPath(
   explicitSourcePath?: string,
 ): string {
   if (explicitSourcePath) {
-    return normalizePosix(explicitSourcePath);
+    return toPosixPath(explicitSourcePath);
   }
 
   const rawCandidate = file.path || file.history[0] || '';
@@ -52,7 +47,7 @@ function resolveSourceRepoPath(
       // Keep original relative computation if realpath fails
     }
   }
-  return normalizePosix(rel);
+  return toPosixPath(rel);
 }
 
 function getClasses(el: Element): string[] {
@@ -72,8 +67,7 @@ function hasClass(el: Element, className: string): boolean {
 
 function addClass(el: Element, ...classesToAdd: string[]): void {
   el.properties ??= {};
-  const existing = getClasses(el);
-  const merged = new Set(existing);
+  const merged = new Set(getClasses(el));
   for (const cls of classesToAdd) {
     if (cls) {
       merged.add(cls);
@@ -82,36 +76,24 @@ function addClass(el: Element, ...classesToAdd: string[]): void {
   el.properties.className = [...merged];
 }
 
-function extractVisibleText(node: Root | RootContent): string {
+function extractText(node: Root | RootContent, skipMathml: boolean): string {
   if (node.type === 'text') {
     return node.value;
   }
-  if (node.type === 'element') {
-    if (hasClass(node, 'katex-mathml') || node.tagName === 'math') {
-      return '';
-    }
+  if (
+    skipMathml &&
+    node.type === 'element' &&
+    (hasClass(node, 'katex-mathml') || node.tagName === 'math')
+  ) {
+    return '';
   }
   if ('children' in node && Array.isArray(node.children)) {
-    return node.children.map((child) => extractVisibleText(child)).join('');
+    return node.children.map((child) => extractText(child, skipMathml)).join('');
   }
   return '';
 }
 
-function extractPlainText(node: Root | RootContent): string {
-  if (node.type === 'text') {
-    return node.value;
-  }
-  if ('children' in node && Array.isArray(node.children)) {
-    return node.children.map((child) => extractPlainText(child)).join('');
-  }
-  return '';
-}
-
-function h(
-  tagName: string,
-  properties: Properties,
-  children: ElementContent[],
-): Element {
+function h(tagName: string, properties: Properties, children: ElementContent[]): Element {
   return {
     type: 'element',
     tagName,
@@ -135,28 +117,41 @@ function findDescendants(root: Element, predicate: (el: Element) => boolean): El
 }
 
 function hasNestedTable(tableEl: Element): boolean {
-  for (const child of tableEl.children) {
-    if (child.type !== 'element') {
-      continue;
-    }
-    if (findDescendants(child, (el) => el.tagName === 'table').length > 0) {
-      return true;
-    }
-  }
-  return false;
+  return tableEl.children.some(
+    (child) =>
+      child.type === 'element' && findDescendants(child, (el) => el.tagName === 'table').length > 0,
+  );
 }
 
 function containsKatexDisplay(node: Element): boolean {
   if (hasClass(node, 'katex-display')) {
     return true;
   }
-  return node.children.some(
-    (child) => child.type === 'element' && containsKatexDisplay(child),
-  );
+  return node.children.some((child) => child.type === 'element' && containsKatexDisplay(child));
 }
 
 function escapeCssString(value: string): string {
   return value.replaceAll('\\', '\\\\').replaceAll('"', '\\"').replace(/\s+/g, ' ').trim();
+}
+
+function getPreCodeInfo(
+  node: Element,
+): { lang: string | undefined; codeChild: Element | undefined } | null {
+  if (node.tagName !== 'pre') {
+    return null;
+  }
+  const codeChild = node.children.find(
+    (child): child is Element => child.type === 'element' && child.tagName === 'code',
+  );
+  const dataLang =
+    typeof node.properties?.dataLanguage === 'string' ? node.properties.dataLanguage : undefined;
+  const classLang = codeChild
+    ? getClasses(codeChild)
+        .find((cls) => cls.startsWith('language-'))
+        ?.slice('language-'.length)
+    : undefined;
+  const lang = dataLang ?? classLang ?? (hasClass(node, 'mermaid') ? 'mermaid' : undefined);
+  return { lang, codeChild };
 }
 
 function assignHeadingIds(tree: Root): void {
@@ -165,7 +160,7 @@ function assignHeadingIds(tree: Root): void {
     if (!HEADING_TAGS.has(node.tagName)) {
       return;
     }
-    const text = extractVisibleText(node).trim();
+    const text = extractText(node, true).trim();
     if (!text) {
       return;
     }
@@ -178,20 +173,13 @@ function rewriteLinksAndImages(
   tree: Root,
   sourceRepoPath: string,
   repoRoot: string,
-  siteBase: string,
-  githubRepoUrl: string,
 ): void {
-  const cleanBase = siteBase.replace(/\/+$/, '');
-
   visit(tree, 'element', (node) => {
     if (node.tagName === 'a') {
       const href = node.properties?.href;
-      if (typeof href === 'string' && sourceRepoPath) {
+      if (typeof href === 'string') {
         node.properties ??= {};
-        node.properties.href = resolveRepoHref(href, sourceRepoPath, {
-          siteBase: cleanBase,
-          githubRepoUrl,
-        });
+        node.properties.href = resolveRepoHref(href, sourceRepoPath);
       }
       return;
     }
@@ -205,17 +193,14 @@ function rewriteLinksAndImages(
 
       const trimmedSrc = src.trim();
       if (!EXTERNAL_URL_RE.test(trimmedSrc)) {
-        let repoRelPath: string;
-        if (trimmedSrc === cleanBase || trimmedSrc.startsWith(`${cleanBase}/`)) {
-          repoRelPath = trimmedSrc.slice(cleanBase.length + 1);
-        } else {
-          repoRelPath = resolveRelativeRepoPath(trimmedSrc, sourceRepoPath);
-        }
+        const repoRelPath =
+          trimmedSrc === SITE_BASE || trimmedSrc.startsWith(`${SITE_BASE}/`)
+            ? trimmedSrc.slice(SITE_BASE.length + 1)
+            : resolveRelativeRepoPath(trimmedSrc, sourceRepoPath);
 
-        node.properties.src = `${cleanBase}/${repoRelPath.replace(/^\/+/, '')}`;
+        node.properties.src = withBase(repoRelPath);
 
-        const absFile = path.resolve(repoRoot, repoRelPath);
-        const dims = readImageDimensions(absFile);
+        const dims = readImageDimensions(path.resolve(repoRoot, repoRelPath));
         if (dims) {
           node.properties.width = dims.width;
           node.properties.height = dims.height;
@@ -241,47 +226,21 @@ function rewriteLinksAndImages(
   });
 }
 
-function isMermaidPre(node: Element): boolean {
-  if (node.tagName !== 'pre') {
-    return false;
-  }
-  if (hasClass(node, 'mermaid') || node.properties?.dataLanguage === 'mermaid') {
-    return true;
-  }
-  const codeChild = node.children.find(
-    (child): child is Element => child.type === 'element' && child.tagName === 'code',
-  );
-  return Boolean(codeChild && hasClass(codeChild, 'language-mermaid'));
-}
-
-function isJsonPre(node: Element): boolean {
-  if (node.tagName !== 'pre') {
-    return false;
-  }
-  if (node.properties?.dataLanguage === 'json') {
-    return true;
-  }
-  const codeChild = node.children.find(
-    (child): child is Element => child.type === 'element' && child.tagName === 'code',
-  );
-  return Boolean(codeChild && hasClass(codeChild, 'language-json'));
-}
-
 function transformMermaidFences(tree: Root): void {
   visit(tree, 'element', (node, index, parent) => {
-    if (!parent || index === undefined || !isMermaidPre(node)) {
+    if (!parent || index === undefined) {
+      return;
+    }
+    const preInfo = getPreCodeInfo(node);
+    if (!preInfo || preInfo.lang !== 'mermaid') {
       return;
     }
     if (hasClass(parent as Element, 'mermaid-scroll')) {
       return;
     }
 
-    const codeChild = node.children.find(
-      (child): child is Element => child.type === 'element' && child.tagName === 'code',
-    );
-    const diagramSource = extractPlainText(codeChild ?? node).replace(/\n$/, '');
-
-    const card = h('figure', { className: ['mermaid-card'], dataMermaidCard: true }, [
+    const diagramSource = extractText(preInfo.codeChild ?? node, false).replace(/\n$/, '');
+    parent.children[index] = h('figure', { className: ['mermaid-card'], dataMermaidCard: true }, [
       h(
         'div',
         {
@@ -293,8 +252,6 @@ function transformMermaidFences(tree: Root): void {
         [h('pre', { className: ['mermaid'] }, [{ type: 'text', value: diagramSource }])],
       ),
     ]);
-
-    parent.children[index] = card;
   });
 }
 
@@ -312,15 +269,15 @@ function wrapPanelJsonAppendix(tree: Root, sourceRepoPath: string): void {
 
     if (node.tagName === 'h2') {
       const id = String(node.properties?.id ?? '');
-      const headingText = extractVisibleText(node);
+      const headingText = extractText(node, true);
       sawSection8Heading =
         id.startsWith('8-machine-readable-geometry') ||
         /machine-readable geometry/i.test(headingText);
       continue;
     }
 
-    if (sawSection8Heading && isJsonPre(node)) {
-      const jsonText = extractPlainText(node).replace(/\n$/, '');
+    if (sawSection8Heading && getPreCodeInfo(node)?.lang === 'json') {
+      const jsonText = extractText(node, false).replace(/\n$/, '');
       const lineCount = jsonText ? jsonText.split('\n').length : 0;
 
       tree.children[i] = h(
@@ -350,10 +307,7 @@ function getHeaderLabels(tableEl: Element): string[] {
   const thead = tableEl.children.find(
     (child): child is Element => child.type === 'element' && child.tagName === 'thead',
   );
-  if (!thead) {
-    return [];
-  }
-  const firstRow = thead.children.find(
+  const firstRow = thead?.children.find(
     (child): child is Element => child.type === 'element' && child.tagName === 'tr',
   );
   if (!firstRow) {
@@ -368,7 +322,7 @@ function getHeaderLabels(tableEl: Element): string[] {
     cell.tagName = 'th';
     cell.properties ??= {};
     cell.properties.scope = 'col';
-    labels.push(extractVisibleText(cell).replace(/\s+/g, ' ').trim());
+    labels.push(extractText(cell, true).replace(/\s+/g, ' ').trim());
   }
   return labels;
 }
@@ -510,14 +464,12 @@ function markFormulaGrids(tree: Root): void {
  */
 export const rehypeSingleSource: Plugin<[SingleSourceRehypeOptions], Root> = (options) => {
   const repoRoot = path.resolve(options.repoRoot);
-  const siteBase = options.siteBase ?? SITE_BASE;
-  const githubRepoUrl = options.githubRepoUrl ?? GITHUB_REPO_URL;
 
   return (tree, file) => {
     const sourceRepoPath = resolveSourceRepoPath(repoRoot, file, options.sourceRepoPath);
 
     assignHeadingIds(tree);
-    rewriteLinksAndImages(tree, sourceRepoPath, repoRoot, siteBase, githubRepoUrl);
+    rewriteLinksAndImages(tree, sourceRepoPath, repoRoot);
     transformMermaidFences(tree);
     wrapPanelJsonAppendix(tree, sourceRepoPath);
     wrapAccessibleTables(tree);

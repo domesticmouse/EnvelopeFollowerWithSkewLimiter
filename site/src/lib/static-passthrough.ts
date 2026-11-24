@@ -45,7 +45,7 @@ const MIME_BY_EXT: Readonly<Record<string, string>> = {
   '.zip': 'application/zip',
 };
 
-function toPosixPath(value: string): string {
+export function toPosixPath(value: string): string {
   return value.replaceAll('\\', '/').replace(/^\.\//, '').replace(/^\/+/, '');
 }
 

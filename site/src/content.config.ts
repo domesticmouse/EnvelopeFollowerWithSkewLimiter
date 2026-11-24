@@ -8,53 +8,37 @@ import {
   PATCH_GUIDE_FILES,
   REFERENCE_SPEC_FILES,
 } from './lib/content-manifest.ts';
+import { toPosixPath } from './lib/static-passthrough.ts';
 
 function normalizeEntryId(entry: string): string {
-  const posix = entry.replaceAll('\\', '/').replace(/^\.\//, '');
+  const posix = toPosixPath(entry);
+  if (posix.endsWith('/README.md')) {
+    return 'index';
+  }
   const route = MD_TO_ROUTE[posix];
   if (route) {
     const clean = route.replace(/^\/|\/$/g, '');
     const segments = clean.split('/');
-    // Preserve 'index' for directory hubs (patches/README.md -> index, checklists/README.md -> index)
-    if (posix.endsWith('/README.md')) {
-      return 'index';
-    }
     return segments[segments.length - 1] ?? posix;
   }
   return path.posix.basename(posix, '.md');
 }
 
-const frontmatterFreeSchema = z.object({}).loose();
+const frontmatterFreeSchema = z.object({}).strict();
 
-const referenceSpecs = defineCollection({
-  loader: glob({
-    base: '..',
-    pattern: [...REFERENCE_SPEC_FILES],
-    generateId: ({ entry }) => normalizeEntryId(entry),
-  }),
-  schema: frontmatterFreeSchema,
-});
-
-const buildChecklists = defineCollection({
-  loader: glob({
-    base: '..',
-    pattern: [...BUILD_CHECKLIST_FILES],
-    generateId: ({ entry }) => normalizeEntryId(entry),
-  }),
-  schema: frontmatterFreeSchema,
-});
-
-const patchGuides = defineCollection({
-  loader: glob({
-    base: '..',
-    pattern: [...PATCH_GUIDE_FILES],
-    generateId: ({ entry }) => normalizeEntryId(entry),
-  }),
-  schema: frontmatterFreeSchema,
-});
+function createMarkdownCollection(pattern: readonly string[]) {
+  return defineCollection({
+    loader: glob({
+      base: '..',
+      pattern: [...pattern],
+      generateId: ({ entry }) => normalizeEntryId(entry),
+    }),
+    schema: frontmatterFreeSchema,
+  });
+}
 
 export const collections = {
-  referenceSpecs,
-  buildChecklists,
-  patchGuides,
+  referenceSpecs: createMarkdownCollection(REFERENCE_SPEC_FILES),
+  buildChecklists: createMarkdownCollection(BUILD_CHECKLIST_FILES),
+  patchGuides: createMarkdownCollection(PATCH_GUIDE_FILES),
 };

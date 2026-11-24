@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { Window } from 'happy-dom';
+import { REFERENCE_SPECS_CATALOG } from './content-manifest.ts';
 import { CANONICAL_ROUTES, SITE_BASE, normalizeRoutePath } from './routes.ts';
 import {
   isExcludedRepoPath,
@@ -29,12 +30,9 @@ const POSITIVE_INT_RE = /^[1-9]\d*$/;
 const EXTERNAL_PROTO_RE = /^(?:https?:|mailto:|tel:|data:|blob:)/i;
 
 const NON_MERMAID_ROUTES = new Set<string>(['/', '/specs/', '/specs/panel-svg-spec/']);
-const REFERENCE_SPEC_DETAIL_ROUTES = new Set<string>([
-  '/specs/base-circuit/',
-  '/specs/circuit-review/',
-  '/specs/design-spec/',
-  '/specs/panel-svg-spec/',
-]);
+const REFERENCE_SPEC_DETAIL_ROUTES = new Set<string>(
+  REFERENCE_SPECS_CATALOG.map((spec) => spec.route),
+);
 const DIAGRAM_KATEX_SPEC_DISPLAY_COUNTS: Readonly<Record<string, number>> = {
   '/specs/base-circuit/': 4,
   '/specs/circuit-review/': 3,
