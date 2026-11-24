@@ -303,4 +303,37 @@ describe('Built-site artifact contract', () => {
     expect(brokenResult.errors.some((e) => e.includes('table-wrapper'))).toBe(true);
     expect(brokenResult.errors.some((e) => e.includes('missing-anchor'))).toBe(true);
   });
+
+  it('requires Pagefind artifacts when requirePagefind is enabled', () => {
+    const { repoRoot, distDir } = createValidBuiltFixture();
+    const missing = verifyBuiltSite({
+      repoRoot,
+      distDir,
+      implementedRoutes: ['/'],
+      requirePagefind: true,
+    });
+    expect(missing.errors.some((e) => e.toLowerCase().includes('pagefind'))).toBe(true);
+
+    fs.mkdirSync(path.join(distDir, 'pagefind'), { recursive: true });
+    fs.writeFileSync(path.join(distDir, 'pagefind/pagefind.js'), 'export async function search() {}');
+    fs.writeFileSync(path.join(distDir, 'pagefind/pagefind-entry.json'), '{"version":"1.0"}');
+
+    const present = verifyBuiltSite({
+      repoRoot,
+      distDir,
+      implementedRoutes: ['/'],
+      requirePagefind: true,
+    });
+    expect(present.errors).toEqual([]);
+
+    // Fails if any <script> without src leaks an unbundled ESM import statement
+    fs.writeFileSync(
+      path.join(distDir, 'index.html'),
+      fs
+        .readFileSync(path.join(distDir, 'index.html'), 'utf8')
+        .replace('</body>', '<script slot="scripts">import "./broken.ts";</script></body>'),
+    );
+    const rawImport = verifyBuiltSite({ repoRoot, distDir, implementedRoutes: ['/'] });
+    expect(rawImport.errors.some((e) => e.includes('unbundled ESM import'))).toBe(true);
+  });
 });

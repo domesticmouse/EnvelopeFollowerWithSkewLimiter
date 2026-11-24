@@ -248,6 +248,7 @@
 .pcb-plate-btn img {
   display: block;
   margin-inline: auto;
+  max-inline-size: 100%;
   max-block-size: 420px;
   width: auto;
   height: auto;
@@ -286,6 +287,8 @@
   flex-direction: column;
   gap: 0.45rem;
   font-size: 0.9rem;
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
 }
 
 .highlights-actions {
@@ -395,6 +398,7 @@
 
 .panel-inspector-tablist {
   display: flex;
+  flex-wrap: wrap;
   overflow-x: auto;
   border-block-end: 1px solid var(--border-ui);
   background: var(--bg-code);
@@ -402,7 +406,7 @@
 
 .panel-inspector-tablist .preset-tab {
   position: relative;
-  flex: 1 0 auto;
+  flex: 1 1 auto;
   min-block-size: 40px;
   padding: 0.45rem 0.8rem;
   background: transparent;
@@ -412,7 +416,6 @@
   font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
-  white-space: nowrap;
 }
 
 .panel-inspector-tablist .preset-tab[aria-selected='true'] {
@@ -515,6 +518,8 @@
   padding: 1rem;
   background: var(--bg-code);
   border: 1px solid var(--border-subtle);
+  max-inline-size: 100%;
+  min-inline-size: 0;
 }
 
 .panel-inspector-svg {
@@ -526,14 +531,18 @@
   margin-inline: auto;
 }
 
-.panel-keepout-preview-card {
+.panel-keepout-preview-card,
+.panel-3d-btn {
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
+  max-inline-size: 100%;
+  min-inline-size: 0;
 }
 
 .panel-keepout-preview-card img,
 .panel-3d-btn img {
+  max-inline-size: 100%;
   max-block-size: 380px;
   width: auto;
   height: auto;

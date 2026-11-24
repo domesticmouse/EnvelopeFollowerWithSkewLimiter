@@ -32,19 +32,19 @@ const breakthroughs = [
   },
   {
     num: 'FIX 04 · TIER 1',
-    title: 'High-Z Input & 2.00× Headroom',
-    body: 'R4/R5 set 100 kΩ input impedance and R19 sets up to +20.0 Vpp preamp swing without op-amp clipping on hot Eurorack drums.',
+    title: 'J1 Input Bleed & 2.00× Headroom',
+    body: 'J1 normaled to GND with R3 = 1 MΩ bleed, C7 = 470 nF AC coupling, RV1 A100K, and switchless U1A ×2.00 preamp (R6/R7 10 kΩ ±0.1%, ±10.0 V headroom).',
   },
   {
     num: 'FIX 05 · TIER 1',
     title: 'Dark-Idle Bi-Color LED Driver',
-    body: 'Push-pull dual-transconductance output drives anti-parallel Red/Green LED1 cleanly at idle (~0 V = off, +V = Green, −V = Red).',
+    body: 'Post-offset active V-to-I transconductance driver (U2D, R33 = 2.2 kΩ) powers anti-parallel Red/Green LED1 (A-1076) cleanly at idle (~0 V = dark, +V = Green, −V = Red).',
   },
 ];
 
 const evolutionRows = [
   {
-    aspect: 'Op-Amp Silicone Architecture',
+    aspect: 'Op-Amp Silicon Architecture',
     hagiwo: '6 op-amp sections (dual/quad mix + spare)',
     envSkew: '2× TL074HIDR (8/8 sections used, zero unused buffers)',
   },
@@ -189,8 +189,22 @@ const evolutionRows = [
             <span class="curated-card-kicker">Archival Extraction Repo · 2026-11-18 ↗</span>
             <span class="curated-card-title">domesticmouse/EnvelopeFollower</span>
             <span class="curated-card-meta">
-              Preserved extraction &amp; KiCad baseline (submodule <code>4a02c46</code>, live{' '}
-              <code>domesticmouse.github.io/EnvelopeFollower</code>).
+              Preserved extraction &amp; KiCad baseline (submodule <code>4a02c46</code>, 16 documented
+              build prompts).
+            </span>
+          </a>
+
+          <a
+            href="https://domesticmouse.github.io/EnvelopeFollower/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="curated-link-card"
+          >
+            <span class="curated-card-kicker">Live Extraction Docs · GitHub Pages ↗</span>
+            <span class="curated-card-title">domesticmouse.github.io/EnvelopeFollower</span>
+            <span class="curated-card-meta">
+              Published web baseline showcasing HAGIWO No. 43 schematic extraction and initial
+              KiCad simulation findings.
             </span>
           </a>
         </div>
@@ -282,31 +296,33 @@ const evolutionRows = [
     </section>
   </div>
 
-  <script slot="scripts">
-    import { openFullscreenLightbox } from '../components/zoom-pan-viewer.ts';
+  <Fragment slot="scripts">
+    <script>
+      import { openFullscreenLightbox } from '../components/zoom-pan-viewer.ts';
 
-    const btn = document.querySelector<HTMLButtonElement>('[data-origin-lightbox]');
-    if (btn) {
-      btn.addEventListener('click', () => {
-        const src = btn.getAttribute('data-lightbox-src') ?? '';
-        const alt = btn.getAttribute('data-lightbox-alt') ?? 'Original HAGIWO schematic plate';
-        const width = Number(btn.getAttribute('data-lightbox-width')) || 1551;
-        const height = Number(btn.getAttribute('data-lightbox-height')) || 1019;
-        openFullscreenLightbox({
-          items: [
-            {
-              src,
-              alt,
-              width,
-              height,
-              caption: 'HAGIWO / ハギヲ No. 43 Original Schematic Plate (2022-01-18)',
-            },
-          ],
-          startIndex: 0,
-          mode: 'gallery',
-          title: 'Archival HAGIWO Schematic Plate',
+      const btn = document.querySelector<HTMLButtonElement>('[data-origin-lightbox]');
+      if (btn) {
+        btn.addEventListener('click', () => {
+          const src = btn.getAttribute('data-lightbox-src') ?? '';
+          const alt = btn.getAttribute('data-lightbox-alt') ?? 'Original HAGIWO schematic plate';
+          const width = Number(btn.getAttribute('data-lightbox-width')) || 1551;
+          const height = Number(btn.getAttribute('data-lightbox-height')) || 1019;
+          openFullscreenLightbox({
+            items: [
+              {
+                src,
+                alt,
+                width,
+                height,
+                caption: 'HAGIWO / ハギヲ No. 43 Original Schematic Plate (2022-01-18)',
+              },
+            ],
+            startIndex: 0,
+            mode: 'gallery',
+            title: 'Archival HAGIWO Schematic Plate',
+          });
         });
-      });
-    }
-  </script>
+      }
+    </script>
+  </Fragment>
 </SiteLayout>

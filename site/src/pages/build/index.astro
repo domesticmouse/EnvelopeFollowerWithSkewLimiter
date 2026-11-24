@@ -133,8 +133,10 @@ const firstStep = BUILD_CHECKLISTS_CATALOG[0]!;
     </form>
   </dialog>
 
-  <script slot="scripts">
-    import { initBuildHubPage } from '../../lib/checklist-controller.ts';
-    initBuildHubPage();
-  </script>
+  <Fragment slot="scripts">
+    <script>
+      import { initBuildHubPage } from '../../lib/checklist-controller.ts';
+      initBuildHubPage();
+    </script>
+  </Fragment>
 </DocLayout>

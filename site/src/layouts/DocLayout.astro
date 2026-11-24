@@ -68,7 +68,7 @@ const hasScriptsSlot = Astro.slots.has('scripts');
 
 <SiteLayout title={title} description={description} currentPath={currentPath}>
   <div class="doc-shell" {...shellAttributes}>
-    <aside class="doc-rail" aria-label={sectionTitle}>
+    <aside class="doc-rail" aria-label={sectionTitle} data-pagefind-ignore>
       <details class="doc-rail-panel" open>
         <summary class="doc-rail-summary">{sectionTitle}</summary>
         <nav aria-label={`${sectionTitle} navigation`}>
@@ -99,7 +99,7 @@ const hasScriptsSlot = Astro.slots.has('scripts');
     </aside>
 
     <div class="doc-main">
-      <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <nav class="breadcrumbs" aria-label="Breadcrumb" data-pagefind-ignore>
         {
           breadcrumbs.map((crumb, idx) => {
             const isLast = idx === breadcrumbs.length - 1;
@@ -119,7 +119,7 @@ const hasScriptsSlot = Astro.slots.has('scripts');
 
       {
         companionBanner && (
-          <aside class="companion-banner" aria-label="Visual companion">
+          <aside class="companion-banner" aria-label="Visual companion" data-pagefind-ignore>
             <p class="companion-prompt">{companionBanner.prompt}</p>
             <div class="companion-links">
               {companionBanner.links.map((link) => {
@@ -144,7 +144,7 @@ const hasScriptsSlot = Astro.slots.has('scripts');
 
       {
         showOutline && outlineHeadings.length > 0 && (
-          <details class="toc-outline">
+          <details class="toc-outline" data-pagefind-ignore>
             <summary class="toc-outline-summary">
               <span>On-Page Outline</span>
               <span class="toc-count tabular">{outlineHeadings.length} sections</span>
@@ -168,7 +168,7 @@ const hasScriptsSlot = Astro.slots.has('scripts');
 
       {
         (prev || next) && (
-          <nav class="doc-prev-next" aria-label="Previous and next document">
+          <nav class="doc-prev-next" aria-label="Previous and next document" data-pagefind-ignore>
             {prev && (
               <a href={withBase(prev.href)} class="prev-next-card" data-dir="prev">
                 <span class="prev-next-kicker">← Previous</span>

@@ -247,18 +247,22 @@ function transformMermaidFences(tree: Root): void {
     }
 
     const diagramSource = extractText(preInfo.codeChild ?? node, false).replace(/\n$/, '');
-    parent.children[index] = h('figure', { className: ['mermaid-card'], dataMermaidCard: true }, [
-      h(
-        'div',
-        {
-          className: ['mermaid-scroll'],
-          tabIndex: 0,
-          role: 'region',
-          ariaLabel: 'Signal flow diagram',
-        },
-        [h('pre', { className: ['mermaid'] }, [{ type: 'text', value: diagramSource }])],
-      ),
-    ]);
+    parent.children[index] = h(
+      'figure',
+      { className: ['mermaid-card'], dataMermaidCard: true, dataPagefindIgnore: true },
+      [
+        h(
+          'div',
+          {
+            className: ['mermaid-scroll'],
+            tabIndex: 0,
+            role: 'region',
+            ariaLabel: 'Signal flow diagram',
+          },
+          [h('pre', { className: ['mermaid'] }, [{ type: 'text', value: diagramSource }])],
+        ),
+      ],
+    );
   });
 }
 
@@ -767,16 +771,18 @@ function createLightboxImageTrigger(img: Element): Element {
     },
     [
       img,
-      h('span', { className: ['lightbox-zoom-chip'], ariaHidden: 'true' }, [
-        { type: 'text', value: 'Zoom' },
-      ]),
+      h(
+        'span',
+        { className: ['lightbox-zoom-chip'], ariaHidden: 'true', dataPagefindIgnore: true },
+        [{ type: 'text', value: 'Zoom' }],
+      ),
     ],
   );
 }
 
 function wrapTriggerInPlacementCard(trigger: Element): Element {
   return h('div', { className: ['placement-card'], dataPlacementCard: true }, [
-    h('div', { className: ['placement-card-actions'] }, [
+    h('div', { className: ['placement-card-actions'], dataPagefindIgnore: true }, [
       h(
         'button',
         {
@@ -890,8 +896,13 @@ function transformChecklistItems(tree: Root, checklistSlug: string): void {
             seenCounts,
           );
           finalizeTaskInput(input, itemId);
+          const inlineBodyNodes = firstParagraph.children.filter((node) => node !== input);
           firstParagraph.tagName = 'label';
           addClass(firstParagraph, 'checklist-item-label');
+          firstParagraph.children = [
+            input,
+            h('span', { className: ['checklist-item-text'] }, inlineBodyNodes),
+          ];
           child.properties ??= {};
           child.properties.dataChecklistItem = true;
           child.properties.dataItemId = itemId;
@@ -914,11 +925,15 @@ function transformChecklistItems(tree: Root, checklistSlug: string): void {
             seenCounts,
           );
           finalizeTaskInput(directInput, itemId);
+          const inlineBodyNodes = inlineNodes.filter((node) => node !== directInput);
           child.properties ??= {};
           child.properties.dataChecklistItem = true;
           child.properties.dataItemId = itemId;
           child.children = [
-            h('label', { className: ['checklist-item-label'] }, inlineNodes),
+            h('label', { className: ['checklist-item-label'] }, [
+              directInput,
+              h('span', { className: ['checklist-item-text'] }, inlineBodyNodes),
+            ]),
             ...trailingBlocks,
           ];
         }

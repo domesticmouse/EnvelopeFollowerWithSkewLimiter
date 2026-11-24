@@ -211,16 +211,18 @@ const initialBadge = ledBadgeInfo(initialPreset.led.idleState);
     </article>
   </div>
 
-  <script slot="scripts">
-    import '../../components/env-skew-panel.ts';
-    import { PATCH_STATES } from '../../data/patch-states.ts';
-    import { initPatchesHub } from '../../lib/patches-hub-controller.ts';
-    import { initToggletips } from '../../lib/toggletip.ts';
+  <Fragment slot="scripts">
+    <script>
+      import '../../components/env-skew-panel.ts';
+      import { PATCH_STATES } from '../../data/patch-states.ts';
+      import { initPatchesHub } from '../../lib/patches-hub-controller.ts';
+      import { initToggletips } from '../../lib/toggletip.ts';
 
-    const hubRoot = document.querySelector('[data-patches-hub]');
-    if (hubRoot) {
-      initPatchesHub(hubRoot, PATCH_STATES);
-    }
-    initToggletips();
-  </script>
+      const hubRoot = document.querySelector('[data-patches-hub]');
+      if (hubRoot) {
+        initPatchesHub(hubRoot, PATCH_STATES);
+      }
+      initToggletips();
+    </script>
+  </Fragment>
 </SiteLayout>

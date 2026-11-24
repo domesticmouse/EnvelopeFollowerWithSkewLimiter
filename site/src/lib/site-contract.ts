@@ -19,6 +19,7 @@ export interface VerifyBuiltSiteOptions {
   distDir: string;
   repoRoot: string;
   implementedRoutes?: readonly string[];
+  requirePagefind?: boolean;
 }
 
 /** Summary report returned by verifyBuiltSite. */
@@ -139,7 +140,7 @@ function verifyReferenceSpecRoute(route: string, doc: Document, errors: string[]
   }
 
   if (route === '/specs/panel-svg-spec/') {
-    const details = doc.querySelector('details[data-pagefind-ignore]');
+    const details = doc.querySelector('.doc-prose details[data-pagefind-ignore]');
     if (!details || !details.querySelector('pre')) {
       errors.push(`${route}: §8 JSON code block missing <details data-pagefind-ignore> wrapper`);
     } else if (details.querySelector('summary h1, summary h2, summary h3, summary h4, summary h5, summary h6')) {
@@ -239,7 +240,7 @@ function resolveDistFile(distDir: string, sitePathname: string): string | null {
 export function verifyBuiltSite(options: VerifyBuiltSiteOptions): SiteContractResult {
   const distDir = path.resolve(options.distDir);
   const repoRoot = path.resolve(options.repoRoot);
-  const implementedRoutes = (options.implementedRoutes ?? ['/']).map(normalizeRoutePath);
+  const implementedRoutes = (options.implementedRoutes ?? CANONICAL_ROUTES).map(normalizeRoutePath);
   const implementedSet = new Set<string>(implementedRoutes);
 
   const errors: string[] = [];
@@ -317,6 +318,15 @@ export function verifyBuiltSite(options: VerifyBuiltSiteOptions): SiteContractRe
 
       if (doc.querySelectorAll('main script').length > 0) {
         errors.push(`${route}: unexpected inline/page <script> inside <main>`);
+      }
+
+      for (const script of doc.querySelectorAll('script:not([src])')) {
+        const inlineCode = script.textContent ?? '';
+        if (/^\s*import\s+/m.test(inlineCode)) {
+          errors.push(
+            `${route}: unbundled ESM import in inline <script> (wrap inside <Fragment slot="scripts"> so Vite bundles it)`,
+          );
+        }
       }
 
       for (const el of doc.querySelectorAll('script[src], link[href]')) {
@@ -514,6 +524,18 @@ export function verifyBuiltSite(options: VerifyBuiltSiteOptions): SiteContractRe
       }
       if (totalImages !== 81) {
         errors.push(`build checklists: expected 81 image lightboxes total, got ${totalImages}`);
+      }
+    }
+
+    // 7. Verify Pagefind search artifacts when enabled.
+    if (options.requirePagefind) {
+      const pfScript = path.join(distDir, 'pagefind/pagefind.js');
+      const pfEntry = path.join(distDir, 'pagefind/pagefind-entry.json');
+      if (!fs.existsSync(pfScript) || fs.statSync(pfScript).size === 0) {
+        errors.push('Missing Pagefind runtime bundle: dist/pagefind/pagefind.js');
+      }
+      if (!fs.existsSync(pfEntry) || fs.statSync(pfEntry).size === 0) {
+        errors.push('Missing Pagefind search entry metadata: dist/pagefind/pagefind-entry.json');
       }
     }
   } finally {

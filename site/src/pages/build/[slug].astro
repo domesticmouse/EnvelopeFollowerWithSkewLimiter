@@ -134,8 +134,10 @@ const docTitle = extractDocumentTitle(entry.body ?? '') || meta.fullTitle;
     </form>
   </dialog>
 
-  <script slot="scripts">
-    import { initChecklistDetailPage } from '../../lib/checklist-controller.ts';
-    initChecklistDetailPage();
-  </script>
+  <Fragment slot="scripts">
+    <script>
+      import { initChecklistDetailPage } from '../../lib/checklist-controller.ts';
+      initChecklistDetailPage();
+    </script>
+  </Fragment>
 </DocLayout>

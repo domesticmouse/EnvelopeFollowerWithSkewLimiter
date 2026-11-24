@@ -1,7 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { BUILD_CHECKLISTS_CATALOG } from '../src/data/build-checklists.ts';
-import { PATCH_STATES } from '../src/data/patch-states.ts';
+import { CANONICAL_ROUTES } from '../src/lib/routes.ts';
 import { verifyBuiltSite } from '../src/lib/site-contract.ts';
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
@@ -12,21 +11,8 @@ const distDir = path.join(siteDir, 'dist');
 const result = verifyBuiltSite({
   distDir,
   repoRoot,
-  implementedRoutes: [
-    '/',
-    '/hardware/',
-    '/patches/',
-    ...PATCH_STATES.map((p) => `/patches/${p.slug}/`),
-    '/build/',
-    ...BUILD_CHECKLISTS_CATALOG.map((c) => c.route),
-    '/origin/',
-    '/downloads/',
-    '/specs/',
-    '/specs/design-spec/',
-    '/specs/base-circuit/',
-    '/specs/circuit-review/',
-    '/specs/panel-svg-spec/',
-  ],
+  implementedRoutes: CANONICAL_ROUTES,
+  requirePagefind: true,
 });
 
 if (result.errors.length > 0) {
