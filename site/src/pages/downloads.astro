@@ -1,0 +1,299 @@
+---
+import '../styles/build.css';
+import '../styles/curated.css';
+import IbomLaunchCard from '../components/IbomLaunchCard.astro';
+import SiteLayout from '../layouts/SiteLayout.astro';
+import { REFERENCE_SPECS_CATALOG } from '../lib/content-manifest.ts';
+import { getRepoFileSizeLabel } from '../lib/repo-files.ts';
+import { GITHUB_REPO_URL, withBase } from '../lib/routes.ts';
+
+interface DownloadEntry {
+  title: string;
+  repoPath: string;
+  filename: string;
+  description: string;
+  size: string;
+}
+
+const mainBoardFiles: DownloadEntry[] = [
+  {
+    title: 'Main PCB Gerbers & Excellon Drills',
+    repoPath: 'manufacturing/envelope_follower_gerbers.zip',
+    filename: 'envelope_follower_gerbers.zip',
+    description: '30.0 × 108.0 mm 2L FR-4 Gerbers, tented vias, F.SilkS QR square & 3× fiducials.',
+    size: getRepoFileSizeLabel('manufacturing/envelope_follower_gerbers.zip'),
+  },
+  {
+    title: 'JLCPCB Bottom-Side BOM CSV',
+    repoPath: 'jlcpcb_bom.csv',
+    filename: 'jlcpcb_bom.csv',
+    description: '17 grouped LCSC rows covering all 50 Bottom-side SMDs (3 Extended, 14 Basic).',
+    size: getRepoFileSizeLabel('jlcpcb_bom.csv'),
+  },
+  {
+    title: 'JLCPCB Pick & Place CPL CSV',
+    repoPath: 'manufacturing/jlcpcb_cpl.csv',
+    filename: 'jlcpcb_cpl.csv',
+    description: '50 Bottom-side SMD coordinates & rotation placements aligned for JLCPCB PCBA.',
+    size: getRepoFileSizeLabel('manufacturing/jlcpcb_cpl.csv'),
+  },
+];
+
+const frontPanelFiles: DownloadEntry[] = [
+  {
+    title: '6 HP Front Panel Gerbers & Drills',
+    repoPath: 'manufacturing/envelope_follower_panel_gerbers.zip',
+    filename: 'envelope_follower_panel_gerbers.zip',
+    description: '30.0 × 128.5 mm Matte Black + ENIG-RoHS + White face with B.SilkS QR slot.',
+    size: getRepoFileSizeLabel('manufacturing/envelope_follower_panel_gerbers.zip'),
+  },
+  {
+    title: 'Front Solder Mask ENIG Artwork (SVG)',
+    repoPath: 'panel_art/front_soldermask.svg',
+    filename: 'front_soldermask.svg',
+    description: '33 bare-copper / gold ENIG F.Mask polygons generated parametrically for KiCad.',
+    size: getRepoFileSizeLabel('panel_art/front_soldermask.svg'),
+  },
+  {
+    title: 'Front Silkscreen Legends (SVG)',
+    repoPath: 'panel_art/front_silkscreen.svg',
+    filename: 'front_silkscreen.svg',
+    description: '104 F.SilkS polygons covering dial ticks, switch markings, and knockout bay labels.',
+    size: getRepoFileSizeLabel('panel_art/front_silkscreen.svg'),
+  },
+];
+
+const pdfSize = getRepoFileSizeLabel('envelope_follower.pdf');
+
+const sourceCadFiles: { title: string; repoPath: string; description: string }[] = [
+  {
+    title: 'Main Board SKiDL Source',
+    repoPath: 'envelope_follower.py',
+    description: 'Programmatic circuit netlist, BOM assignment, and ERC definition in Python.',
+  },
+  {
+    title: 'Main Board KiCad PCB Layout',
+    repoPath: 'envelope_follower.kicad_pcb',
+    description: 'Routed 2-layer 30.0 × 108.0 mm board with F.Cu panel controls & B.Cu SMD core.',
+  },
+  {
+    title: 'Main Board KiCad Schematic',
+    repoPath: 'envelope_follower.kicad_sch',
+    description: '9-block A3 engineering schematic generated from SKiDL & KiCad primitives.',
+  },
+  {
+    title: '6 HP Front Panel KiCad PCB',
+    repoPath: 'envelope_follower_panel.kicad_pcb',
+    description: 'Mated Eurorack faceplate layout with routed M3 NPTH slots & F.Mask zones.',
+  },
+  {
+    title: 'A3 Schematic Generator Script',
+    repoPath: 'generate_schematic.py',
+    description: 'Generates envelope_follower.kicad_sch and exports images/schematic.png.',
+  },
+  {
+    title: 'Main PCB Layout Generator Script',
+    repoPath: 'generate_kicad_pcb.py',
+    description: 'Programmatic placement, routing, zones, and silkscreen generator via pcbnew.',
+  },
+  {
+    title: 'Panel Artwork SVG Generator',
+    repoPath: 'panel_art/generate_panel_art.py',
+    description: 'Renders front_soldermask.svg, front_silkscreen.svg, and clearance audits.',
+  },
+  {
+    title: 'SVG-to-KiCad Importer',
+    repoPath: 'panel_art/import_svgs_to_kicad.py',
+    description: 'Converts F.Mask and F.SilkS SVG paths into KiCad polygons on the faceplate PCB.',
+  },
+];
+---
+
+<SiteLayout
+  title="Fabrication & Source Downloads Hub · ENV / SKEW"
+  description="One-stop download hub for JLCPCB Gerbers, Bottom-Side BOM/CPL CSVs, 6 HP ENIG faceplate art, Interactive BOM, printable PDF schematic, and KiCad/Python source files."
+  currentPath="/downloads/"
+>
+  <div class="curated-shell">
+    <header class="curated-hero">
+      <p class="curated-kicker mono">Static Passthrough Artifacts · Verbatim From Repository</p>
+      <h1>Fabrication &amp; Downloads Hub</h1>
+      <p class="curated-lead">
+        Every manufacturing zip, JLCPCB CSV, faceplate vector SVG, and printable PDF is copied
+        byte-for-byte into this site during build — ready for direct fabrication upload alongside
+        live links to the CAD and Python generators on GitHub.
+      </p>
+    </header>
+
+    <section class="downloads-group" aria-labelledby="dl-main-heading">
+      <div class="downloads-group-head">
+        <h2 id="dl-main-heading">1. Main PCB &amp; Bottom-Side PCBA Pack</h2>
+        <p class="downloads-group-note">
+          Follow <a href={withBase('/build/01-main-board-ordering/')}>Step 01</a> and{' '}
+          <a href={withBase('/build/02-pcba-part-alignment/')}>Step 02</a> when uploading to
+          JLCPCB.
+        </p>
+      </div>
+      <ul class="downloads-grid">
+        {
+          mainBoardFiles.map((file) => (
+            <li class="download-card">
+              <div>
+                <div class="download-card-head">
+                  <code class="download-path">{file.repoPath}</code>
+                  <span class="download-size">{file.size}</span>
+                </div>
+                <h3 class="download-title">{file.title}</h3>
+                <p class="download-desc">{file.description}</p>
+              </div>
+              <a
+                href={withBase(`/${file.repoPath}`)}
+                download={file.filename}
+                class="download-cta"
+              >
+                <span>Download {file.filename}</span>
+                <span aria-hidden="true">↓</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section class="downloads-group" aria-labelledby="dl-panel-heading">
+      <div class="downloads-group-head">
+        <h2 id="dl-panel-heading">2. 6 HP Front Panel &amp; ENIG Vector Artwork</h2>
+        <p class="downloads-group-note">
+          Pair with <a href={withBase('/build/01b-front-panel-ordering/')}>Step 01b</a> and the{' '}
+          <a href={withBase('/hardware/#panel')}>Interactive Panel Inspector</a>.
+        </p>
+      </div>
+      <ul class="downloads-grid">
+        {
+          frontPanelFiles.map((file) => (
+            <li class="download-card">
+              <div>
+                <div class="download-card-head">
+                  <code class="download-path">{file.repoPath}</code>
+                  <span class="download-size">{file.size}</span>
+                </div>
+                <h3 class="download-title">{file.title}</h3>
+                <p class="download-desc">{file.description}</p>
+              </div>
+              <a
+                href={withBase(`/${file.repoPath}`)}
+                download={file.filename}
+                class="download-cta"
+              >
+                <span>Download {file.filename}</span>
+                <span aria-hidden="true">↓</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section class="downloads-group" aria-labelledby="dl-ibom-heading">
+      <div class="downloads-group-head">
+        <h2 id="dl-ibom-heading">3. Interactive Hand-Assembly BOM</h2>
+        <p class="downloads-group-note">
+          Pre-filtered to the 18 manual through-hole parts alongside all 50 SMDs.
+        </p>
+      </div>
+      <IbomLaunchCard />
+    </section>
+
+    <section class="downloads-group" aria-labelledby="dl-docs-heading">
+      <div class="downloads-group-head">
+        <h2 id="dl-docs-heading">4. Printable Schematic PDF &amp; Reference Specs</h2>
+        <p class="downloads-group-note">Native browser PDF opening (zero heavy PDF viewers).</p>
+      </div>
+      <ul class="downloads-grid">
+        <li class="download-card">
+          <div>
+            <div class="download-card-head">
+              <code class="download-path">envelope_follower.pdf</code>
+              <span class="download-size">{pdfSize}</span>
+            </div>
+            <h3 class="download-title">Full A3 Vector Schematic PDF</h3>
+            <p class="download-desc">
+              Complete 9-block schematic vector print ready for bench reference or archival printing.
+            </p>
+          </div>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <a
+              href={withBase('/envelope_follower.pdf')}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="download-cta"
+              style="flex: 1 1 auto;"
+            >
+              <span>Open PDF ↗</span>
+            </a>
+            <a
+              href={withBase('/envelope_follower.pdf')}
+              download="envelope_follower.pdf"
+              class="download-cta"
+            >
+              <span>Download ↓</span>
+            </a>
+          </div>
+        </li>
+
+        {
+          REFERENCE_SPECS_CATALOG.map((spec) => (
+            <li class="download-card">
+              <div>
+                <div class="download-card-head">
+                  <code class="download-path">{spec.sourceFile}</code>
+                  <span class="download-size">Spec {spec.num}</span>
+                </div>
+                <h3 class="download-title">{spec.shortTitle}</h3>
+                <p class="download-desc">{spec.summary}</p>
+              </div>
+              <a href={withBase(spec.route)} class="download-cta">
+                <span>Read {spec.shortTitle}</span>
+                <span aria-hidden="true">→</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section class="downloads-group" aria-labelledby="dl-cad-heading">
+      <div class="downloads-group-head">
+        <h2 id="dl-cad-heading">5. KiCad CAD &amp; Python Generator Sources (GitHub)</h2>
+        <p class="downloads-group-note">
+          Editable design files hosted on <code>main</code> in GitHub.
+        </p>
+      </div>
+      <ul class="downloads-grid">
+        {
+          sourceCadFiles.map((srcFile) => (
+            <li class="download-card">
+              <div>
+                <div class="download-card-head">
+                  <code class="download-path">{srcFile.repoPath}</code>
+                  <span class="download-size">GitHub</span>
+                </div>
+                <h3 class="download-title">{srcFile.title}</h3>
+                <p class="download-desc">{srcFile.description}</p>
+              </div>
+              <a
+                href={`${GITHUB_REPO_URL}/blob/main/${srcFile.repoPath}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="download-cta"
+              >
+                <span>View on GitHub</span>
+                <span aria-hidden="true">↗</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+  </div>
+</SiteLayout>

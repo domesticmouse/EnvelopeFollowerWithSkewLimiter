@@ -39,6 +39,8 @@ const NON_MERMAID_ROUTES = new Set<string>([
   '/patches/',
   '/build/',
   ...BUILD_CHECKLISTS_CATALOG.map((c) => c.route),
+  '/origin/',
+  '/downloads/',
   '/specs/',
   '/specs/panel-svg-spec/',
 ]);
@@ -436,6 +438,21 @@ export function verifyBuiltSite(options: VerifyBuiltSiteOptions): SiteContractRe
           errors.push(
             `${route}: expected ${checklistMeta.imageCount} lightbox image triggers, found ${imgBtns}`,
           );
+        }
+      }
+      if (route === '/origin/') {
+        if (!doc.querySelector('[data-origin-lightbox][data-lightbox-src]')) {
+          errors.push('/origin/: missing EnvelopeFollower.webp lightbox trigger');
+        }
+      }
+      if (route === '/downloads/') {
+        const ibom = doc.querySelector<HTMLAnchorElement>('a[href$="/bom/ibom.html"]:not([download])');
+        if (!ibom || ibom.getAttribute('target') !== '_blank') {
+          errors.push('/downloads/: Interactive BOM launcher link must carry target="_blank"');
+        }
+        const pdfLink = doc.querySelector<HTMLAnchorElement>('a[href$="/envelope_follower.pdf"]');
+        if (!pdfLink) {
+          errors.push('/downloads/: missing envelope_follower.pdf link');
         }
       }
       if (route === '/build/' || checklistMeta) {

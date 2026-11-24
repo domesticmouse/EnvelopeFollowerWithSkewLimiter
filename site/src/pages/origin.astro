@@ -1,0 +1,312 @@
+---
+import path from 'node:path';
+import '../styles/docs.css';
+import '../styles/curated.css';
+import SiteLayout from '../layouts/SiteLayout.astro';
+import { readImageDimensions } from '../lib/image-dimensions.ts';
+import { resolveRepoRoot } from '../lib/repo-files.ts';
+import { GITHUB_REPO_URL, withBase } from '../lib/routes.ts';
+
+const repoRoot = resolveRepoRoot();
+const plateDims = readImageDimensions(path.join(repoRoot, 'EnvelopeFollower.webp')) ?? {
+  width: 1551,
+  height: 1019,
+};
+const plateSrc = withBase('/EnvelopeFollower.webp');
+
+const breakthroughs = [
+  {
+    num: 'FIX 01 · TIER 1',
+    title: 'Active Closed-Loop Slew Core',
+    body: 'Replaces passive pot/diode divider collapse with an op-amp feedback loop around D4/D5, removing dead-zone attenuation near peaks.',
+  },
+  {
+    num: 'FIX 02 · TIER 1',
+    title: 'Zero D3 Forward Voltage Drop',
+    body: 'Full-wave precision rectifier places BAT54S inside U1B/U1C feedback paths so micro-signals rectify down to millivolt levels cleanly.',
+  },
+  {
+    num: 'FIX 03 · TIER 1',
+    title: 'Buffered Bipolar OFFSET Isolation',
+    body: 'Dedicated summing stages decouple RV4 OFFSET (±4.98 V) from envelope gain, yielding 0.00% amplitude modulation across the detent sweep.',
+  },
+  {
+    num: 'FIX 04 · TIER 1',
+    title: 'High-Z Input & 2.00× Headroom',
+    body: 'R4/R5 set 100 kΩ input impedance and R19 sets up to +20.0 Vpp preamp swing without op-amp clipping on hot Eurorack drums.',
+  },
+  {
+    num: 'FIX 05 · TIER 1',
+    title: 'Dark-Idle Bi-Color LED Driver',
+    body: 'Push-pull dual-transconductance output drives anti-parallel Red/Green LED1 cleanly at idle (~0 V = off, +V = Green, −V = Red).',
+  },
+];
+
+const evolutionRows = [
+  {
+    aspect: 'Op-Amp Silicone Architecture',
+    hagiwo: '6 op-amp sections (dual/quad mix + spare)',
+    envSkew: '2× TL074HIDR (8/8 sections used, zero unused buffers)',
+  },
+  {
+    aspect: 'Trimming & Calibration',
+    hagiwo: 'Manual trimpots on offset/balance paths',
+    envSkew: '0 trimmers (matched 10 kΩ 0.1% thin-film FWR balance)',
+  },
+  {
+    aspect: 'Full-Wave Rectifier',
+    hagiwo: 'Passive / semi-buffered diode drops',
+    envSkew: 'Precision U1B + U1C w/ BAT54S (1.000× |V_pre| lobes)',
+  },
+  {
+    aspect: 'Skew Limiter Core (J2)',
+    hagiwo: 'Envelope follower path only',
+    envSkew: 'Dedicated SLEW IN normaled switch breaking audio path cleanly',
+  },
+  {
+    aspect: 'Time Constants (SW2)',
+    hagiwo: 'Single capacitor range',
+    envSkew: 'FAST (470 nF) & SLOW (4.87 µF w/ parallel WIMA film bank)',
+  },
+  {
+    aspect: 'Post-Rectifier Ripple Filter',
+    hagiwo: 'Fixed smoothing behavior',
+    envSkew: 'SW1 SMOOTH split-R Sallen-Key LPF (−11.1 dB @ 100 Hz, 0% DC shift)',
+  },
+  {
+    aspect: 'PCB & PCBA Manufacturing',
+    hagiwo: 'Perfboard / stripboard DIY layout',
+    envSkew: '50 Bottom-Side SMDs (Economic JLCPCB PCBA) + 18 Manual THT parts',
+  },
+  {
+    aspect: 'Panel Aesthetics & Ergonomics',
+    hagiwo: 'Custom DIY front panel',
+    envSkew: '6 HP (30.0 × 128.5 mm) Matte Black + ENIG-RoHS + White Silkscreen',
+  },
+];
+---
+
+<SiteLayout
+  title="Origin Story — From HAGIWO No. 43 to ENV / SKEW · ENV / SKEW"
+  description="Lineage and engineering evolution from HAGIWO/ハギヲ's Eurorack Envelope Follower No. 43 (Jan 2022) and domesticmouse/EnvelopeFollower through ENV / SKEW."
+  currentPath="/origin/"
+>
+  <div class="curated-shell">
+    <header class="curated-hero">
+      <p class="curated-kicker mono">Module Lineage · HAGIWO No. 43 → ENV / SKEW R1.0</p>
+      <h1>Origin Story &amp; Engineering Lineage</h1>
+      <p class="curated-lead">
+        <strong>ENV / SKEW</strong> builds directly on{' '}
+        <strong>HAGIWO/ハギヲ</strong>’s (<code>@solder_state</code>) open-source DIY Eurorack
+        Envelope Follower No. 43, evolving through extracted circuit documentation in{' '}
+        <code>domesticmouse/EnvelopeFollower</code> into a production 2-layer SMT/THT Eurorack
+        module with an independent bipolar Skew Limiter mode.
+      </p>
+    </header>
+
+    <section class="curated-chapter" aria-labelledby="chapter-1-heading">
+      <h2 id="chapter-1-heading" class="chapter-heading">
+        <span class="chapter-badge">Chapter 01</span>
+        <span>HAGIWO’s Original Design (No. 43, January 2022)</span>
+      </h2>
+
+      <div class="origin-plate-grid">
+        <figure class="origin-plate-figure">
+          <button
+            type="button"
+            class="origin-plate-trigger lightbox-trigger"
+            data-origin-lightbox
+            data-lightbox-src={plateSrc}
+            data-lightbox-alt="Original HAGIWO/ハギヲ Envelope Follower schematic dated 2022-01-18"
+            data-lightbox-width={plateDims.width}
+            data-lightbox-height={plateDims.height}
+            aria-label="Zoom original HAGIWO schematic plate (1551 × 1019 px)"
+          >
+            <img
+              src={plateSrc}
+              alt="Original HAGIWO/ハギヲ Envelope Follower schematic dated 2022-01-18"
+              width={plateDims.width}
+              height={plateDims.height}
+              decoding="async"
+            />
+            <span class="origin-zoom-pill" aria-hidden="true">Zoom {plateDims.width}×{plateDims.height}</span>
+          </button>
+          <figcaption class="origin-plate-caption">
+            Framed archival schematic image (<code>EnvelopeFollower.webp</code>,{' '}
+            <code>{plateDims.width} × {plateDims.height} px</code>, originally hand-drawn{' '}
+            <code>2022年1月18日 22:58</code> and published <code>2022-01-28</code>). Click plate
+            for fullscreen pan/zoom inspection.
+          </figcaption>
+        </figure>
+
+        <div class="curated-cards-stack">
+          <a
+            href="https://note.com/solder_state/n/n110e9ba066b3?hl=en"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="curated-link-card"
+          >
+            <span class="curated-card-kicker">Primary Build Writeup · Note.com ↗</span>
+            <span class="curated-card-title">HAGIWO Eurorack Envelope Follower (No. 43)</span>
+            <span class="curated-card-meta">
+              Published 2022-01-28 by <strong>@solder_state</strong> — full stripboard build
+              guide, parts list, and design notes.
+            </span>
+          </a>
+
+          <a
+            href="https://www.youtube.com/watch?v=0eHllqHmlZQ"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="curated-link-card"
+          >
+            <span class="curated-card-kicker">Demo Video · YouTube ↗</span>
+            <span class="curated-card-title">Watch HAGIWO No. 43 Demo</span>
+            <span class="curated-card-meta">
+              Opens directly on YouTube (no embedded third-party iframe on this static site).
+            </span>
+          </a>
+
+          <a
+            href="https://www.patreon.com/hagiwo"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="curated-link-card"
+          >
+            <span class="curated-card-kicker">Support the Original Creator · Patreon ↗</span>
+            <span class="curated-card-title">HAGIWO on Patreon</span>
+            <span class="curated-card-meta">
+              Support <strong>HAGIWO/ハギヲ</strong>’s ongoing open-source synth designs.
+            </span>
+          </a>
+
+          <a
+            href="https://github.com/domesticmouse/EnvelopeFollower"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="curated-link-card"
+          >
+            <span class="curated-card-kicker">Archival Extraction Repo · 2026-11-18 ↗</span>
+            <span class="curated-card-title">domesticmouse/EnvelopeFollower</span>
+            <span class="curated-card-meta">
+              Preserved extraction &amp; KiCad baseline (submodule <code>4a02c46</code>, live{' '}
+              <code>domesticmouse.github.io/EnvelopeFollower</code>).
+            </span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="curated-chapter" aria-labelledby="chapter-2-heading">
+      <h2 id="chapter-2-heading" class="chapter-heading">
+        <span class="chapter-badge">Chapter 02</span>
+        <span>From Base Analysis to ENV / SKEW</span>
+      </h2>
+
+      <p class="curated-lead" style="margin-bottom: 1.15rem;">
+        Extracting the baseline into{' '}
+        <a href={withBase('/specs/base-circuit/')}>EnvelopeFollower.md</a> exposed five Tier-1
+        analog issues cataloged in{' '}
+        <a href={withBase('/specs/circuit-review/')}>EnvelopeFollowerImprovements.md</a>, driving
+        the finalized architecture in <a href={withBase('/specs/design-spec/')}>DesignSpec.md</a>.
+      </p>
+
+      <ul class="breakthroughs-grid">
+        {
+          breakthroughs.map((item) => (
+            <li class="breakthrough-card">
+              <div class="breakthrough-num">{item.num}</div>
+              <h3>{item.title}</h3>
+              <p>{item.body}</p>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div
+        class="table-wrapper"
+        tabindex="0"
+        role="region"
+        aria-labelledby="evolution-table-heading"
+      >
+        <table data-table-kind="wide" style='--label-1: "Aspect"; --label-2: "HAGIWO No. 43"; --label-3: "ENV / SKEW R1.0";'>
+          <caption id="evolution-table-heading" class="sr-only">
+            Comparison between HAGIWO No. 43 baseline and ENV / SKEW R1.0 production architecture
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Aspect</th>
+              <th scope="col">HAGIWO No. 43 Baseline</th>
+              <th scope="col">ENV / SKEW R1.0 Production</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              evolutionRows.map((row) => (
+                <tr>
+                  <th scope="row">{row.aspect}</th>
+                  <td>{row.hagiwo}</td>
+                  <td>{row.envSkew}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="curated-chapter" aria-labelledby="chapter-3-heading">
+      <h2 id="chapter-3-heading" class="chapter-heading">
+        <span class="chapter-badge">Chapter 03</span>
+        <span>Open-Source Provenance &amp; Licensing</span>
+      </h2>
+
+      <div class="license-callout">
+        <h3>Attribution &amp; Repository Scope</h3>
+        <p>
+          All original conceptual circuit credit for Module No. 43 belongs to{' '}
+          <strong>HAGIWO/ハギヲ</strong> (<code>@solder_state</code>). This project is an
+          independent engineering re-design, KiCad 10 PCB/panel implementation, and documentation
+          suite — not affiliated with or endorsed by HAGIWO or Google.
+        </p>
+        <p>
+          Additions, SKiDL circuit scripts, KiCad PCB/panel layouts, build checklists, patch
+          guides, and this static documentation site in{' '}
+          <a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer">
+            domesticmouse/EnvelopeFollowerWithSkewLimiter
+          </a>{' '}
+          are released under the <strong>Apache License 2.0</strong>.{' '}
+          <em>This is not an officially supported Google product.</em>
+        </p>
+      </div>
+    </section>
+  </div>
+
+  <script slot="scripts">
+    import { openFullscreenLightbox } from '../components/zoom-pan-viewer.ts';
+
+    const btn = document.querySelector<HTMLButtonElement>('[data-origin-lightbox]');
+    if (btn) {
+      btn.addEventListener('click', () => {
+        const src = btn.getAttribute('data-lightbox-src') ?? '';
+        const alt = btn.getAttribute('data-lightbox-alt') ?? 'Original HAGIWO schematic plate';
+        const width = Number(btn.getAttribute('data-lightbox-width')) || 1551;
+        const height = Number(btn.getAttribute('data-lightbox-height')) || 1019;
+        openFullscreenLightbox({
+          items: [
+            {
+              src,
+              alt,
+              width,
+              height,
+              caption: 'HAGIWO / ハギヲ No. 43 Original Schematic Plate (2022-01-18)',
+            },
+          ],
+          startIndex: 0,
+          mode: 'gallery',
+          title: 'Archival HAGIWO Schematic Plate',
+        });
+      });
+    }
+  </script>
+</SiteLayout>

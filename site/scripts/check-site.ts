@@ -19,6 +19,8 @@ const result = verifyBuiltSite({
     ...PATCH_STATES.map((p) => `/patches/${p.slug}/`),
     '/build/',
     ...BUILD_CHECKLISTS_CATALOG.map((c) => c.route),
+    '/origin/',
+    '/downloads/',
     '/specs/',
     '/specs/design-spec/',
     '/specs/base-circuit/',
