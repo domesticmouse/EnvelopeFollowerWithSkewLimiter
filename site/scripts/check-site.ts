@@ -13,6 +13,7 @@ const result = verifyBuiltSite({
   repoRoot,
   implementedRoutes: [
     '/',
+    '/hardware/',
     '/patches/',
     ...PATCH_STATES.map((p) => `/patches/${p.slug}/`),
     '/specs/',

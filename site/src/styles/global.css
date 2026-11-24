@@ -364,6 +364,111 @@ dialog::backdrop {
   font-weight: 700;
 }
 
+/* Shared Fullscreen Lightbox <dialog> */
+.lightbox-dialog {
+  inline-size: min(96dvw, 1320px);
+  block-size: min(92dvh, 880px);
+  max-inline-size: none;
+  max-block-size: none;
+  margin: auto;
+  padding: 0;
+  background: var(--bg-canvas);
+  color: var(--ink-primary);
+  border: 2px solid var(--accent-gold);
+}
+
+.lightbox-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.lightbox-shell {
+  display: flex;
+  flex-direction: column;
+  inline-size: 100%;
+  block-size: 100%;
+  min-block-size: 0;
+}
+
+.lightbox-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem 1rem;
+  padding: 0.7rem 1rem;
+  background: var(--bg-surface);
+  border-block-end: 1px solid var(--border-ui);
+}
+
+.lightbox-title-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 0.85rem;
+  min-inline-size: 0;
+}
+
+.lightbox-title {
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--ink-silk);
+}
+
+.lightbox-counter {
+  font-size: 0.78rem;
+  color: var(--accent-gold);
+}
+
+.lightbox-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.lightbox-controls form {
+  margin: 0;
+}
+
+.lightbox-flip-group {
+  display: inline-flex;
+  border: 1px solid var(--border-ui);
+}
+
+.lightbox-btn {
+  min-block-size: 36px;
+  padding: 0.3rem 0.7rem;
+  background: var(--bg-surface-elevated);
+  color: var(--ink-primary);
+  border: 1px solid var(--border-ui);
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lightbox-flip-group .lightbox-btn {
+  border: 0;
+}
+
+.lightbox-btn:hover {
+  border-color: var(--accent-gold);
+  color: var(--ink-silk);
+}
+
+.lightbox-btn[aria-pressed='true'] {
+  background: var(--accent-gold);
+  color: var(--accent-gold-ink);
+}
+
+.lightbox-body {
+  flex: 1 1 auto;
+  min-block-size: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 /* ============================================================================
  * MAIN CONTENT, PILLS, BUTTONS & FOOTER
  * ============================================================================ */

@@ -393,6 +393,19 @@ export function verifyBuiltSite(options: VerifyBuiltSiteOptions): SiteContractRe
       if (PATCH_DETAIL_ROUTE_SET.has(route)) {
         verifyPatchGuideDetailRoute(route, doc, errors);
       }
+      if (route === '/hardware/') {
+        for (const id of ['overview', 'schematic', 'pcb', 'panel']) {
+          if (!doc.getElementById(id)) {
+            errors.push(`/hardware/: missing section anchor #${id}`);
+          }
+        }
+        if (doc.querySelectorAll('.mermaid').length === 0) {
+          errors.push('/hardware/: missing .mermaid Signal Flow diagram in #overview');
+        }
+        if (!doc.querySelector('zoom-pan-viewer')) {
+          errors.push('/hardware/: missing <zoom-pan-viewer> schematic stage');
+        }
+      }
     }
 
     // 5. Verify patch-state sidecar parity and bounds.
