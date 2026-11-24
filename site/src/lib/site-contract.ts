@@ -28,6 +28,111 @@ const CANONICAL_ROUTE_SET = new Set<string>(CANONICAL_ROUTES);
 const POSITIVE_INT_RE = /^[1-9]\d*$/;
 const EXTERNAL_PROTO_RE = /^(?:https?:|mailto:|tel:|data:|blob:)/i;
 
+const NON_MERMAID_ROUTES = new Set<string>(['/', '/specs/', '/specs/panel-svg-spec/']);
+const REFERENCE_SPEC_DETAIL_ROUTES = new Set<string>([
+  '/specs/base-circuit/',
+  '/specs/circuit-review/',
+  '/specs/design-spec/',
+  '/specs/panel-svg-spec/',
+]);
+const DIAGRAM_KATEX_SPEC_DISPLAY_COUNTS: Readonly<Record<string, number>> = {
+  '/specs/base-circuit/': 4,
+  '/specs/circuit-review/': 3,
+  '/specs/design-spec/': 0,
+};
+
+function verifyNoMermaidOnRoute(
+  route: string,
+  doc: Document,
+  distDir: string,
+  errors: string[],
+): void {
+  if (doc.querySelectorAll('.mermaid').length > 0) {
+    errors.push(`${route}: unexpected .mermaid block on non-diagram route`);
+  }
+
+  for (const script of doc.querySelectorAll('script')) {
+    const src = script.getAttribute('src')?.trim() ?? '';
+    if (!src) {
+      if (/mermaid/i.test(script.textContent ?? '')) {
+        errors.push(`${route}: unexpected inline Mermaid script on non-diagram route`);
+      }
+      continue;
+    }
+
+    if (/mermaid/i.test(src)) {
+      errors.push(`${route}: unexpected Mermaid script bundle (${src})`);
+      continue;
+    }
+
+    const resolvedScript = resolveDistFile(distDir, src);
+    if (resolvedScript && /mermaid/i.test(fs.readFileSync(resolvedScript, 'utf8'))) {
+      errors.push(`${route}: referenced script imports or mentions Mermaid (${src})`);
+    }
+  }
+}
+
+function verifyReferenceSpecRoute(route: string, doc: Document, errors: string[]): void {
+  if (doc.querySelectorAll('.katex-error').length > 0) {
+    errors.push(`${route}: rendered KaTeX parse error (.katex-error) detected`);
+  }
+
+  const companionLinks = [...doc.querySelectorAll('.companion-banner a[href]')];
+  const hasOriginOrHardwareCompanion = companionLinks.some((a) => {
+    const href = a.getAttribute('href') ?? '';
+    const target = normalizeRoutePath(href);
+    return target === '/origin/' || target === '/hardware/';
+  });
+  if (!hasOriginOrHardwareCompanion) {
+    errors.push(`${route}: missing .companion-banner link to /origin/ or /hardware/`);
+  }
+
+  for (const table of doc.querySelectorAll('.doc-prose table:not(.layout-table)')) {
+    if (table.closest('table.layout-table') && !table.closest('.table-wrapper')) {
+      errors.push(`${route}: data <table> missing .table-wrapper container`);
+      continue;
+    }
+    const wrapper = table.parentElement;
+    if (!wrapper || !wrapper.classList.contains('table-wrapper')) {
+      errors.push(`${route}: data <table> missing direct .table-wrapper container`);
+      continue;
+    }
+    const tabIndex = wrapper.getAttribute('tabindex');
+    const role = wrapper.getAttribute('role');
+    const labelledBy = wrapper.getAttribute('aria-labelledby')?.trim() ?? '';
+    if (tabIndex !== '0' || role !== 'region' || !labelledBy || !doc.getElementById(labelledBy)) {
+      errors.push(
+        `${route}: .table-wrapper missing tabindex="0", role="region", or valid aria-labelledby (${labelledBy || 'empty'})`,
+      );
+    }
+  }
+
+  if (route in DIAGRAM_KATEX_SPEC_DISPLAY_COUNTS) {
+    if (doc.querySelectorAll('.mermaid').length === 0) {
+      errors.push(`${route}: expected at least one .mermaid diagram`);
+    }
+    if (doc.querySelectorAll('.katex').length === 0) {
+      errors.push(`${route}: expected rendered .katex math expressions`);
+    }
+    const expectedDisplay = DIAGRAM_KATEX_SPEC_DISPLAY_COUNTS[route] ?? 0;
+    const actualDisplay = doc.querySelectorAll('.katex-display').length;
+    if (actualDisplay !== expectedDisplay) {
+      errors.push(
+        `${route}: expected ${expectedDisplay} .katex-display blocks, found ${actualDisplay}`,
+      );
+    }
+  }
+
+  if (route === '/specs/panel-svg-spec/') {
+    const details = doc.querySelector('details[data-pagefind-ignore]');
+    if (!details || !details.querySelector('pre')) {
+      errors.push(`${route}: §8 JSON code block missing <details data-pagefind-ignore> wrapper`);
+    } else if (details.querySelector('summary h1, summary h2, summary h3, summary h4, summary h5, summary h6')) {
+      errors.push(`${route}: <summary> must not contain heading elements`);
+    }
+  }
+}
+
 function safeDecodeURIComponent(value: string): string {
   try {
     return decodeURIComponent(value);
@@ -222,6 +327,13 @@ export function verifyBuiltSite(options: VerifyBuiltSiteOptions): SiteContractRe
           continue;
         }
         verifiedLinks += 1;
+      }
+
+      if (NON_MERMAID_ROUTES.has(route)) {
+        verifyNoMermaidOnRoute(route, doc, distDir, errors);
+      }
+      if (REFERENCE_SPEC_DETAIL_ROUTES.has(route)) {
+        verifyReferenceSpecRoute(route, doc, errors);
       }
     }
   } finally {

@@ -10,7 +10,14 @@ const distDir = path.join(siteDir, 'dist');
 const result = verifyBuiltSite({
   distDir,
   repoRoot,
-  implementedRoutes: ['/'],
+  implementedRoutes: [
+    '/',
+    '/specs/',
+    '/specs/design-spec/',
+    '/specs/base-circuit/',
+    '/specs/circuit-review/',
+    '/specs/panel-svg-spec/',
+  ],
 });
 
 if (result.errors.length > 0) {

@@ -1,0 +1,85 @@
+---
+import { getCollection, render } from 'astro:content';
+import DocLayout, { type DocNavItem } from '../../layouts/DocLayout.astro';
+import {
+  REFERENCE_SPECS_CATALOG,
+  extractDocumentTitle,
+  hasMermaidFence,
+  type ReferenceSpecMeta,
+} from '../../lib/content-manifest.ts';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('referenceSpecs');
+  const bySlug = new Map(entries.map((entry) => [entry.id, entry]));
+
+  return REFERENCE_SPECS_CATALOG.map((specMeta, index) => {
+    const entry = bySlug.get(specMeta.slug);
+    if (!entry) {
+      throw new Error(`Missing Reference Spec entry in Content Layer: ${specMeta.sourceFile}`);
+    }
+    const prevMeta = index > 0 ? REFERENCE_SPECS_CATALOG[index - 1] : undefined;
+    const nextMeta =
+      index < REFERENCE_SPECS_CATALOG.length - 1
+        ? REFERENCE_SPECS_CATALOG[index + 1]
+        : undefined;
+
+    return {
+      params: { slug: specMeta.slug },
+      props: { entry, specMeta, prevMeta, nextMeta },
+    };
+  });
+}
+
+interface Props {
+  entry: Awaited<ReturnType<typeof getCollection<'referenceSpecs'>>>[number];
+  specMeta: ReferenceSpecMeta;
+  prevMeta?: ReferenceSpecMeta;
+  nextMeta?: ReferenceSpecMeta;
+}
+
+const { entry, specMeta, prevMeta, nextMeta } = Astro.props;
+const { Content, headings } = await render(entry);
+const rawBody = entry.body ?? '';
+const pageTitle = extractDocumentTitle(rawBody, headings);
+const hasMermaid = hasMermaidFence(rawBody);
+
+const navItems: DocNavItem[] = [
+  { label: 'Overview', href: '/specs/', badge: '00' },
+  ...REFERENCE_SPECS_CATALOG.map((spec) => ({
+    label: spec.shortTitle,
+    href: spec.route,
+    badge: spec.num,
+  })),
+];
+---
+
+<DocLayout
+  title={`${pageTitle} · ENV / SKEW`}
+  description={specMeta.summary}
+  currentPath={specMeta.route}
+  sectionTitle="Reference Specs"
+  navItems={navItems}
+  breadcrumbs={[
+    { label: 'Overview', href: '/' },
+    { label: 'Reference Specs', href: '/specs/' },
+    { label: specMeta.shortTitle },
+  ]}
+  headings={headings}
+  companionBanner={{
+    prompt: specMeta.companionPrompt,
+    links: specMeta.companionLinks,
+  }}
+  prev={
+    prevMeta
+      ? { label: `${prevMeta.num} · ${prevMeta.shortTitle}`, href: prevMeta.route }
+      : { label: '00 · Reference Specs Index', href: '/specs/' }
+  }
+  next={
+    nextMeta
+      ? { label: `${nextMeta.num} · ${nextMeta.shortTitle}`, href: nextMeta.route }
+      : undefined
+  }
+  hasMermaid={hasMermaid}
+>
+  <Content />
+</DocLayout>

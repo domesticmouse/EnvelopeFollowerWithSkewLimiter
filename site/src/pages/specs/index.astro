@@ -1,0 +1,71 @@
+---
+import DocLayout, { type DocNavItem } from '../../layouts/DocLayout.astro';
+import { REFERENCE_SPECS_CATALOG } from '../../lib/content-manifest.ts';
+import { withBase } from '../../lib/routes.ts';
+
+const navItems: DocNavItem[] = [
+  { label: 'Overview', href: '/specs/', badge: '00' },
+  ...REFERENCE_SPECS_CATALOG.map((spec) => ({
+    label: spec.shortTitle,
+    href: spec.route,
+    badge: spec.num,
+  })),
+];
+---
+
+<DocLayout
+  title="Reference Specs — Engineering Evolution & Mechanical Reference · ENV / SKEW"
+  description="Ordered Reference Specs for ENV / SKEW: Base Circuit Spec (EnvelopeFollower.md), Circuit Review (EnvelopeFollowerImprovements.md), Final Design Spec (DesignSpec.md), and Panel SVG Spec (panel_svg_spec.md)."
+  currentPath="/specs/"
+  sectionTitle="Reference Specs"
+  navItems={navItems}
+  breadcrumbs={[
+    { label: 'Overview', href: '/' },
+    { label: 'Reference Specs' },
+  ]}
+  companionBanner={{
+    prompt:
+      'Visual companions: Inspect the HAGIWO origin narrative or zoomable schematic, PCB, and panel layers.',
+    links: [
+      { label: 'Origin Story →', href: '/origin/' },
+      { label: 'Hardware Showcase →', href: '/hardware/' },
+    ],
+  }}
+  hasMermaid={false}
+>
+  <h1>Engineering Evolution &amp; Mechanical Reference</h1>
+  <p>
+    These four single-source <strong>Reference Specs</strong> document the complete engineering
+    lineage of <strong>ENV / SKEW</strong>—from extracting{' '}
+    <strong>HAGIWO/ハギヲ</strong>’s original 6-op-amp schematic through electrical engineering
+    review, locked <code>2× TL074HIDR</code> production netlisting, and 1:1 mm 6 HP panel
+    fabrication geometry.
+  </p>
+
+  <div class="spec-index-grid">
+    {
+      REFERENCE_SPECS_CATALOG.map((spec) => (
+        <article class="spec-index-card">
+          <div class="spec-card-head">
+            <span class="spec-card-num chamfer-sm tabular">{spec.num}</span>
+            <code class="spec-card-file">{spec.sourceFile}</code>
+          </div>
+          <p class="spec-card-stage">{spec.stageLabel}</p>
+          <h2 class="spec-card-title">{spec.fullTitle}</h2>
+          <p class="spec-card-summary">{spec.summary}</p>
+          <ul class="spec-card-metrics" aria-label={`${spec.shortTitle} highlights`}>
+            {spec.metrics.map((metric) => (
+              <li class="spec-chip">{metric}</li>
+            ))}
+          </ul>
+          <div class="spec-card-actions">
+            <a href={withBase(spec.route)}>Read Full Spec →</a>
+            {spec.companionLinks.map((companion) => (
+              <a href={withBase(companion.href)}>{companion.label}</a>
+            ))}
+          </div>
+        </article>
+      ))
+    }
+  </div>
+</DocLayout>
