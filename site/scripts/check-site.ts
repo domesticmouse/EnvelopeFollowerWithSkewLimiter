@@ -13,6 +13,7 @@ const result = verifyBuiltSite({
   repoRoot,
   implementedRoutes: CANONICAL_ROUTES,
   requirePagefind: true,
+  verifyReadme: true,
 });
 
 if (result.errors.length > 0) {

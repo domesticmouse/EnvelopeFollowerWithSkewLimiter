@@ -336,4 +336,43 @@ describe('Built-site artifact contract', () => {
     const rawImport = verifyBuiltSite({ repoRoot, distDir, implementedRoutes: ['/'] });
     expect(rawImport.errors.some((e) => e.includes('unbundled ESM import'))).toBe(true);
   });
+
+  it('validates root README.md relative links and GitHub Pages URLs when verifyReadme is enabled', () => {
+    const { repoRoot, distDir } = createValidBuiltFixture();
+    fs.writeFileSync(path.join(repoRoot, 'DesignSpec.md'), '# Spec');
+    fs.writeFileSync(
+      path.join(repoRoot, 'README.md'),
+      `# ENV / SKEW
+<img src="images/panel_front.png" alt="Panel" width="200">
+[Live Site](https://domesticmouse.github.io/EnvelopeFollowerWithSkewLimiter/patches/)
+[Design Spec](DesignSpec.md)
+`,
+    );
+
+    const valid = verifyBuiltSite({
+      repoRoot,
+      distDir,
+      implementedRoutes: ['/'],
+      verifyReadme: true,
+    });
+    expect(valid.errors).toEqual([]);
+
+    // Inject broken relative link and broken Pages route into README.md
+    fs.writeFileSync(
+      path.join(repoRoot, 'README.md'),
+      `# ENV / SKEW
+[Missing](does/not-exist.md)
+[Broken Route](https://domesticmouse.github.io/EnvelopeFollowerWithSkewLimiter/no-such-page/)
+`,
+    );
+
+    const broken = verifyBuiltSite({
+      repoRoot,
+      distDir,
+      implementedRoutes: ['/'],
+      verifyReadme: true,
+    });
+    expect(broken.errors.some((e) => e.includes('does/not-exist.md'))).toBe(true);
+    expect(broken.errors.some((e) => e.includes('no-such-page'))).toBe(true);
+  });
 });

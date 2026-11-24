@@ -7,7 +7,12 @@ import {
 } from '../data/build-checklists.ts';
 import { PATCH_STATES, validatePatchStates } from '../data/patch-states.ts';
 import { PATCH_GUIDE_FILES, REFERENCE_SPECS_CATALOG } from './content-manifest.ts';
-import { CANONICAL_ROUTES, SITE_BASE, normalizeRoutePath } from './routes.ts';
+import {
+  CANONICAL_ROUTES,
+  SITE_BASE,
+  SITE_ORIGIN,
+  normalizeRoutePath,
+} from './routes.ts';
 import {
   isExcludedRepoPath,
   resolvePassthroughFiles,
@@ -20,6 +25,7 @@ export interface VerifyBuiltSiteOptions {
   repoRoot: string;
   implementedRoutes?: readonly string[];
   requirePagefind?: boolean;
+  verifyReadme?: boolean;
 }
 
 /** Summary report returned by verifyBuiltSite. */
@@ -234,6 +240,73 @@ function resolveDistFile(distDir: string, sitePathname: string): string | null {
   }
   const rel = withoutQuery.slice(SITE_BASE.length + 1);
   return resolveSafeFileUnderRoot(distDir, rel);
+}
+
+/** Validate root README.md relative file links and live GitHub Pages links. */
+export function verifyReadmeLinks(
+  repoRoot: string,
+  distDir: string,
+  parsedDocs?: ReadonlyMap<string, { doc: Document }>,
+): string[] {
+  const readmePath = path.join(repoRoot, 'README.md');
+  if (!fs.existsSync(readmePath)) {
+    return ['Missing root README.md'];
+  }
+
+  const raw = fs.readFileSync(readmePath, 'utf8');
+  // Strip fenced code blocks and inline code spans before extracting Markdown/HTML links
+  const stripped = raw.replace(/```[\s\S]*?```/g, '').replace(/`[^`\n]*`/g, '');
+  const targets: string[] = [];
+
+  for (const match of stripped.matchAll(/!?\[[^\]]*\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g)) {
+    if (match[1]) targets.push(match[1]);
+  }
+  for (const match of stripped.matchAll(/\b(?:href|src)=["']([^"']+)["']/gi)) {
+    if (match[1]) targets.push(match[1]);
+  }
+
+  const errors: string[] = [];
+  const pagesOriginPrefix = `${SITE_ORIGIN}${SITE_BASE}`;
+
+  for (const rawTarget of targets) {
+    const target = rawTarget.trim();
+    if (!target || target.startsWith('#') || /^(?:mailto|tel|data):/i.test(target)) {
+      continue;
+    }
+
+    if (target.startsWith('http://') || target.startsWith('https://')) {
+      if (target === pagesOriginPrefix || target.startsWith(`${pagesOriginPrefix}/`)) {
+        const sitePath = target.slice(SITE_ORIGIN.length);
+        const hashIdx = sitePath.indexOf('#');
+        const pathname = hashIdx === -1 ? sitePath : sitePath.slice(0, hashIdx);
+        const fragment = hashIdx === -1 ? '' : safeDecodeURIComponent(sitePath.slice(hashIdx + 1));
+        const normalizedRoute = normalizeRoutePath(pathname);
+        if (CANONICAL_ROUTE_SET.has(normalizedRoute)) {
+          if (fragment && parsedDocs?.has(normalizedRoute)) {
+            if (!parsedDocs.get(normalizedRoute)?.doc.getElementById(fragment)) {
+              errors.push(`README.md: broken Pages section anchor (${target})`);
+            }
+          }
+          continue;
+        }
+        if (resolveDistFile(distDir, pathname)) {
+          continue;
+        }
+        errors.push(`README.md: broken GitHub Pages link (${target})`);
+      }
+      continue;
+    }
+
+    const cleanRel = (target.split('#')[0] ?? '').split('?')[0] ?? '';
+    if (!cleanRel) continue;
+    const absTarget = path.resolve(repoRoot, cleanRel);
+    const relFromRoot = path.relative(path.resolve(repoRoot), absTarget);
+    if (relFromRoot.startsWith('..') || path.isAbsolute(relFromRoot) || !fs.existsSync(absTarget)) {
+      errors.push(`README.md: broken relative link (${target})`);
+    }
+  }
+
+  return errors;
 }
 
 /** Verify built Astro output against static artifact, passthrough, and HTML invariants. */
@@ -537,6 +610,11 @@ export function verifyBuiltSite(options: VerifyBuiltSiteOptions): SiteContractRe
       if (!fs.existsSync(pfEntry) || fs.statSync(pfEntry).size === 0) {
         errors.push('Missing Pagefind search entry metadata: dist/pagefind/pagefind-entry.json');
       }
+    }
+
+    // 8. Verify root README.md relative paths and live GitHub Pages links when enabled.
+    if (options.verifyReadme) {
+      errors.push(...verifyReadmeLinks(repoRoot, distDir, parsedDocs));
     }
   } finally {
     for (const { win } of parsedDocs.values()) {
