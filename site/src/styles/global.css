@@ -402,6 +402,12 @@ dialog::backdrop {
   border-color: var(--border-ui);
 }
 
+.led-pill[data-led='amber'] {
+  background: #291e09;
+  color: #fbbf24;
+  border-color: #fbbf24;
+}
+
 .spec-chip {
   display: inline-flex;
   align-items: center;

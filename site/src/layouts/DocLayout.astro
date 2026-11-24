@@ -9,6 +9,7 @@ export interface DocNavItem {
   label: string;
   href: string;
   badge?: string;
+  slug?: string;
 }
 
 export interface DocBreadcrumb {
@@ -39,6 +40,7 @@ interface Props {
   prev?: DocNavItem;
   next?: DocNavItem;
   hasMermaid?: boolean;
+  showOutline?: boolean;
 }
 
 const {
@@ -53,10 +55,13 @@ const {
   prev,
   next,
   hasMermaid = false,
+  showOutline = true,
 } = Astro.props;
 
 const normalizedCurrent = normalizeRoutePath(currentPath);
 const outlineHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
+const hasDialogsSlot = Astro.slots.has('dialogs');
+const hasScriptsSlot = Astro.slots.has('scripts');
 ---
 
 <SiteLayout title={title} description={description} currentPath={currentPath}>
@@ -78,6 +83,9 @@ const outlineHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
                     >
                       {item.badge && <span class="rail-badge">{item.badge}</span>}
                       <span class="rail-label">{item.label}</span>
+                      {item.slug && (
+                        <span class="rail-progress tabular" data-rail-slug={item.slug} />
+                      )}
                     </a>
                   </li>
                 );
@@ -120,8 +128,10 @@ const outlineHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
         )
       }
 
+      <slot name="before-prose" />
+
       {
-        outlineHeadings.length > 0 && (
+        showOutline && outlineHeadings.length > 0 && (
           <details class="toc-outline">
             <summary class="toc-outline-summary">
               <span>On-Page Outline</span>
@@ -141,6 +151,8 @@ const outlineHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
       <article class="doc-prose">
         <slot />
       </article>
+
+      <slot name="after-prose" />
 
       {
         (prev || next) && (
@@ -163,5 +175,13 @@ const outlineHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
     </div>
   </div>
 
-  {hasMermaid && <MermaidHydrator slot="scripts" />}
+  {hasDialogsSlot && <slot name="dialogs" slot="dialogs" />}
+  {
+    (hasMermaid || hasScriptsSlot) && (
+      <Fragment slot="scripts">
+        {hasMermaid && <MermaidHydrator />}
+        {hasScriptsSlot && <slot name="scripts" />}
+      </Fragment>
+    )
+  }
 </SiteLayout>

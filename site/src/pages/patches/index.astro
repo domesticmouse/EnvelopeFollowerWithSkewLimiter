@@ -1,0 +1,226 @@
+---
+import '../../styles/docs.css';
+import '../../styles/patches.css';
+import { getEntry, getCollection, render } from 'astro:content';
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import { PATCH_STATES, ledBadgeInfo } from '../../data/patch-states.ts';
+import { extractDocumentTitle } from '../../lib/content-manifest.ts';
+import { withBase } from '../../lib/routes.ts';
+
+const hubEntry = await getEntry('patchGuides', 'index');
+if (!hubEntry) {
+  throw new Error('Missing patches/README.md in patchGuides collection');
+}
+const { Content } = await render(hubEntry);
+
+const patchEntries = await getCollection('patchGuides');
+const titleBySlug = new Map<string, string>();
+for (const item of patchEntries) {
+  if (item.id === 'index') continue;
+  titleBySlug.set(item.id, extractDocumentTitle(item.body ?? ''));
+}
+
+const initialEntry = PATCH_STATES[0]!;
+const initialPreset = initialEntry.presets[0]!;
+const initialBadge = ledBadgeInfo(initialPreset.led.idleState);
+---
+
+<SiteLayout
+  title="Patch Guides · ENV / SKEW"
+  description="Studio Rack Workbench for all 8 ENV / SKEW Eurorack Patch Guides across Envelope Follower Mode (01–05) and Asymmetric Skew Limiter Mode (06–08)."
+  currentPath="/patches/"
+>
+  <div class="patches-hub-shell" data-patches-hub>
+    <header class="patches-hub-hero">
+      <p class="hub-kicker">Studio Rack Workbench · 8 Patch Guides</p>
+      <h1>ENV / SKEW — Patch Guides</h1>
+      <p class="patches-hub-lead">
+        Hover, focus, or pin any patch row to preview exact knob ticks, sweet-spot arcs, toggle
+        positions, jack routing, and <code>Idle / Active Signal</code> bi-color LED polarity on the
+        6 HP front panel.
+      </p>
+
+      <div class="mode-filter-bar" role="group" aria-label="Filter patch guides by mode">
+        <button type="button" class="mode-filter-btn" data-mode-filter="all" aria-pressed="true">
+          All Modes (8)
+        </button>
+        <button
+          type="button"
+          class="mode-filter-btn"
+          data-mode-filter="envelope-follower"
+          aria-pressed="false"
+        >
+          Envelope Follower Mode (5)
+        </button>
+        <button
+          type="button"
+          class="mode-filter-btn"
+          data-mode-filter="asymmetric-skew-limiter"
+          aria-pressed="false"
+        >
+          Asymmetric Skew Limiter Mode (3)
+        </button>
+      </div>
+    </header>
+
+    <section class="hub-workbench-grid" aria-label="Interactive Patch Workbench">
+      <ul class="hub-patch-list" data-patch-list>
+        {
+          PATCH_STATES.map((entry) => {
+            const num = entry.slug.slice(0, 2);
+            const rawTitle = titleBySlug.get(entry.slug) ?? entry.slug;
+            const modeLabel =
+              entry.mode === 'envelope-follower'
+                ? 'Envelope Follower Mode'
+                : 'Asymmetric Skew Limiter Mode';
+            const preset = entry.presets[0]!;
+            const badge = ledBadgeInfo(preset.led.idleState);
+
+            return (
+              <li
+                class="hub-patch-row"
+                data-patch-row={entry.slug}
+                data-patch-mode={entry.mode}
+              >
+                <span class="hub-patch-num chamfer-sm tabular">{num}</span>
+
+                <div class="hub-patch-body">
+                  <div class="hub-patch-meta">
+                    <span class="mode-badge">{modeLabel}</span>
+                    {entry.presets.length > 1 && (
+                      <span class="spec-chip mono">{entry.presets.length} A/B Setups</span>
+                    )}
+                    <span class="led-pill" data-led={badge.pillColor}>
+                      {badge.symbol} {badge.text}
+                    </span>
+                  </div>
+
+                  <a
+                    href={withBase(`/patches/${entry.slug}/`)}
+                    class="hub-patch-title-link"
+                    data-patch-title
+                  >
+                    {rawTitle}
+                  </a>
+
+                  <p class="hub-patch-tagline">{entry.tagline}</p>
+
+                  <p class="hub-patch-companions">
+                    Companion modules: {entry.companionModules.join(' · ')}
+                  </p>
+                </div>
+
+                <div class="hub-patch-actions">
+                  <button
+                    type="button"
+                    class="pin-preview-btn"
+                    data-pin-patch={entry.slug}
+                    aria-pressed={entry.slug === initialEntry.slug ? 'true' : 'false'}
+                  >
+                    Pin preview
+                  </button>
+                  <a href={withBase(`/patches/${entry.slug}/`)} class="open-guide-link">
+                    Open Guide →
+                  </a>
+                </div>
+              </li>
+            );
+          })
+        }
+      </ul>
+
+      <aside class="hub-preview-dock" aria-label="Live 6 HP front-panel preview">
+        <div class="preview-dock-head">
+          <p class="preview-dock-kicker">6 HP Live Preview</p>
+          <p class="preview-dock-title" data-preview-title>
+            {titleBySlug.get(initialEntry.slug) ?? initialEntry.slug}
+          </p>
+          <p class="preview-dock-preset" data-preview-preset>{initialPreset.name}</p>
+        </div>
+
+        <div class="signal-toggle-group" role="group" aria-label="LED preview signal state">
+          <button type="button" class="signal-toggle-btn" data-signal-btn="idle" aria-pressed="true">
+            Idle
+          </button>
+          <button
+            type="button"
+            class="signal-toggle-btn"
+            data-signal-btn="active"
+            aria-pressed="false"
+          >
+            Active Signal
+          </button>
+        </div>
+
+        <div class="panel-stage-frame">
+          <env-skew-panel signal-state="idle"></env-skew-panel>
+        </div>
+
+        <div class="led-readout-box">
+          <span class="led-pill" data-preview-led-pill data-led={initialBadge.pillColor}>
+            {initialBadge.symbol} {initialBadge.text}
+          </span>
+          <p class="led-readout-desc" data-preview-led-desc>{initialPreset.led.idleDesc}</p>
+        </div>
+
+        <a
+          href={withBase(`/patches/${initialEntry.slug}/`)}
+          class="cta-primary chamfer-sm"
+          data-preview-open-link
+        >
+          <span>Open Full Guide</span>
+          <span aria-hidden="true">→</span>
+        </a>
+      </aside>
+    </section>
+
+    <aside class="dial-scale-bar" aria-label="Knob dial scale guide">
+      <span>
+        <strong>Knob Dial Scale:</strong> 11 radial ticks spaced <code>30°</code> apart from 7
+        o’clock (<code>0%</code>) to 5 o’clock (<code>100%</code>).
+      </span>
+      <button
+        type="button"
+        class="dial-scale-trigger"
+        id="dial-scale-btn"
+        popovertarget="dial-scale-popover"
+        popovertargetaction="show"
+        aria-label="Explain 11-tick knob dial scale"
+        {...({ interestfor: 'dial-scale-popover' } as Record<string, string>)}
+      >
+        <span aria-hidden="true">?</span>
+        <span>11-Tick Dial Scale</span>
+      </button>
+      <div id="dial-scale-popover" class="dial-scale-popover" popover="hint">
+        <h3>11-Tick Radial Dial Scale</h3>
+        <p>
+          Every potentiometer (<code>GAIN</code>, <code>ATK</code>, <code>REL</code>,{' '}
+          <code>OFFSET</code>) spans <code>300°</code> across <strong>11 ticks</strong> (
+          <code>tick 0</code> = <code>−150°</code> / 7 o’clock, <code>tick 5</code> ={' '}
+          <code>0°</code> / 12 o’clock, <code>tick 10</code> = <code>+150°</code> / 5 o’clock).
+        </p>
+        <p>
+          Gold arcs on <code>&lt;env-skew-panel&gt;</code> trace each patch’s sweet-spot range at{' '}
+          <code>r = 5.65 mm</code>.
+        </p>
+      </div>
+    </aside>
+
+    <article class="doc-prose" aria-label="Patch Guides Hardware Reference">
+      <Content />
+    </article>
+  </div>
+
+  <script slot="scripts">
+    import '../../components/env-skew-panel.ts';
+    import { PATCH_STATES } from '../../data/patch-states.ts';
+    import { initPatchesHub } from '../../lib/patches-hub-controller.ts';
+    import { initToggletips } from '../../lib/toggletip.ts';
+
+    const hubRoot = document.querySelector('[data-patches-hub]');
+    if (hubRoot) {
+      initPatchesHub(hubRoot, PATCH_STATES);
+    }
+    initToggletips();
+  </script>
+</SiteLayout>

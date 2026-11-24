@@ -317,4 +317,27 @@ flowchart LR
       cleanup();
     }
   });
+
+  it('suppresses only ## Patch Guides Index on patches/README.md while keeping reference sections verbatim', async () => {
+    const md = fs.readFileSync(path.join(REPO_ROOT, 'patches/README.md'), 'utf8');
+    const { doc, cleanup } = await renderMarkdown(md, 'patches/README.md');
+    try {
+      expect(doc.getElementById('two-modules-in-6-hp')).not.toBeNull();
+      expect(doc.getElementById('front-panel-control-reference')).not.toBeNull();
+      expect(doc.getElementById('timing-quick-reference')).not.toBeNull();
+      expect(doc.getElementById('hardware--technical-references')).not.toBeNull();
+
+      // Nested GFM table inside Front-Panel Control Reference <td> must survive
+      expect(doc.querySelector('table.layout-table')).not.toBeNull();
+      expect(doc.querySelector('.table-wrapper table[data-table-kind="narrow"]')).not.toBeNull();
+
+      // Static ## Patch Guides Index must be suppressed
+      expect(doc.getElementById('patch-guides-index')).toBeNull();
+      expect(doc.getElementById('envelope-follower-mode-in-patched-slew-in-unpatched')).toBeNull();
+      expect(doc.getElementById('asymmetric-skew-limiter-mode-slew-in-patched')).toBeNull();
+      expect(doc.textContent).not.toContain('Companion Modules Needed');
+    } finally {
+      cleanup();
+    }
+  });
 });

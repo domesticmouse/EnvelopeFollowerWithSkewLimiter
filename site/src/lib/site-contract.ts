@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { Window } from 'happy-dom';
-import { REFERENCE_SPECS_CATALOG } from './content-manifest.ts';
+import { PATCH_STATES, validatePatchStates } from '../data/patch-states.ts';
+import { PATCH_GUIDE_FILES, REFERENCE_SPECS_CATALOG } from './content-manifest.ts';
 import { CANONICAL_ROUTES, SITE_BASE, normalizeRoutePath } from './routes.ts';
 import {
   isExcludedRepoPath,
@@ -29,7 +30,12 @@ const CANONICAL_ROUTE_SET = new Set<string>(CANONICAL_ROUTES);
 const POSITIVE_INT_RE = /^[1-9]\d*$/;
 const EXTERNAL_PROTO_RE = /^(?:https?:|mailto:|tel:|data:|blob:)/i;
 
-const NON_MERMAID_ROUTES = new Set<string>(['/', '/specs/', '/specs/panel-svg-spec/']);
+const NON_MERMAID_ROUTES = new Set<string>([
+  '/',
+  '/patches/',
+  '/specs/',
+  '/specs/panel-svg-spec/',
+]);
 const REFERENCE_SPEC_DETAIL_ROUTES = new Set<string>(
   REFERENCE_SPECS_CATALOG.map((spec) => spec.route),
 );
@@ -128,6 +134,25 @@ function verifyReferenceSpecRoute(route: string, doc: Document, errors: string[]
     } else if (details.querySelector('summary h1, summary h2, summary h3, summary h4, summary h5, summary h6')) {
       errors.push(`${route}: <summary> must not contain heading elements`);
     }
+  }
+}
+
+function verifyPatchesHubRoute(doc: Document, errors: string[]): void {
+  if (doc.getElementById('patch-guides-index')) {
+    errors.push('/patches/: static #patch-guides-index must be suppressed');
+  }
+  for (const requiredId of [
+    'two-modules-in-6-hp',
+    'front-panel-control-reference',
+    'timing-quick-reference',
+    'hardware--technical-references',
+  ]) {
+    if (!doc.getElementById(requiredId)) {
+      errors.push(`/patches/: missing expected reference heading #${requiredId}`);
+    }
+  }
+  if (!doc.querySelector('env-skew-panel')) {
+    errors.push('/patches/: missing <env-skew-panel> preview component');
   }
 }
 
@@ -333,7 +358,22 @@ export function verifyBuiltSite(options: VerifyBuiltSiteOptions): SiteContractRe
       if (REFERENCE_SPEC_DETAIL_ROUTES.has(route)) {
         verifyReferenceSpecRoute(route, doc, errors);
       }
+      if (route === '/patches/') {
+        verifyPatchesHubRoute(doc, errors);
+      }
     }
+
+    // 5. Verify patch-state sidecar parity and bounds.
+    const expectedPatchSlugs = PATCH_GUIDE_FILES.filter((f) => f !== 'patches/README.md').map((f) =>
+      path.posix.basename(f, '.md'),
+    );
+    const actualPatchSlugs = PATCH_STATES.map((p) => p.slug);
+    if (JSON.stringify(actualPatchSlugs) !== JSON.stringify(expectedPatchSlugs)) {
+      errors.push(
+        `patch-states sidecar slug mismatch: expected ${expectedPatchSlugs.join(', ')}, got ${actualPatchSlugs.join(', ')}`,
+      );
+    }
+    errors.push(...validatePatchStates(PATCH_STATES));
   } finally {
     for (const { win } of parsedDocs.values()) {
       win.close();

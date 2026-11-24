@@ -457,10 +457,33 @@ function markFormulaGrids(tree: Root): void {
   });
 }
 
+function suppressSectionByHeading(tree: Root, targetHeadingId: string): void {
+  const startIdx = tree.children.findIndex(
+    (node) =>
+      node.type === 'element' &&
+      node.tagName === 'h2' &&
+      node.properties?.id === targetHeadingId,
+  );
+  if (startIdx === -1) {
+    return;
+  }
+
+  let endIdx = tree.children.length;
+  for (let i = startIdx + 1; i < tree.children.length; i++) {
+    const node = tree.children[i];
+    if (node?.type === 'element' && node.tagName === 'h2') {
+      endIdx = i;
+      break;
+    }
+  }
+
+  tree.children.splice(startIdx, endIdx - startIdx);
+}
+
 /**
  * Single-source rehype transform module unifying heading-slug parity, route/passthrough rewriting,
  * GitHub CAD/Python fallbacks, image dimension injection, Mermaid wrappers, §8 JSON disclosure,
- * responsive formula grids, and keyboard-focusable accessible table containers.
+ * hub section suppression, responsive formula grids, and keyboard-focusable accessible table containers.
  */
 export const rehypeSingleSource: Plugin<[SingleSourceRehypeOptions], Root> = (options) => {
   const repoRoot = path.resolve(options.repoRoot);
@@ -469,6 +492,9 @@ export const rehypeSingleSource: Plugin<[SingleSourceRehypeOptions], Root> = (op
     const sourceRepoPath = resolveSourceRepoPath(repoRoot, file, options.sourceRepoPath);
 
     assignHeadingIds(tree);
+    if (sourceRepoPath === 'patches/README.md') {
+      suppressSectionByHeading(tree, 'patch-guides-index');
+    }
     rewriteLinksAndImages(tree, sourceRepoPath, repoRoot);
     transformMermaidFences(tree);
     wrapPanelJsonAppendix(tree, sourceRepoPath);

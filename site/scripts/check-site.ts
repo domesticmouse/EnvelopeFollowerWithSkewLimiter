@@ -12,6 +12,7 @@ const result = verifyBuiltSite({
   repoRoot,
   implementedRoutes: [
     '/',
+    '/patches/',
     '/specs/',
     '/specs/design-spec/',
     '/specs/base-circuit/',
