@@ -405,6 +405,9 @@ export function verifyBuiltSite(options: VerifyBuiltSiteOptions): SiteContractRe
         if (!doc.querySelector('zoom-pan-viewer')) {
           errors.push('/hardware/: missing <zoom-pan-viewer> schematic stage');
         }
+        if (!doc.querySelector('panel-layer-inspector')) {
+          errors.push('/hardware/: missing <panel-layer-inspector> stage in #panel');
+        }
       }
     }
 

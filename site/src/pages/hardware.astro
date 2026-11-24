@@ -4,7 +4,10 @@ import '../styles/hardware.css';
 import MermaidHydrator from '../components/MermaidHydrator.astro';
 import SiteLayout from '../layouts/SiteLayout.astro';
 import { SCHEMATIC_BLOCKS, SCHEMATIC_IMAGE_PX } from '../data/hardware-schematic.ts';
+import { getInlinedPanelSpecGeometry } from '../lib/panel-keepouts-inline.ts';
 import { withBase } from '../lib/routes.ts';
+
+const panelSpec = getInlinedPanelSpecGeometry();
 
 const SIGNAL_FLOW_MERMAID = `flowchart LR
     IN["J1 IN (1M bleed, C7 470nF)"] --> ATT["RV1 100k A Atten (90.9k Zin)"]
@@ -347,12 +350,65 @@ const OPAMP_ROWS = [
           <h2 id="panel-heading">4. Interactive Front-Panel Layer Inspector</h2>
           <p class="hardware-section-sub">
             Matte Black FR4 + ENIG Gold (<code>F.Mask</code>) + White Silkscreen (<code>F.SilkS</code>) ·{' '}
-            <code>30.00 × 128.50 mm</code>.
+            <code>{panelSpec.canvas.width_mm.toFixed(2)} × {panelSpec.canvas.height_mm.toFixed(2)} mm</code>.
           </p>
         </div>
         <a href={withBase('/specs/panel-svg-spec/')} class="hw-action-link">
           Panel SVG Spec →
         </a>
+      </div>
+
+      <div class="panel-stage-grid">
+        <panel-layer-inspector></panel-layer-inspector>
+
+        <aside class="highlights-card" aria-label="Front-panel fabrication highlights">
+          <h3>Fabrication Highlights (<code>panel_svg_spec.md</code>)</h3>
+          <ul class="highlights-list">
+            <li>
+              <strong>Canvas &amp; Finish:</strong> <code>{panelSpec.metadata.hp} HP</code> (
+              <code>{panelSpec.canvas.width_mm.toFixed(1)} × {panelSpec.canvas.height_mm.toFixed(1)} mm</code>),
+              <code>1.6 mm</code> FR4, Matte Black solder mask, <code>ENIG-RoHS</code> gold, White silkscreen.
+            </li>
+            <li>
+              <strong>Artwork Separation:</strong> Minimum stroke{' '}
+              <code>{panelSpec.fabrication_rules.min_silk_stroke_mm.toFixed(2)} mm</code>, minimum
+              silk-to-mask clearance{' '}
+              <code>{panelSpec.fabrication_rules.min_silk_to_mask_clearance_mm.toFixed(2)} mm</code>, copper edge
+              pullback <code>{panelSpec.fabrication_rules.copper_edge_pullback_mm.toFixed(2)} mm</code>.
+            </li>
+            <li>
+              <strong>Drills &amp; Slots:</strong> <code>{panelSpec.components.length}</code> front controls +{' '}
+              <code>{panelSpec.mounting_slots.length}</code> Doepfer M3 oval mounting slots (
+              <code>5.5 × 3.2 mm</code> NPTH).
+            </li>
+            <li>
+              <strong>Order Workflow:</strong> Upload{' '}
+              <code>manufacturing/envelope_follower_panel_gerbers.zip</code> alongside main PCB for combined shipping.
+            </li>
+          </ul>
+
+          <div class="panel-download-stack">
+            <a
+              href={withBase('/panel_art/front_soldermask.svg')}
+              class="hw-action-link"
+              download="front_soldermask.svg"
+            >
+              Download F.Mask SVG ↓
+            </a>
+            <a
+              href={withBase('/panel_art/front_silkscreen.svg')}
+              class="hw-action-link"
+              download="front_silkscreen.svg"
+            >
+              Download F.SilkS SVG ↓
+            </a>
+          </div>
+
+          <div class="highlights-actions">
+            <a href={withBase('/build/01b-front-panel-ordering/')}>Front Panel Checklist →</a>
+            <a href={withBase('/downloads/')}>All Fabrication Downloads →</a>
+          </div>
+        </aside>
       </div>
     </section>
   </div>
@@ -361,6 +417,7 @@ const OPAMP_ROWS = [
     <MermaidHydrator />
     <script>
       import '../components/zoom-pan-viewer.ts';
+      import '../components/panel-layer-inspector.ts';
       import { initHardwarePage } from '../lib/hardware-controller.ts';
 
       const pageRoot = document.querySelector('[data-hardware-page]');
