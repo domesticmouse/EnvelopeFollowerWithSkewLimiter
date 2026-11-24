@@ -359,6 +359,11 @@
     background: Highlight;
     color: HighlightText;
   }
+
+  .panel-inspector-svg [data-layer='regframe'] path {
+    fill: Highlight;
+    stroke: Highlight;
+  }
 }
 
 @media print {
@@ -529,6 +534,17 @@
   block-size: auto;
   aspect-ratio: 30 / 128.5;
   margin-inline: auto;
+}
+
+.panel-inspector-svg [data-layer][hidden] {
+  display: none;
+}
+
+.panel-inspector-svg [data-layer='regframe'] path {
+  fill: var(--led-green);
+  stroke: var(--led-green);
+  stroke-width: 0.7;
+  stroke-linejoin: miter;
 }
 
 .panel-keepout-preview-card,

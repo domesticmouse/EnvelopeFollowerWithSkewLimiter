@@ -163,6 +163,6 @@ export function parseFaceplateLayersFromStrings(
   return {
     goldLayerSvg: tagNormalArrow(recolorGroupSvg(rawGoldGroup, '#D8B154')),
     silkLayerSvg: recolorGroupSvg(rawSilkGroup, '#F4F5F7'),
-    registrationFrameSvg: rawRegGroup ? recolorGroupSvg(rawRegGroup, '#D8B154') : '',
+    registrationFrameSvg: rawRegGroup ? recolorGroupSvg(rawRegGroup, '#4ADE80') : '',
   };
 }

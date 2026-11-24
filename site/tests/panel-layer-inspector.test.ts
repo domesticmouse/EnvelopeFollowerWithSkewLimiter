@@ -14,6 +14,7 @@ const REPO_ROOT = path.resolve(import.meta.dirname, '../..');
 afterEach(() => {
   closeFullscreenLightbox();
   document.body.innerHTML = '';
+  document.head.innerHTML = '';
 });
 
 describe('panel_svg_spec.md §8 JSON keepouts projection', () => {
@@ -81,12 +82,17 @@ describe('<panel-layer-inspector> tabs, 4 layer toggles, and lightbox triggers',
     expect(fsilksGroup.hasAttribute('hidden')).toBe(false);
     expect(keepoutsGroup.hasAttribute('hidden')).toBe(true);
     expect(regGroup.hasAttribute('hidden')).toBe(true);
+    expect(fmaskGroup.getAttribute('display')).toBeNull();
+    expect(fsilksGroup.getAttribute('display')).toBeNull();
+    expect(keepoutsGroup.getAttribute('display')).toBe('none');
+    expect(regGroup.getAttribute('display')).toBe('none');
     expect(legend.hidden).toBe(true);
 
     // Toggle Keepouts ON -> reveals layer and 4-swatch legend
     keepoutsToggle.checked = true;
     keepoutsToggle.dispatchEvent(new Event('change', { bubbles: true }));
     expect(keepoutsGroup.hasAttribute('hidden')).toBe(false);
+    expect(keepoutsGroup.getAttribute('display')).toBeNull();
     expect(legend.hidden).toBe(false);
     expect(legend.querySelectorAll('[data-swatch]')).toHaveLength(4);
 
@@ -97,8 +103,47 @@ describe('<panel-layer-inspector> tabs, 4 layer toggles, and lightbox triggers',
     fmaskToggle.dispatchEvent(new Event('change', { bubbles: true }));
 
     expect(regGroup.hasAttribute('hidden')).toBe(false);
+    expect(regGroup.getAttribute('display')).toBeNull();
     expect(fmaskGroup.hasAttribute('hidden')).toBe(true);
+    expect(fmaskGroup.getAttribute('display')).toBe('none');
     expect(fsilksGroup.hasAttribute('hidden')).toBe(false);
+    expect(fsilksGroup.getAttribute('display')).toBeNull();
+
+    // Toggle F.SilkS OFF & F.Mask back ON
+    fsilksToggle.checked = false;
+    fsilksToggle.dispatchEvent(new Event('change', { bubbles: true }));
+    fmaskToggle.checked = true;
+    fmaskToggle.dispatchEvent(new Event('change', { bubbles: true }));
+
+    expect(fsilksGroup.hasAttribute('hidden')).toBe(true);
+    expect(fsilksGroup.getAttribute('display')).toBe('none');
+    expect(fmaskGroup.hasAttribute('hidden')).toBe(false);
+    expect(fmaskGroup.getAttribute('display')).toBeNull();
+  });
+
+  it('applies CSS display:none defense-in-depth for hidden SVG layers and styles Registration Frame legibly', () => {
+    const hardwareCss = fs.readFileSync(
+      path.join(REPO_ROOT, 'site/src/styles/hardware.css'),
+      'utf8',
+    );
+    const styleEl = document.createElement('style');
+    styleEl.textContent = hardwareCss;
+    document.head.append(styleEl);
+
+    const el = mountInspector();
+    const keepoutsGroup = el.querySelector<SVGGElement>('[data-layer="keepouts"]')!;
+    const regGroup = el.querySelector<SVGGElement>('[data-layer="regframe"]')!;
+
+    // Verify CSS rule hides [data-layer][hidden] even without SVG display="none" attribute
+    expect(hardwareCss).toMatch(/\.panel-inspector-svg\s+\[data-layer\]\[hidden\]\s*\{[^}]*display:\s*none/s);
+    keepoutsGroup.removeAttribute('display');
+    expect(getComputedStyle(keepoutsGroup).display).toBe('none');
+
+    // Verify Registration Frame uses legible high-contrast emerald styling
+    expect(hardwareCss).toMatch(
+      /\.panel-inspector-svg\s+\[data-layer='regframe'\]\s+path\s*\{[^}]*stroke:\s*var\(--led-green\)[^}]*stroke-width:/s,
+    );
+    expect(regGroup.innerHTML).toContain('#4ADE80');
   });
 
   it('switches across 3 WAI-ARIA tabs via keyboard and opens fullscreen <zoom-pan-viewer> for 3D Front/Back and keepouts preview', () => {
