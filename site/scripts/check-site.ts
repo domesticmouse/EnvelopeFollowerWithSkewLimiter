@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { BUILD_CHECKLISTS_CATALOG } from '../src/data/build-checklists.ts';
 import { PATCH_STATES } from '../src/data/patch-states.ts';
 import { verifyBuiltSite } from '../src/lib/site-contract.ts';
 
@@ -16,6 +17,8 @@ const result = verifyBuiltSite({
     '/hardware/',
     '/patches/',
     ...PATCH_STATES.map((p) => `/patches/${p.slug}/`),
+    '/build/',
+    ...BUILD_CHECKLISTS_CATALOG.map((c) => c.route),
     '/specs/',
     '/specs/design-spec/',
     '/specs/base-circuit/',

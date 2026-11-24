@@ -7,6 +7,7 @@ import type { Plugin } from 'unified';
 import { visit } from 'unist-util-visit';
 import type { VFile } from 'vfile';
 import { readImageDimensions } from '../lib/image-dimensions.ts';
+import { generateChecklistItemId } from '../lib/checklist-id.ts';
 import { resolveRelativeRepoPath, resolveRepoHref } from '../lib/content-manifest.ts';
 import { SITE_BASE, withBase } from '../lib/routes.ts';
 import { toPosixPath } from '../lib/static-passthrough.ts';
@@ -178,8 +179,14 @@ function rewriteLinksAndImages(
     if (node.tagName === 'a') {
       const href = node.properties?.href;
       if (typeof href === 'string') {
+        const resolved = resolveRepoHref(href, sourceRepoPath);
         node.properties ??= {};
-        node.properties.href = resolveRepoHref(href, sourceRepoPath);
+        node.properties.href = resolved;
+        if (resolved.endsWith('/bom/ibom.html') || resolved.endsWith('bom/ibom.html')) {
+          node.properties.target = '_blank';
+          node.properties.rel = ['noopener', 'noreferrer'];
+          node.properties.dataIbomLink = true;
+        }
       }
       return;
     }
@@ -608,10 +615,337 @@ function suppressSectionByHeading(tree: Root, targetHeadingId: string): void {
   tree.children.splice(startIdx, endIdx - startIdx);
 }
 
+const CHECKLIST_DETAIL_RE = /^checklists\/0[1-5].*\.md$/;
+const COPYABLE_SHELL_LANGS = new Set(['bash', 'sh', 'shell']);
+const BLOCK_LEVEL_TAGS = new Set([
+  'ul',
+  'ol',
+  'div',
+  'blockquote',
+  'pre',
+  'table',
+  'details',
+  'hr',
+  'figure',
+]);
+const CRITICAL_CALLOUT_RE = /\bCRITICAL\b|DO\s+NOT\s+SOLDER|ABORT\s+IMMEDIATELY/i;
+const PCB_REMARK_RE = /(?:Please replace the 5x5mm|Eurorack front panel:)/i;
+const INLINE_CRITICAL_LI_RE = /ABORT\s+IMMEDIATELY|NEVER\s+substitute\s+a\s+Schottky/i;
+
+function isWhitespaceText(node: RootContent): boolean {
+  return node.type === 'text' && !node.value.trim();
+}
+
+function getInputCheckbox(node: RootContent): Element | null {
+  if (node.type !== 'element' || node.tagName !== 'input') {
+    return null;
+  }
+  return String(node.properties?.type ?? 'checkbox').toLowerCase() === 'checkbox' ? node : null;
+}
+
+function createCopyButton(label: string, copyText: string): Element {
+  return h(
+    'button',
+    {
+      type: 'button',
+      className: ['copy-block-btn'],
+      dataCopyTrigger: true,
+      dataCopyText: copyText,
+      dataPagefindIgnore: true,
+    },
+    [{ type: 'text', value: label }],
+  );
+}
+
+function transformChecklistLinksAndCallouts(parent: Parent): void {
+  for (let i = 0; i < parent.children.length; i += 1) {
+    const child = parent.children[i];
+    if (!child || child.type !== 'element') {
+      continue;
+    }
+
+    if (child.tagName === 'a') {
+      const href = String(child.properties?.href ?? '');
+      if (href.endsWith('/bom/ibom.html') || href.endsWith('bom/ibom.html')) {
+        child.properties ??= {};
+        child.properties.target = '_blank';
+        child.properties.rel = ['noopener', 'noreferrer'];
+        child.properties.dataIbomLink = true;
+      }
+      continue;
+    }
+
+    const preInfo = getPreCodeInfo(child);
+    if (preInfo && COPYABLE_SHELL_LANGS.has((preInfo.lang ?? '').toLowerCase())) {
+      const cmdText = extractText(preInfo.codeChild ?? child, false).replace(/\n$/, '').trim();
+      parent.children[i] = h('div', { className: ['copy-block'], dataCopyable: true }, [
+        h('div', { className: ['copy-block-bar'] }, [
+          h('span', { className: ['copy-block-label', 'mono'] }, [
+            { type: 'text', value: preInfo.lang ?? 'shell' },
+          ]),
+          createCopyButton('Copy', cmdText),
+        ]),
+        child,
+      ]);
+      continue;
+    }
+
+    if (child.tagName === 'blockquote') {
+      // Transform any nested links inside blockquote before wrapping its body
+      transformChecklistLinksAndCallouts(child);
+      const rawText = extractText(child, true).replace(/\s+/g, ' ').trim();
+      if (PCB_REMARK_RE.test(rawText)) {
+        const remarkText = rawText.replace(/^[`"“]+|[`"”]+$/g, '').trim();
+        addClass(child, 'callout', 'callout-remark');
+        child.properties ??= {};
+        child.properties.dataCopyable = true;
+        child.children = [
+          h('div', { className: ['callout-remark-bar'] }, [
+            h('span', { className: ['callout-remark-label'] }, [
+              { type: 'text', value: 'JLCPCB PCB Remark' },
+            ]),
+            createCopyButton('Copy Remark', remarkText),
+          ]),
+          h('div', { className: ['callout-content'] }, child.children),
+        ];
+      } else if (CRITICAL_CALLOUT_RE.test(rawText)) {
+        addClass(child, 'callout', 'callout-critical');
+        child.properties ??= {};
+        child.properties.dataAlert = 'critical';
+        child.children = [
+          h('div', { className: ['callout-layout'] }, [
+            h('span', { className: ['callout-badge'], ariaHidden: 'true' }, [
+              { type: 'text', value: '▲' },
+            ]),
+            h('div', { className: ['callout-content'] }, child.children),
+          ]),
+        ];
+      } else {
+        addClass(child, 'callout', 'callout-info');
+        child.children = [
+          h('div', { className: ['callout-layout'] }, [
+            h('span', { className: ['callout-badge'], ariaHidden: 'true' }, [
+              { type: 'text', value: 'i' },
+            ]),
+            h('div', { className: ['callout-content'] }, child.children),
+          ]),
+        ];
+      }
+      continue;
+    }
+
+    if (child.tagName === 'li' && !hasClass(child, 'task-list-item')) {
+      const liText = extractText(child, true);
+      if (INLINE_CRITICAL_LI_RE.test(liText)) {
+        addClass(child, 'checklist-alert-critical');
+        child.properties ??= {};
+        child.properties.dataAlert = 'critical';
+      }
+    }
+
+    transformChecklistLinksAndCallouts(child);
+  }
+}
+
+function createLightboxImageTrigger(img: Element): Element {
+  const src = String(img.properties?.src ?? '');
+  const alt = String(img.properties?.alt ?? '');
+  const width = img.properties?.width;
+  const height = img.properties?.height;
+
+  addClass(img, 'checklist-img');
+  return h(
+    'button',
+    {
+      type: 'button',
+      className: ['checklist-img-trigger', 'lightbox-trigger'],
+      dataLightboxSrc: src,
+      dataLightboxAlt: alt,
+      ...(width ? { dataLightboxWidth: String(width) } : {}),
+      ...(height ? { dataLightboxHeight: String(height) } : {}),
+      ariaLabel: alt ? `Zoom reference photo: ${alt}` : 'Zoom reference photo',
+    },
+    [
+      img,
+      h('span', { className: ['lightbox-zoom-chip'], ariaHidden: 'true' }, [
+        { type: 'text', value: 'Zoom' },
+      ]),
+    ],
+  );
+}
+
+function wrapTriggerInPlacementCard(trigger: Element): Element {
+  return h('div', { className: ['placement-card'], dataPlacementCard: true }, [
+    h('div', { className: ['placement-card-actions'] }, [
+      h(
+        'button',
+        {
+          type: 'button',
+          className: ['placement-reveal-btn'],
+          dataPlacementReveal: true,
+          hidden: true,
+        },
+        [{ type: 'text', value: 'Show photo' }],
+      ),
+    ]),
+    trigger,
+  ]);
+}
+
+function wrapChecklistImages(
+  parent: Parent,
+  enablePlacementCollapse: boolean,
+  insideTaskLi: boolean,
+): void {
+  for (let i = 0; i < parent.children.length; i += 1) {
+    const child = parent.children[i];
+    if (!child || child.type !== 'element') {
+      continue;
+    }
+
+    if (hasClass(child, 'lightbox-trigger') || child.properties?.dataPlacementCard) {
+      continue;
+    }
+
+    // Unwrap <p> containing solely an <img> so placement-card stays valid block markup
+    if (child.tagName === 'p') {
+      const nonEmpty = child.children.filter((c) => !isWhitespaceText(c));
+      if (
+        nonEmpty.length === 1 &&
+        nonEmpty[0]?.type === 'element' &&
+        nonEmpty[0].tagName === 'img'
+      ) {
+        const trigger = createLightboxImageTrigger(nonEmpty[0]);
+        parent.children[i] =
+          insideTaskLi && enablePlacementCollapse ? wrapTriggerInPlacementCard(trigger) : trigger;
+        continue;
+      }
+    }
+
+    if (child.tagName === 'img') {
+      const trigger = createLightboxImageTrigger(child);
+      parent.children[i] =
+        insideTaskLi && enablePlacementCollapse ? wrapTriggerInPlacementCard(trigger) : trigger;
+      continue;
+    }
+
+    wrapChecklistImages(
+      child,
+      enablePlacementCollapse,
+      insideTaskLi || (child.tagName === 'li' && hasClass(child, 'task-list-item')),
+    );
+  }
+}
+
+function finalizeTaskInput(input: Element, itemId: string): void {
+  const props = (input.properties ??= {});
+  const wasCheckedInSource =
+    props.checked === true || props.checked === '' || props.checked === 'checked';
+  delete props.disabled;
+  delete props.checked;
+  addClass(input, 'checklist-checkbox');
+  props.dataChecklistCheckbox = true;
+  props.dataItemId = itemId;
+  if (wasCheckedInSource) {
+    props.dataRepoVerified = true;
+  }
+}
+
+function transformChecklistItems(tree: Root, checklistSlug: string): void {
+  const seenCounts = new Map<string, number>();
+  let currentHeadingId = 'root';
+
+  const walk = (parent: Parent): void => {
+    for (const child of parent.children) {
+      if (child.type !== 'element') {
+        continue;
+      }
+
+      if (HEADING_TAGS.has(child.tagName) && typeof child.properties?.id === 'string') {
+        currentHeadingId = child.properties.id;
+        continue;
+      }
+
+      if (child.tagName === 'li' && hasClass(child, 'task-list-item')) {
+        const firstParagraph = child.children.find(
+          (node): node is Element =>
+            node.type === 'element' &&
+            node.tagName === 'p' &&
+            node.children.some((inner) => getInputCheckbox(inner) !== null),
+        );
+
+        const directInput = child.children
+          .map((node) => getInputCheckbox(node))
+          .find((el): el is Element => el !== null);
+
+        if (firstParagraph) {
+          const input = firstParagraph.children
+            .map((node) => getInputCheckbox(node))
+            .find((el): el is Element => el !== null)!;
+          const primaryText = extractText(firstParagraph, true).replace(/\s+/g, ' ').trim();
+          const itemId = generateChecklistItemId(
+            checklistSlug,
+            currentHeadingId,
+            primaryText,
+            seenCounts,
+          );
+          finalizeTaskInput(input, itemId);
+          firstParagraph.tagName = 'label';
+          addClass(firstParagraph, 'checklist-item-label');
+          child.properties ??= {};
+          child.properties.dataChecklistItem = true;
+          child.properties.dataItemId = itemId;
+        } else if (directInput) {
+          const inlineEndIdx = child.children.findIndex(
+            (node) => node.type === 'element' && BLOCK_LEVEL_TAGS.has(node.tagName),
+          );
+          const splitIdx = inlineEndIdx === -1 ? child.children.length : inlineEndIdx;
+          const inlineNodes = child.children.slice(0, splitIdx);
+          const trailingBlocks = child.children.slice(splitIdx);
+          const primaryText = inlineNodes
+            .map((n) => extractText(n, true))
+            .join('')
+            .replace(/\s+/g, ' ')
+            .trim();
+          const itemId = generateChecklistItemId(
+            checklistSlug,
+            currentHeadingId,
+            primaryText,
+            seenCounts,
+          );
+          finalizeTaskInput(directInput, itemId);
+          child.properties ??= {};
+          child.properties.dataChecklistItem = true;
+          child.properties.dataItemId = itemId;
+          child.children = [
+            h('label', { className: ['checklist-item-label'] }, inlineNodes),
+            ...trailingBlocks,
+          ];
+        }
+      }
+
+      walk(child);
+    }
+  };
+
+  walk(tree);
+}
+
+function transformChecklistDocument(tree: Root, sourceRepoPath: string): void {
+  const checklistSlug = path.posix.basename(sourceRepoPath, '.md');
+  const enablePlacementCollapse =
+    checklistSlug === '02-pcba-part-alignment' || checklistSlug === '04-hand-assembly';
+
+  transformChecklistLinksAndCallouts(tree);
+  wrapChecklistImages(tree, enablePlacementCollapse, false);
+  transformChecklistItems(tree, checklistSlug);
+}
+
 /**
  * Single-source rehype transform module unifying heading-slug parity, route/passthrough rewriting,
  * GitHub CAD/Python fallbacks, image dimension injection, Mermaid wrappers, §8 JSON disclosure,
- * hub section suppression, responsive formula grids, and keyboard-focusable accessible table containers.
+ * checklist interactivity transforms, hub section suppression, responsive formula grids,
+ * and keyboard-focusable accessible table containers.
  */
 export const rehypeSingleSource: Plugin<[SingleSourceRehypeOptions], Root> = (options) => {
   const repoRoot = path.resolve(options.repoRoot);
@@ -622,11 +956,16 @@ export const rehypeSingleSource: Plugin<[SingleSourceRehypeOptions], Root> = (op
     assignHeadingIds(tree);
     if (sourceRepoPath === 'patches/README.md') {
       suppressSectionByHeading(tree, 'patch-guides-index');
+    } else if (sourceRepoPath === 'checklists/README.md') {
+      suppressSectionByHeading(tree, 'workflow-order');
     } else if (PATCH_GUIDE_FILE_RE.test(sourceRepoPath)) {
       stripPatchGitHubNav(tree);
       tagPatchSettingsTables(tree);
     }
     rewriteLinksAndImages(tree, sourceRepoPath, repoRoot);
+    if (CHECKLIST_DETAIL_RE.test(sourceRepoPath)) {
+      transformChecklistDocument(tree, sourceRepoPath);
+    }
     transformMermaidFences(tree);
     wrapPanelJsonAppendix(tree, sourceRepoPath);
     wrapAccessibleTables(tree);

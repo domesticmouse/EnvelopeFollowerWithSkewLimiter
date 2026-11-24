@@ -1,0 +1,49 @@
+---
+import { getRepoFileSizeLabel } from '../lib/repo-files.ts';
+import { withBase } from '../lib/routes.ts';
+
+interface Props {
+  compact?: boolean;
+}
+
+const { compact = false } = Astro.props;
+const fileSize = getRepoFileSizeLabel('bom/ibom.html');
+const ibomHref = withBase('/bom/ibom.html');
+---
+
+<aside
+  class:list={['ibom-launch-card', compact && 'ibom-launch-card-compact']}
+  aria-label="Interactive Hand-Assembly BOM launcher"
+  data-pagefind-ignore
+>
+  <div class="ibom-launch-body">
+    <p class="ibom-kicker mono">bom/ibom.html · Dedicated Tab · {fileSize}</p>
+    <h2 class="ibom-title">Interactive Hand-Assembly BOM &amp; Placement Map</h2>
+    <p class="ibom-desc">
+      Opens KiCad InteractiveHtmlBom standalone (pre-filtered to the <code>18</code> Manual THT
+      parts alongside all <code>50</code> bottom-side SMDs) with Front/Back pad highlighting and
+      built-in <strong>Sourced</strong> / <strong>Placed</strong> tracking.
+    </p>
+  </div>
+
+  <div class="ibom-launch-actions">
+    <a
+      href={ibomHref}
+      target="_blank"
+      rel="noopener noreferrer"
+      data-ibom-link="true"
+      class="ibom-launch-btn"
+    >
+      <span>Launch Interactive BOM</span>
+      <span aria-hidden="true">↗</span>
+    </a>
+    <a
+      href={ibomHref}
+      download="env-skew-ibom.html"
+      class="ibom-download-link"
+      data-ibom-link="true"
+    >
+      Download offline HTML ({fileSize})
+    </a>
+  </div>
+</aside>

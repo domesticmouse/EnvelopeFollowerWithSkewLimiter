@@ -1,0 +1,97 @@
+---
+import { getRepoFileSizeLabel } from '../lib/repo-files.ts';
+import { withBase } from '../lib/routes.ts';
+
+interface Props {
+  focus?: 'main' | 'panel' | 'all';
+}
+
+const { focus = 'all' } = Astro.props;
+
+interface UploadAsset {
+  id: string;
+  label: string;
+  meta: string;
+  repoPath: string;
+  filename: string;
+  size: string;
+  group: 'main' | 'panel';
+}
+
+const assets: UploadAsset[] = [
+  {
+    id: 'main-gerbers',
+    label: 'Main PCB Gerbers (.zip)',
+    meta: '30.0 × 108.0 mm · 2L FR-4 · Black / Lead-Free',
+    repoPath: 'manufacturing/envelope_follower_gerbers.zip',
+    filename: 'envelope_follower_gerbers.zip',
+    size: getRepoFileSizeLabel('manufacturing/envelope_follower_gerbers.zip'),
+    group: 'main',
+  },
+  {
+    id: 'jlcpcb-bom',
+    label: 'PCBA BOM (jlcpcb_bom.csv)',
+    meta: '17 grouped rows · 50 B.Cu SMDs (3 Extended, 14 Basic)',
+    repoPath: 'jlcpcb_bom.csv',
+    filename: 'jlcpcb_bom.csv',
+    size: getRepoFileSizeLabel('jlcpcb_bom.csv'),
+    group: 'main',
+  },
+  {
+    id: 'jlcpcb-cpl',
+    label: 'PCBA Pick & Place (jlcpcb_cpl.csv)',
+    meta: '50 placements · Layer = B only',
+    repoPath: 'manufacturing/jlcpcb_cpl.csv',
+    filename: 'jlcpcb_cpl.csv',
+    size: getRepoFileSizeLabel('manufacturing/jlcpcb_cpl.csv'),
+    group: 'main',
+  },
+  {
+    id: 'panel-gerbers',
+    label: '6 HP Front Panel Gerbers (.zip)',
+    meta: '30.0 × 128.5 mm · Matte Black + ENIG-RoHS + White',
+    repoPath: 'manufacturing/envelope_follower_panel_gerbers.zip',
+    filename: 'envelope_follower_panel_gerbers.zip',
+    size: getRepoFileSizeLabel('manufacturing/envelope_follower_panel_gerbers.zip'),
+    group: 'panel',
+  },
+];
+---
+
+<section
+  class="jlcpcb-strip"
+  aria-label="JLCPCB Upload Pack"
+  data-pagefind-ignore
+>
+  <header class="jlcpcb-strip-head">
+    <p class="jlcpcb-strip-kicker mono">JLCPCB Upload Pack · Direct Static Artifacts</p>
+    <p class="jlcpcb-strip-note">
+      Order the <strong>Main PCB + Economic Bottom PCBA</strong> and bare{' '}
+      <strong>Matte Black ENIG 6 HP Panel</strong> in one combined cart.
+    </p>
+  </header>
+
+  <ul class="jlcpcb-strip-grid">
+    {
+      assets.map((asset) => {
+        const isEmphasized = focus === 'all' || focus === asset.group;
+        return (
+          <li class:list={['jlcpcb-pack-item', isEmphasized && 'is-highlighted']}>
+            <a
+              href={withBase(`/${asset.repoPath}`)}
+              download={asset.filename}
+              class="jlcpcb-pack-link"
+            >
+              <span class="jlcpcb-pack-title">{asset.label}</span>
+              <span class="jlcpcb-pack-meta">{asset.meta}</span>
+              <span class="jlcpcb-pack-foot mono">
+                <span>Download · {asset.size}</span>
+                <span aria-hidden="true">↓</span>
+              </span>
+            </a>
+          </li>
+        );
+      })
+    }
+  </ul>
+</section>

@@ -1,6 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { Window } from 'happy-dom';
+import {
+  BUILD_CHECKLISTS_CATALOG,
+  TOTAL_CHECKLIST_ITEMS,
+} from '../data/build-checklists.ts';
 import { PATCH_STATES, validatePatchStates } from '../data/patch-states.ts';
 import { PATCH_GUIDE_FILES, REFERENCE_SPECS_CATALOG } from './content-manifest.ts';
 import { CANONICAL_ROUTES, SITE_BASE, normalizeRoutePath } from './routes.ts';
@@ -33,9 +37,14 @@ const EXTERNAL_PROTO_RE = /^(?:https?:|mailto:|tel:|data:|blob:)/i;
 const NON_MERMAID_ROUTES = new Set<string>([
   '/',
   '/patches/',
+  '/build/',
+  ...BUILD_CHECKLISTS_CATALOG.map((c) => c.route),
   '/specs/',
   '/specs/panel-svg-spec/',
 ]);
+const CHECKLIST_DETAIL_META_BY_ROUTE = new Map(
+  BUILD_CHECKLISTS_CATALOG.map((c) => [c.route as string, c]),
+);
 const REFERENCE_SPEC_DETAIL_ROUTES = new Set<string>(
   REFERENCE_SPECS_CATALOG.map((spec) => spec.route),
 );
@@ -393,6 +402,54 @@ export function verifyBuiltSite(options: VerifyBuiltSiteOptions): SiteContractRe
       if (PATCH_DETAIL_ROUTE_SET.has(route)) {
         verifyPatchGuideDetailRoute(route, doc, errors);
       }
+      if (route === '/build/') {
+        if (doc.getElementById('workflow-order')) {
+          errors.push('/build/: redundant ## Workflow Order heading must be suppressed');
+        }
+        if (doc.querySelectorAll('[data-hub-step]').length !== 6) {
+          errors.push('/build/: expected 6 workflow step cards');
+        }
+      }
+      const checklistMeta = CHECKLIST_DETAIL_META_BY_ROUTE.get(route);
+      if (checklistMeta) {
+        const cbs = [...doc.querySelectorAll<HTMLInputElement>('[data-checklist-checkbox]')];
+        if (cbs.length !== checklistMeta.totalItems) {
+          errors.push(
+            `${route}: expected ${checklistMeta.totalItems} interactive checkboxes, found ${cbs.length}`,
+          );
+        }
+        const ids = new Set<string>();
+        for (const cb of cbs) {
+          if (cb.disabled || cb.checked || cb.hasAttribute('checked')) {
+            errors.push(`${route}: checklist checkbox must start enabled and unchecked`);
+            break;
+          }
+          const id = cb.getAttribute('data-item-id') ?? '';
+          if (!id || ids.has(id)) {
+            errors.push(`${route}: duplicate or missing data-item-id (${id})`);
+            break;
+          }
+          ids.add(id);
+        }
+        const imgBtns = doc.querySelectorAll('button.lightbox-trigger[data-lightbox-src]').length;
+        if (imgBtns !== checklistMeta.imageCount) {
+          errors.push(
+            `${route}: expected ${checklistMeta.imageCount} lightbox image triggers, found ${imgBtns}`,
+          );
+        }
+      }
+      if (route === '/build/' || checklistMeta) {
+        for (const link of doc.querySelectorAll<HTMLAnchorElement>('a[href]')) {
+          const href = link.getAttribute('href') ?? '';
+          if (
+            href.endsWith('/bom/ibom.html') &&
+            !link.hasAttribute('download') &&
+            link.getAttribute('target') !== '_blank'
+          ) {
+            errors.push(`${route}: bom/ibom.html launch link must carry target="_blank"`);
+          }
+        }
+      }
       if (route === '/hardware/') {
         for (const id of ['overview', 'schematic', 'pcb', 'panel']) {
           if (!doc.getElementById(id)) {
@@ -422,6 +479,26 @@ export function verifyBuiltSite(options: VerifyBuiltSiteOptions): SiteContractRe
       );
     }
     errors.push(...validatePatchStates(PATCH_STATES));
+
+    // 6. Verify aggregate checklist checkbox and photo totals when all 6 checklist pages are checked.
+    if (BUILD_CHECKLISTS_CATALOG.every((c) => implementedSet.has(c.route))) {
+      let totalCheckboxes = 0;
+      let totalImages = 0;
+      for (const c of BUILD_CHECKLISTS_CATALOG) {
+        const entry = parsedDocs.get(c.route);
+        if (!entry) continue;
+        totalCheckboxes += entry.doc.querySelectorAll('[data-checklist-checkbox]').length;
+        totalImages += entry.doc.querySelectorAll('button.lightbox-trigger[data-lightbox-src]').length;
+      }
+      if (totalCheckboxes !== TOTAL_CHECKLIST_ITEMS) {
+        errors.push(
+          `build checklists: aggregate checkbox count mismatch (expected ${TOTAL_CHECKLIST_ITEMS}, got ${totalCheckboxes})`,
+        );
+      }
+      if (totalImages !== 81) {
+        errors.push(`build checklists: expected 81 image lightboxes total, got ${totalImages}`);
+      }
+    }
   } finally {
     for (const { win } of parsedDocs.values()) {
       win.close();

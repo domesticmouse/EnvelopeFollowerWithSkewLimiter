@@ -410,4 +410,76 @@ flowchart LR
       resSyn.cleanup();
     }
   });
+
+  it('transforms build checklists cleanly: interactive unchecked inputs, critical callouts, copyable blocks, ibom _blank, and lightbox/placement cards', async () => {
+    const readRepoMd = (rel: string) =>
+      fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8');
+
+    // checklists/README.md suppresses ## Workflow Order
+    const hubRes = await renderMarkdown(readRepoMd('checklists/README.md'), 'checklists/README.md');
+    try {
+      expect(hubRes.doc.getElementById('workflow-order')).toBeNull();
+    } finally {
+      hubRes.cleanup();
+    }
+
+    // Checklists 01..05 totals: 42 + 22 + 54 + 22 + 41 + 30 = 211 checkboxes; 81 lightbox triggers
+    const files: Array<{ file: string; expectedItems: number; expectedImages: number }> = [
+      { file: 'checklists/01-main-board-ordering.md', expectedItems: 42, expectedImages: 0 },
+      { file: 'checklists/01b-front-panel-ordering.md', expectedItems: 22, expectedImages: 0 },
+      { file: 'checklists/02-pcba-part-alignment.md', expectedItems: 54, expectedImages: 51 },
+      { file: 'checklists/03-tayda-ordering.md', expectedItems: 22, expectedImages: 0 },
+      { file: 'checklists/04-hand-assembly.md', expectedItems: 41, expectedImages: 21 },
+      { file: 'checklists/05-board-bringup.md', expectedItems: 30, expectedImages: 9 },
+    ];
+
+    let totalCheckboxes = 0;
+    let totalImages = 0;
+    for (const entry of files) {
+      const res = await renderMarkdown(readRepoMd(entry.file), entry.file);
+      try {
+        const checkboxes = [...res.doc.querySelectorAll<HTMLInputElement>('[data-checklist-checkbox]')];
+        expect(checkboxes).toHaveLength(entry.expectedItems);
+        expect(checkboxes.every((cb) => !cb.disabled && !cb.checked)).toBe(true);
+
+        const uniqueIds = new Set(checkboxes.map((cb) => cb.getAttribute('data-item-id')));
+        expect(uniqueIds.size).toBe(entry.expectedItems);
+
+        const lightboxes = [...res.doc.querySelectorAll('button.lightbox-trigger[data-lightbox-src]')];
+        expect(lightboxes).toHaveLength(entry.expectedImages);
+
+        totalCheckboxes += checkboxes.length;
+        totalImages += lightboxes.length;
+
+        if (entry.file === 'checklists/01-main-board-ordering.md' || entry.file === 'checklists/01b-front-panel-ordering.md') {
+          expect(res.doc.querySelectorAll('[data-copy-trigger]').length).toBeGreaterThanOrEqual(2);
+          const remarkTrigger = [...res.doc.querySelectorAll('[data-copy-trigger]')].find((el) =>
+            (el.getAttribute('data-copy-text') ?? '').includes('5x5mm'),
+          );
+          expect(remarkTrigger).toBeDefined();
+        }
+
+        if (entry.file === 'checklists/02-pcba-part-alignment.md') {
+          expect(res.doc.querySelector('.callout-critical')?.textContent).toContain('CRITICAL');
+          expect(res.doc.querySelectorAll('[data-placement-card]').length).toBe(50);
+        }
+
+        if (entry.file === 'checklists/04-hand-assembly.md') {
+          const ibomLinks = [...res.doc.querySelectorAll('a[data-ibom-link]')];
+          expect(ibomLinks.length).toBeGreaterThanOrEqual(2);
+          expect(ibomLinks.every((a) => a.getAttribute('target') === '_blank')).toBe(true);
+          expect(res.doc.querySelectorAll('[data-placement-card]').length).toBeGreaterThan(0);
+        }
+
+        if (entry.file === 'checklists/05-board-bringup.md') {
+          expect(res.doc.querySelector('[data-alert="critical"]')?.textContent).toContain('ABORT IMMEDIATELY');
+        }
+      } finally {
+        res.cleanup();
+      }
+    }
+
+    expect(totalCheckboxes).toBe(211);
+    expect(totalImages).toBe(81);
+  });
 });

@@ -41,6 +41,7 @@ interface Props {
   next?: DocNavItem;
   hasMermaid?: boolean;
   showOutline?: boolean;
+  shellAttributes?: Record<string, string>;
 }
 
 const {
@@ -56,6 +57,7 @@ const {
   next,
   hasMermaid = false,
   showOutline = true,
+  shellAttributes = {},
 } = Astro.props;
 
 const normalizedCurrent = normalizeRoutePath(currentPath);
@@ -65,7 +67,7 @@ const hasScriptsSlot = Astro.slots.has('scripts');
 ---
 
 <SiteLayout title={title} description={description} currentPath={currentPath}>
-  <div class="doc-shell">
+  <div class="doc-shell" {...shellAttributes}>
     <aside class="doc-rail" aria-label={sectionTitle}>
       <details class="doc-rail-panel" open>
         <summary class="doc-rail-summary">{sectionTitle}</summary>
@@ -120,9 +122,19 @@ const hasScriptsSlot = Astro.slots.has('scripts');
           <aside class="companion-banner" aria-label="Visual companion">
             <p class="companion-prompt">{companionBanner.prompt}</p>
             <div class="companion-links">
-              {companionBanner.links.map((link) => (
-                <a href={withBase(link.href)}>{link.label}</a>
-              ))}
+              {companionBanner.links.map((link) => {
+                const isIbom = link.href.endsWith('/bom/ibom.html');
+                return (
+                  <a
+                    href={withBase(link.href)}
+                    target={isIbom ? '_blank' : undefined}
+                    rel={isIbom ? 'noopener noreferrer' : undefined}
+                    data-ibom-link={isIbom ? 'true' : undefined}
+                  >
+                    {link.label}
+                  </a>
+                );
+              })}
             </div>
           </aside>
         )
