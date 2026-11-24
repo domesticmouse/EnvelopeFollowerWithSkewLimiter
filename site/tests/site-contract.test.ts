@@ -66,6 +66,28 @@ function createValidBuiltFixture(): { repoRoot: string; distDir: string } {
   return { repoRoot, distDir };
 }
 
+function writeRouteHtml(distDir: string, route: string, bodyInnerHtml: string): void {
+  const cleanRel = route === '/' ? 'index.html' : `${route.replace(/^\/|\/$/g, '')}/index.html`;
+  const targetPath = path.join(distDir, cleanRel);
+  fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+  fs.writeFileSync(
+    targetPath,
+    `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="color-scheme" content="dark" />
+    <title>Test Route</title>
+  </head>
+  <body>
+    <main id="main-content" data-pagefind-body>
+      ${bodyInnerHtml}
+    </main>
+  </body>
+</html>`,
+  );
+}
+
 afterEach(() => {
   while (tempDirs.length > 0) {
     const dir = tempDirs.pop();
@@ -164,5 +186,121 @@ describe('Built-site artifact contract', () => {
     expect(result.errors.some((e) => e.includes('fonts.googleapis.com'))).toBe(true);
     expect(result.errors.some((e) => e.includes('/patches/'))).toBe(true);
     expect(result.errors.some((e) => e.includes('not-a-route'))).toBe(true);
+  });
+
+  it('validates Reference Specs contracts (KaTeX display counts, Mermaid isolation, §8 disclosure, table wrappers, and cross-page anchors)', () => {
+    const { repoRoot, distDir } = createValidBuiltFixture();
+    const specsRoutes = [
+      '/',
+      '/specs/',
+      '/specs/base-circuit/',
+      '/specs/circuit-review/',
+      '/specs/design-spec/',
+      '/specs/panel-svg-spec/',
+    ];
+
+    writeRouteHtml(
+      distDir,
+      '/specs/',
+      `<aside class="companion-banner"><a href="/EnvelopeFollowerWithSkewLimiter/origin/">Origin</a></aside><article class="doc-prose"><h1>Reference Specs</h1></article>`,
+    );
+    writeRouteHtml(
+      distDir,
+      '/specs/base-circuit/',
+      `<aside class="companion-banner"><a href="/EnvelopeFollowerWithSkewLimiter/origin/">Origin</a></aside>
+      <article class="doc-prose">
+        <h2 id="6-practical-build--pcb-implementation-notes">Section 6</h2>
+        <pre class="mermaid">flowchart LR\n  A --&gt; B</pre>
+        <span class="katex-display"><span class="katex">1</span></span>
+        <span class="katex-display"><span class="katex">2</span></span>
+        <span class="katex-display"><span class="katex">3</span></span>
+        <span class="katex-display"><span class="katex">4</span></span>
+        <div class="table-wrapper" tabindex="0" role="region" aria-labelledby="6-practical-build--pcb-implementation-notes">
+          <table><thead><tr><th>#</th></tr></thead><tbody><tr><th>1</th></tr></tbody></table>
+        </div>
+      </article>`,
+    );
+    writeRouteHtml(
+      distDir,
+      '/specs/circuit-review/',
+      `<aside class="companion-banner"><a href="/EnvelopeFollowerWithSkewLimiter/hardware/#schematic">Schematic</a></aside>
+      <article class="doc-prose">
+        <h2 id="summary">Summary</h2>
+        <a href="/EnvelopeFollowerWithSkewLimiter/specs/base-circuit/#6-practical-build--pcb-implementation-notes">Ref</a>
+        <pre class="mermaid">flowchart LR\n  C --&gt; D</pre>
+        <span class="katex-display"><span class="katex">1</span></span>
+        <span class="katex-display"><span class="katex">2</span></span>
+        <span class="katex-display"><span class="katex">3</span></span>
+      </article>`,
+    );
+    writeRouteHtml(
+      distDir,
+      '/specs/design-spec/',
+      `<aside class="companion-banner"><a href="/EnvelopeFollowerWithSkewLimiter/hardware/">Hardware</a></aside>
+      <article class="doc-prose">
+        <h2 id="netlist">Netlist</h2>
+        <pre class="mermaid">flowchart LR\n  E --&gt; F</pre>
+        <span class="katex">x</span>
+      </article>`,
+    );
+    writeRouteHtml(
+      distDir,
+      '/specs/panel-svg-spec/',
+      `<aside class="companion-banner"><a href="/EnvelopeFollowerWithSkewLimiter/hardware/#panel">Panel</a></aside>
+      <article class="doc-prose">
+        <h2 id="8-machine-readable-geometry-json">8. Machine-Readable Geometry</h2>
+        <details data-pagefind-ignore><summary>Expand JSON</summary><pre><code>{}</code></pre></details>
+      </article>`,
+    );
+
+    const validResult = verifyBuiltSite({ repoRoot, distDir, implementedRoutes: specsRoutes });
+    expect(validResult.errors).toEqual([]);
+
+    // Inject failures: mermaid chunk on /, missing §8 disclosure, unwrapped table, broken cross-page anchor
+    fs.mkdirSync(path.join(distDir, '_astro'), { recursive: true });
+    fs.writeFileSync(path.join(distDir, '_astro/leaked.js'), 'const m = "mermaid"; export default m;');
+    fs.writeFileSync(
+      path.join(distDir, 'index.html'),
+      fs
+        .readFileSync(path.join(distDir, 'index.html'), 'utf8')
+        .replace(
+          '</body>',
+          '<script type="module" src="/EnvelopeFollowerWithSkewLimiter/_astro/leaked.js"></script></body>',
+        ),
+    );
+    writeRouteHtml(
+      distDir,
+      '/specs/panel-svg-spec/',
+      `<aside class="companion-banner"><a href="/EnvelopeFollowerWithSkewLimiter/hardware/#panel">Panel</a></aside>
+      <article class="doc-prose"><pre><code>{}</code></pre></article>`,
+    );
+    writeRouteHtml(
+      distDir,
+      '/specs/design-spec/',
+      `<aside class="companion-banner"><a href="/EnvelopeFollowerWithSkewLimiter/hardware/">Hardware</a></aside>
+      <article class="doc-prose">
+        <pre class="mermaid">flowchart LR</pre>
+        <span class="katex">x</span>
+        <table><thead><tr><th>Unwrapped</th></tr></thead></table>
+      </article>`,
+    );
+    writeRouteHtml(
+      distDir,
+      '/specs/circuit-review/',
+      `<aside class="companion-banner"><a href="/EnvelopeFollowerWithSkewLimiter/hardware/#schematic">Schematic</a></aside>
+      <article class="doc-prose">
+        <a href="/EnvelopeFollowerWithSkewLimiter/specs/base-circuit/#missing-anchor">Broken</a>
+        <pre class="mermaid">flowchart LR</pre>
+        <span class="katex-display"><span class="katex">1</span></span>
+        <span class="katex-display"><span class="katex">2</span></span>
+        <span class="katex-display"><span class="katex">3</span></span>
+      </article>`,
+    );
+
+    const brokenResult = verifyBuiltSite({ repoRoot, distDir, implementedRoutes: specsRoutes });
+    expect(brokenResult.errors.some((e) => e.includes('Mermaid'))).toBe(true);
+    expect(brokenResult.errors.some((e) => e.includes('data-pagefind-ignore'))).toBe(true);
+    expect(brokenResult.errors.some((e) => e.includes('table-wrapper'))).toBe(true);
+    expect(brokenResult.errors.some((e) => e.includes('missing-anchor'))).toBe(true);
   });
 });

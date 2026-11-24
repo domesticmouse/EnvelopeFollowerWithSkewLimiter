@@ -1,0 +1,167 @@
+---
+import 'katex/dist/katex.min.css';
+import '../styles/docs.css';
+import MermaidHydrator from '../components/MermaidHydrator.astro';
+import SiteLayout from './SiteLayout.astro';
+import { normalizeRoutePath, withBase } from '../lib/routes.ts';
+
+export interface DocNavItem {
+  label: string;
+  href: string;
+  badge?: string;
+}
+
+export interface DocBreadcrumb {
+  label: string;
+  href?: string;
+}
+
+export interface DocHeading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+export interface CompanionBanner {
+  prompt: string;
+  links: readonly { label: string; href: string }[];
+}
+
+interface Props {
+  title: string;
+  description: string;
+  currentPath: string;
+  sectionTitle: string;
+  navItems: readonly DocNavItem[];
+  breadcrumbs: readonly DocBreadcrumb[];
+  headings?: readonly DocHeading[];
+  companionBanner?: CompanionBanner;
+  prev?: DocNavItem;
+  next?: DocNavItem;
+  hasMermaid?: boolean;
+}
+
+const {
+  title,
+  description,
+  currentPath,
+  sectionTitle,
+  navItems,
+  breadcrumbs,
+  headings = [],
+  companionBanner,
+  prev,
+  next,
+  hasMermaid = false,
+} = Astro.props;
+
+const normalizedCurrent = normalizeRoutePath(currentPath);
+const outlineHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
+---
+
+<SiteLayout title={title} description={description} currentPath={currentPath}>
+  <div class="doc-shell">
+    <aside class="doc-rail" aria-label={sectionTitle}>
+      <details class="doc-rail-panel" open>
+        <summary class="doc-rail-summary">{sectionTitle}</summary>
+        <nav aria-label={`${sectionTitle} navigation`}>
+          <ul class="doc-rail-list">
+            {
+              navItems.map((item) => {
+                const isCurrent = normalizeRoutePath(item.href) === normalizedCurrent;
+                return (
+                  <li>
+                    <a
+                      href={withBase(item.href)}
+                      class="doc-rail-link"
+                      aria-current={isCurrent ? 'page' : undefined}
+                    >
+                      {item.badge && <span class="rail-badge">{item.badge}</span>}
+                      <span class="rail-label">{item.label}</span>
+                    </a>
+                  </li>
+                );
+              })
+            }
+          </ul>
+        </nav>
+      </details>
+    </aside>
+
+    <div class="doc-main">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        {
+          breadcrumbs.map((crumb, idx) => {
+            const isLast = idx === breadcrumbs.length - 1;
+            return (
+              <>
+                {idx > 0 && <span aria-hidden="true">/</span>}
+                {crumb.href && !isLast ? (
+                  <a href={withBase(crumb.href)}>{crumb.label}</a>
+                ) : (
+                  <span aria-current={isLast ? 'page' : undefined}>{crumb.label}</span>
+                )}
+              </>
+            );
+          })
+        }
+      </nav>
+
+      {
+        companionBanner && (
+          <aside class="companion-banner" aria-label="Visual companion">
+            <p class="companion-prompt">{companionBanner.prompt}</p>
+            <div class="companion-links">
+              {companionBanner.links.map((link) => (
+                <a href={withBase(link.href)}>{link.label}</a>
+              ))}
+            </div>
+          </aside>
+        )
+      }
+
+      {
+        outlineHeadings.length > 0 && (
+          <details class="toc-outline">
+            <summary class="toc-outline-summary">
+              <span>On-Page Outline</span>
+              <span class="toc-count tabular">{outlineHeadings.length} sections</span>
+            </summary>
+            <ul class="toc-outline-list">
+              {outlineHeadings.map((heading) => (
+                <li class={heading.depth === 3 ? 'toc-item-h3' : 'toc-item-h2'}>
+                  <a href={`#${heading.slug}`}>{heading.text}</a>
+                </li>
+              ))}
+            </ul>
+          </details>
+        )
+      }
+
+      <article class="doc-prose">
+        <slot />
+      </article>
+
+      {
+        (prev || next) && (
+          <nav class="doc-prev-next" aria-label="Previous and next document">
+            {prev && (
+              <a href={withBase(prev.href)} class="prev-next-card" data-dir="prev">
+                <span class="prev-next-kicker">← Previous</span>
+                <span class="prev-next-title">{prev.label}</span>
+              </a>
+            )}
+            {next && (
+              <a href={withBase(next.href)} class="prev-next-card" data-dir="next">
+                <span class="prev-next-kicker">Next →</span>
+                <span class="prev-next-title">{next.label}</span>
+              </a>
+            )}
+          </nav>
+        )
+      }
+    </div>
+  </div>
+
+  {hasMermaid && <MermaidHydrator slot="scripts" />}
+</SiteLayout>
