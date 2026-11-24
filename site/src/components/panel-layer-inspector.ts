@@ -100,8 +100,8 @@ export class PanelLayerInspector extends HTMLElement {
                 <rect x="4.75" y="123.9" width="5.5" height="3.2" rx="1.6" fill="#090A0D" stroke="#464C5C" stroke-width="0.2" />
                 <g data-layer="fmask">${goldLayerSvg}</g>
                 <g data-layer="fsilks">${silkLayerSvg}</g>
-                <g data-layer="keepouts" hidden>${keepoutMarkup}</g>
-                <g data-layer="regframe" hidden>${registrationFrameSvg}</g>
+                <g data-layer="keepouts" display="none" hidden>${keepoutMarkup}</g>
+                <g data-layer="regframe" display="none" hidden>${registrationFrameSvg}</g>
               </svg>
 
               <div class="panel-keepout-preview-card">
@@ -247,8 +247,10 @@ export class PanelLayerInspector extends HTMLElement {
         if (targetGroup) {
           if (cb.checked) {
             targetGroup.removeAttribute('hidden');
+            targetGroup.removeAttribute('display');
           } else {
             targetGroup.setAttribute('hidden', '');
+            targetGroup.setAttribute('display', 'none');
           }
         }
         if (layerKey === 'keepouts' && legendEl) {
