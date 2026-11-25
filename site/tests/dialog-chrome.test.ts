@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Window } from 'happy-dom';
-import { initDialogChrome } from '../src/lib/dialog-chrome.ts';
+import { initDialogChrome, showModalSafe, wireBackdropLightDismiss } from '../src/lib/dialog-chrome.ts';
 
 function createChromeFixture() {
   const win = new Window();
@@ -206,5 +206,108 @@ describe('dialog-chrome accessibility and fallback helper', () => {
 
     dialog.close();
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('uses showModalSafe fallback when supportsCommandFor is false and showModal throws or is missing', () => {
+    const first = createChromeFixture();
+    first.dialog.showModal = vi.fn(() => {
+      throw new Error('NotSupportedError');
+    });
+    initDialogChrome(first.doc, {
+      supportsClosedBy: true,
+      supportsCommandFor: false,
+      loadInvokersPolyfill: async () => ({}),
+    });
+
+    first.trigger.click();
+    expect(first.dialog.hasAttribute('open')).toBe(true);
+
+    const second = createChromeFixture();
+    (second.dialog as unknown as { showModal?: () => void }).showModal = undefined;
+    initDialogChrome(second.doc, {
+      supportsClosedBy: true,
+      supportsCommandFor: false,
+      loadInvokersPolyfill: async () => ({}),
+    });
+
+    second.trigger.click();
+    expect(second.dialog.hasAttribute('open')).toBe(true);
+  });
+
+  it('showModalSafe sets open attribute when showModal is missing, throws, or is a no-op', () => {
+    const win = new Window();
+    const doc = win.document as unknown as Document;
+
+    const missingDlg = doc.createElement('dialog') as HTMLDialogElement;
+    (missingDlg as unknown as { showModal?: () => void }).showModal = undefined;
+    showModalSafe(missingDlg);
+    expect(missingDlg.hasAttribute('open')).toBe(true);
+
+    const throwingDlg = doc.createElement('dialog') as HTMLDialogElement;
+    throwingDlg.showModal = vi.fn(() => {
+      throw new Error('showModal failed');
+    });
+    showModalSafe(throwingDlg);
+    expect(throwingDlg.hasAttribute('open')).toBe(true);
+
+    const noopDlg = doc.createElement('dialog') as HTMLDialogElement;
+    Object.defineProperty(noopDlg, 'open', { configurable: true, get: () => false });
+    noopDlg.showModal = vi.fn();
+    showModalSafe(noopDlg);
+    expect(noopDlg.hasAttribute('open')).toBe(true);
+  });
+
+  it('wireBackdropLightDismiss short-circuits when HTMLDialogElement.prototype supports closedBy', () => {
+    const { win, dialog } = createChromeFixture();
+    const hadClosedBy = Object.prototype.hasOwnProperty.call(win.HTMLDialogElement.prototype, 'closedBy');
+    const prevDescriptor = Object.getOwnPropertyDescriptor(win.HTMLDialogElement.prototype, 'closedBy');
+
+    const globalHadProto = 'HTMLDialogElement' in globalThis;
+    const prevGlobalProto = (globalThis as Record<string, unknown>).HTMLDialogElement;
+    (globalThis as Record<string, unknown>).HTMLDialogElement = win.HTMLDialogElement;
+    Object.defineProperty(win.HTMLDialogElement.prototype, 'closedBy', {
+      configurable: true,
+      get: () => 'any',
+    });
+
+    try {
+      wireBackdropLightDismiss(dialog);
+      dialog.showModal();
+      dispatchPointer(dialog, win, 'pointerdown', 400, 120);
+      dispatchPointer(dialog, win, 'pointerup', 400, 120);
+      expect(dialog.close).not.toHaveBeenCalled();
+    } finally {
+      if (hadClosedBy && prevDescriptor) {
+        Object.defineProperty(win.HTMLDialogElement.prototype, 'closedBy', prevDescriptor);
+      } else {
+        delete (win.HTMLDialogElement.prototype as unknown as Record<string, unknown>).closedBy;
+      }
+      if (globalHadProto) {
+        (globalThis as Record<string, unknown>).HTMLDialogElement = prevGlobalProto;
+      } else {
+        delete (globalThis as Record<string, unknown>).HTMLDialogElement;
+      }
+    }
+  });
+
+  it('preserves returnValue for data-managed-dialog while resetting returnValue for unmanaged dialogs', () => {
+    const { win, doc, dialog } = createChromeFixture();
+    const managed = doc.createElement('dialog') as HTMLDialogElement;
+    managed.id = 'managed-dlg';
+    managed.setAttribute('data-managed-dialog', '');
+    managed.returnValue = 'keep-me';
+    doc.body.appendChild(managed);
+
+    initDialogChrome(doc, {
+      supportsClosedBy: true,
+      supportsCommandFor: true,
+    });
+
+    dialog.showModal();
+    dialog.close('confirm');
+    expect(dialog.returnValue).toBe('');
+
+    managed.dispatchEvent(new win.Event('close') as unknown as Event);
+    expect(managed.returnValue).toBe('keep-me');
   });
 });
