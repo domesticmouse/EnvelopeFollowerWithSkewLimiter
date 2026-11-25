@@ -59,6 +59,8 @@ const { currentPath } = Astro.props;
           type="button"
           class="header-action-btn"
           data-search-trigger
+          aria-haspopup="dialog"
+          aria-controls="site-search-dialog"
           aria-label="Search site"
         >
           <span aria-hidden="true">⌕</span>

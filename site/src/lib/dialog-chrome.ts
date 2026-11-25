@@ -133,8 +133,8 @@ export function initDialogChrome(
         return;
       }
       const dialog = target as HTMLDialogElement;
-      if (!supportsCommandFor && !dialog.open && typeof dialog.showModal === 'function') {
-        dialog.showModal();
+      if (!supportsCommandFor && !dialog.open) {
+        showModalSafe(dialog);
       }
       setTriggersExpanded(doc, dialog.id, dialog.open);
       queueMicrotask(() => {
