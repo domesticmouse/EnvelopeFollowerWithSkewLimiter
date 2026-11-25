@@ -31,6 +31,7 @@ const EXCLUDED_PREFIXES: readonly string[] = [
   'manufacturing/gerbers/',
   'manufacturing/panel_gerbers/',
   'docs/agents/',
+  'docs/adr/',
   'docs/research/',
   '.agents/',
 ];
