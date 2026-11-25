@@ -322,6 +322,7 @@ flowchart LR
     const md = fs.readFileSync(path.join(REPO_ROOT, 'patches/README.md'), 'utf8');
     const { doc, cleanup } = await renderMarkdown(md, 'patches/README.md');
     try {
+      expect(doc.querySelectorAll('h1')).toHaveLength(0);
       expect(doc.getElementById('two-modules-in-6-hp')).not.toBeNull();
       expect(doc.getElementById('front-panel-control-reference')).not.toBeNull();
       expect(doc.getElementById('timing-quick-reference')).not.toBeNull();
