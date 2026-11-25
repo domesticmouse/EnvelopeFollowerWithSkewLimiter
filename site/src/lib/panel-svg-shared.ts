@@ -131,6 +131,12 @@ function recolorGroupSvg(groupSvg: string, hexColor: string): string {
     .replace(/\bstroke="(?!none")[^"]*"/g, `stroke="${hexColor}"`);
 }
 
+function stripRegistrationFrame(svgText: string): string {
+  return svgText
+    .replace(/<g\b[^>]*\bid=["']_03_Registration_Frame["'][^>]*>[\s\S]*?<\/g>/g, '')
+    .replace(/<[^>]*\bid=["']registration_frame["'][^>]*\/>/g, '');
+}
+
 function tagNormalArrow(goldGroupSvg: string): string {
   return goldGroupSvg.replace(
     /(<polygon\b[^>]*\bpoints="13\.45,95\.47[^"]*"[^>]*?)\s*\/>/,
@@ -143,15 +149,11 @@ export function parseFaceplateLayersFromStrings(
   maskText: string,
   silkText: string,
 ): FaceplateLayerMarkup {
-  const rawGoldGroup = extractGroupById(
-    maskText,
-    '_01_F_Mask_Gold',
-    'panel_art/front_soldermask.svg',
+  const rawGoldGroup = stripRegistrationFrame(
+    extractGroupById(maskText, '_01_F_Mask_Gold', 'panel_art/front_soldermask.svg'),
   );
-  const rawSilkGroup = extractGroupById(
-    silkText,
-    '_02_F_SilkS_White',
-    'panel_art/front_silkscreen.svg',
+  const rawSilkGroup = stripRegistrationFrame(
+    extractGroupById(silkText, '_02_F_SilkS_White', 'panel_art/front_silkscreen.svg'),
   );
   const rawRegGroup = extractGroupById(
     maskText,
