@@ -46,6 +46,7 @@ function createFixtureRepo(): string {
   writeFile('manufacturing/gerbers/envelope_follower-F_Cu.gtl', 'G04');
   writeFile('manufacturing/panel_gerbers/envelope_follower_panel-F_Cu.gtl', 'G04');
   writeFile('docs/agents/issue-tracker.md', '# Tracker');
+  writeFile('docs/adr/0001-sample.md', '# ADR 0001');
   writeFile('docs/research/static-site-generators.md', '# Research');
   writeFile('.agents/skills/implement/SKILL.md', '# Skill');
 
@@ -89,6 +90,7 @@ describe('static passthrough contract', () => {
     expect(resolved).not.toContain('manufacturing/gerbers/envelope_follower-F_Cu.gtl');
     expect(resolved).not.toContain('manufacturing/panel_gerbers/envelope_follower_panel-F_Cu.gtl');
     expect(resolved).not.toContain('docs/agents/issue-tracker.md');
+    expect(resolved).not.toContain('docs/adr/0001-sample.md');
     expect(resolved).not.toContain('docs/research/static-site-generators.md');
     expect(resolved).not.toContain('.agents/skills/implement/SKILL.md');
   });
@@ -122,6 +124,7 @@ describe('static passthrough contract', () => {
     ).toBe(false);
     expect(fs.existsSync(path.join(distDir, 'manufacturing/gerbers'))).toBe(false);
     expect(fs.existsSync(path.join(distDir, 'docs/agents'))).toBe(false);
+    expect(fs.existsSync(path.join(distDir, 'docs/adr'))).toBe(false);
   });
 
   it('resolves allowlisted dev requests with proper MIME types and blocks excluded or traversal paths', () => {
@@ -166,6 +169,13 @@ describe('static passthrough contract', () => {
     ).toBeNull();
     expect(
       resolveDevPassthroughRequest(
+        '/EnvelopeFollowerWithSkewLimiter/docs/adr/0001-sample.md',
+        base,
+        repoRoot,
+      ),
+    ).toBeNull();
+    expect(
+      resolveDevPassthroughRequest(
         '/EnvelopeFollowerWithSkewLimiter/panel_art/envelope_follower_panel.vectorcraft',
         base,
         repoRoot,
@@ -190,6 +200,7 @@ describe('static passthrough contract', () => {
     expect(isExcludedRepoPath('manufacturing/gerbers/foo.gbr')).toBe(true);
     expect(isExcludedRepoPath('manufacturing/panel_gerbers/foo.gbr')).toBe(true);
     expect(isExcludedRepoPath('docs/agents/issue-tracker.md')).toBe(true);
+    expect(isExcludedRepoPath('docs/adr/0001-sample.md')).toBe(true);
     expect(isExcludedRepoPath('docs/research/static-site-generators.md')).toBe(true);
     expect(isExcludedRepoPath('.agents/skills/implement/SKILL.md')).toBe(true);
     expect(isExcludedRepoPath('bom/ibom.html')).toBe(false);

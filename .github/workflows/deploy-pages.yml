@@ -1,4 +1,4 @@
-name: Build & Deploy Documentation Site
+name: Build & Deploy Companion Site
 
 on:
   push:
@@ -6,6 +6,7 @@ on:
     paths-ignore:
       - '.agents/**'
       - 'docs/agents/**'
+      - 'docs/adr/**'
       - 'docs/research/**'
       - 'skills-lock.json'
   pull_request:
@@ -18,8 +19,8 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
-  cancel-in-progress: false
+  group: ${{ github.event_name == 'pull_request' && format('pages-pr-{0}', github.ref) || 'pages' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build:
