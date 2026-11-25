@@ -1,5 +1,4 @@
 import type { Root } from 'mdast';
-import type { Plugin } from 'unified';
 import { visit } from 'unist-util-visit';
 
 interface InlineMathNode {
@@ -16,13 +15,18 @@ interface InlineMathNode {
   };
 }
 
+interface MathSourceFile {
+  value?: unknown;
+}
+
 /**
  * Promote single-line `$$...$$` expressions inside paragraphs or list items
  * from `math-inline` to `math-display` so `rehype-katex` renders them in display mode.
  */
-export const remarkPromoteDoubleDollarMath: Plugin<[], Root> = () => {
+export function remarkPromoteDoubleDollarMath(): (tree: Root, file?: MathSourceFile) => void {
   return (tree, file) => {
-    const source = typeof file.value === 'string' ? file.value : String(file.value ?? '');
+    const rawValue = file?.value;
+    const source = typeof rawValue === 'string' ? rawValue : String(rawValue ?? '');
     if (!source) {
       return;
     }
@@ -43,4 +47,4 @@ export const remarkPromoteDoubleDollarMath: Plugin<[], Root> = () => {
       }
     });
   };
-};
+}
