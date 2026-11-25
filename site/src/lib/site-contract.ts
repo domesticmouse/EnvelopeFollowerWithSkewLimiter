@@ -6,7 +6,11 @@ import {
   TOTAL_CHECKLIST_ITEMS,
 } from '../data/build-checklists.ts';
 import { PATCH_STATES, validatePatchStates } from '../data/patch-states.ts';
-import { PATCH_GUIDE_FILES, REFERENCE_SPECS_CATALOG } from './content-manifest.ts';
+import {
+  ALLOWLISTED_MARKDOWN_FILES,
+  PATCH_GUIDE_FILES,
+  REFERENCE_SPECS_CATALOG,
+} from './content-manifest.ts';
 import {
   CANONICAL_ROUTES,
   SITE_BASE,
@@ -40,6 +44,198 @@ export interface SiteContractResult {
 const CANONICAL_ROUTE_SET = new Set<string>(CANONICAL_ROUTES);
 const POSITIVE_INT_RE = /^[1-9]\d*$/;
 const EXTERNAL_PROTO_RE = /^(?:https?:|mailto:|tel:|data:|blob:)/i;
+
+/** Required self-hosted @fontsource font families present as .woff2 in distDir. */
+export const REQUIRED_FONT_FAMILIES = [
+  'barlow-condensed',
+  'space-grotesk',
+  'ibm-plex-sans',
+  'ibm-plex-mono',
+] as const;
+
+/** Third-party CDN hostnames forbidden in built HTML, CSS, and JS assets. */
+export const EXTERNAL_CDN_DOMAINS = [
+  'fonts.googleapis.com',
+  'fonts.gstatic.com',
+  'unpkg.com',
+  'cdn.jsdelivr.net',
+] as const;
+
+/** Detects hardcoded inline hex color styling inside Mermaid diagrams. */
+export const MERMAID_HEX_STYLE_RE =
+  /^\s*(?:style|classDef|linkStyle)\b[^\n]*#[0-9a-f]{3,8}\b|\b(?:fill|stroke|color)\s*:\s*#[0-9a-f]{3,8}\b/im;
+
+const MERMAID_ARROW_RE =
+  /--+\s+[^-]+?\s+--+>|-\.\s+[^.]+?\s+\.-+>|==+\s+[^=]+?\s+==+>|(?:<)?(?:--+>|---+|-\.+->|-\.-|==+>|===+|--+o|--+x|<--+>|o--+o|x--+x|~~~)/g;
+
+interface MermaidSubgraphFrame {
+  id: string;
+  direction: string | null;
+  parentId: string | null;
+}
+
+function stripMermaidLabels(rawLine: string): string {
+  let cleaned = rawLine
+    .replace(/%%.*$/, '')
+    .replace(/"[^"]*"/g, '""')
+    .replace(/\|[^|]*\|/g, ' ')
+    .replace(/:::[\w-]+/g, '');
+  // Strip bracketed/parenthesized/braced node labels cleanly (iteratively for nested ((...)) etc.)
+  let prev = '';
+  while (cleaned !== prev) {
+    prev = cleaned;
+    cleaned = cleaned
+      .replace(/\[[^[\]]*\]/g, '')
+      .replace(/\([^()]*\)/g, '')
+      .replace(/\{[^{}]*\}/g, '');
+  }
+  return cleaned;
+}
+
+function collectMermaidAncestors(
+  scopeId: string | null,
+  subgraphById: ReadonlyMap<string, MermaidSubgraphFrame>,
+): Set<string> {
+  const ancestors = new Set<string>();
+  let cur = scopeId;
+  while (cur) {
+    ancestors.add(cur);
+    cur = subgraphById.get(cur)?.parentId ?? null;
+  }
+  return ancestors;
+}
+
+/**
+ * Return true if a Mermaid `flowchart LR` / `graph LR` diagram contains a subgraph
+ * with a non-LR `direction` and at least one edge crossing that subgraph's boundary.
+ */
+export function hasMixedLrSubgraphCrossEdges(source: string): boolean {
+  const rawLines = source.split(/\r?\n/);
+  let headerChecked = false;
+  const stack: MermaidSubgraphFrame[] = [];
+  const subgraphs: MermaidSubgraphFrame[] = [];
+  const subgraphById = new Map<string, MermaidSubgraphFrame>();
+  const nodeScope = new Map<string, string | null>();
+  const edges: Array<{ from: string; to: string }> = [];
+
+  for (const rawLine of rawLines) {
+    const trimmed = rawLine.replace(/%%.*$/, '').trim();
+    if (!trimmed) {
+      continue;
+    }
+
+    if (!headerChecked) {
+      headerChecked = true;
+      if (!/^(?:flowchart|graph)\s+LR\b/i.test(trimmed)) {
+        return false;
+      }
+      continue;
+    }
+
+    const sgMatch = trimmed.match(/^subgraph\b\s*(.*)$/i);
+    if (sgMatch) {
+      const rest = (sgMatch[1] ?? '').trim();
+      const idMatch = rest.match(/^([^\s\["']+)/);
+      const id = idMatch?.[1] ?? `__subgraph_${subgraphs.length}`;
+      const frame: MermaidSubgraphFrame = {
+        id,
+        direction: null,
+        parentId: stack[stack.length - 1]?.id ?? null,
+      };
+      stack.push(frame);
+      subgraphs.push(frame);
+      subgraphById.set(id, frame);
+      continue;
+    }
+
+    if (/^end\b/i.test(trimmed)) {
+      stack.pop();
+      continue;
+    }
+
+    const dirMatch = trimmed.match(/^direction\s+(LR|RL|TB|TD|BT)\b/i);
+    if (dirMatch) {
+      const currentFrame = stack[stack.length - 1];
+      if (currentFrame && dirMatch[1]) {
+        currentFrame.direction = dirMatch[1].toUpperCase();
+      }
+      continue;
+    }
+
+    if (/^(?:classDef|style|linkStyle|click|class|accTitle|accDescr)\b/i.test(trimmed)) {
+      continue;
+    }
+
+    const cleaned = stripMermaidLabels(trimmed);
+    const currentScope = stack[stack.length - 1]?.id ?? null;
+    const segments = cleaned.split(MERMAID_ARROW_RE);
+
+    const extractIds = (segment: string): string[] =>
+      segment
+        .split('&')
+        .map((part) => part.trim().match(/^([A-Za-z0-9_.-]+)/)?.[1] ?? '')
+        .filter(Boolean);
+
+    if (segments.length === 1) {
+      for (const id of extractIds(segments[0] ?? '')) {
+        if (!nodeScope.has(id)) {
+          nodeScope.set(id, currentScope);
+        }
+      }
+      continue;
+    }
+
+    const groupIds = segments.map(extractIds);
+    for (const ids of groupIds) {
+      for (const id of ids) {
+        if (!nodeScope.has(id)) {
+          nodeScope.set(id, currentScope);
+        }
+      }
+    }
+
+    for (let i = 0; i < groupIds.length - 1; i += 1) {
+      const left = groupIds[i] ?? [];
+      const right = groupIds[i + 1] ?? [];
+      for (const from of left) {
+        for (const to of right) {
+          edges.push({ from, to });
+        }
+      }
+    }
+  }
+
+  const mixedIds = new Set(
+    subgraphs
+      .filter((sg) => sg.direction !== null && sg.direction !== 'LR')
+      .map((sg) => sg.id),
+  );
+  if (mixedIds.size === 0) {
+    return false;
+  }
+
+  for (const { from, to } of edges) {
+    const scopeA = subgraphById.has(from) ? from : (nodeScope.get(from) ?? null);
+    const scopeB = subgraphById.has(to) ? to : (nodeScope.get(to) ?? null);
+    if (scopeA === scopeB) {
+      continue;
+    }
+    const ancA = collectMermaidAncestors(scopeA, subgraphById);
+    const ancB = collectMermaidAncestors(scopeB, subgraphById);
+    for (const id of ancA) {
+      if (!ancB.has(id) && mixedIds.has(id)) {
+        return true;
+      }
+    }
+    for (const id of ancB) {
+      if (!ancA.has(id) && mixedIds.has(id)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
 
 const NON_MERMAID_ROUTES = new Set<string>([
   '/',
@@ -309,6 +505,17 @@ export function verifyReadmeLinks(
   return errors;
 }
 
+function checkMermaidSource(sourceLabel: string, diagramSource: string, errors: string[]): void {
+  if (MERMAID_HEX_STYLE_RE.test(diagramSource)) {
+    errors.push(`${sourceLabel}: Mermaid diagram contains disallowed inline hex styling`);
+  }
+  if (hasMixedLrSubgraphCrossEdges(diagramSource)) {
+    errors.push(
+      `${sourceLabel}: Mermaid diagram mixes flowchart LR with non-LR subgraph cross-edges`,
+    );
+  }
+}
+
 /** Verify built Astro output against static artifact, passthrough, and HTML invariants. */
 export function verifyBuiltSite(options: VerifyBuiltSiteOptions): SiteContractResult {
   const distDir = path.resolve(options.distDir);
@@ -349,12 +556,39 @@ export function verifyBuiltSite(options: VerifyBuiltSiteOptions): SiteContractRe
     }
   }
 
-  // 2. Scan distDir for any leaked excluded repository files.
+  // 2. Scan distDir for any leaked excluded repository files, self-hosted fonts, and CDN/CSS URLs.
   const allDistFiles: string[] = [];
   walkAllFiles(distDir, distDir, allDistFiles);
+  const woff2Basenames: string[] = [];
   for (const relFile of allDistFiles) {
     if (isExcludedRepoPath(relFile)) {
       errors.push(`Leaked excluded file in dist: ${relFile}`);
+    }
+    if (relFile.startsWith('pagefind/')) {
+      continue;
+    }
+    const lowerRel = relFile.toLowerCase();
+    if (lowerRel.endsWith('.woff2')) {
+      woff2Basenames.push(path.posix.basename(lowerRel));
+      continue;
+    }
+    if (lowerRel.endsWith('.html') || lowerRel.endsWith('.css') || lowerRel.endsWith('.js')) {
+      const text = fs.readFileSync(path.join(distDir, relFile), 'utf8');
+      const lowerText = text.toLowerCase();
+      for (const domain of EXTERNAL_CDN_DOMAINS) {
+        if (lowerText.includes(domain)) {
+          errors.push(`Disallowed external CDN domain (${domain}) in built asset: ${relFile}`);
+        }
+      }
+      if (lowerRel.endsWith('.css') && /https?:\/\//i.test(text)) {
+        errors.push(`Disallowed http/https URL in built CSS: ${relFile}`);
+      }
+    }
+  }
+
+  for (const family of REQUIRED_FONT_FAMILIES) {
+    if (!woff2Basenames.some((name) => name.includes(family))) {
+      errors.push(`Missing required self-hosted .woff2 font family in dist: ${family}`);
     }
   }
 
@@ -389,6 +623,48 @@ export function verifyBuiltSite(options: VerifyBuiltSiteOptions): SiteContractRe
         errors.push(`${route}: missing <main data-pagefind-body>`);
       }
 
+      const h1Count = doc.querySelectorAll('h1').length;
+      if (h1Count !== 1) {
+        errors.push(`${route}: expected exactly 1 <h1>, found ${h1Count}`);
+      }
+
+      for (const selector of [
+        'header.site-header',
+        'dialog#mobile-nav-drawer',
+        'footer.site-footer',
+        'dialog#site-search-dialog',
+      ]) {
+        const el = doc.querySelector(selector);
+        if (!el) {
+          errors.push(`${route}: missing required chrome element ${selector}`);
+        } else if (!el.hasAttribute('data-pagefind-ignore')) {
+          errors.push(`${route}: ${selector} missing explicit data-pagefind-ignore`);
+        }
+      }
+
+      for (const dialog of doc.querySelectorAll('dialog')) {
+        if (dialog.getAttribute('closedby') !== 'any') {
+          const idSuffix = dialog.id ? `#${dialog.id}` : '';
+          errors.push(`${route}: dialog${idSuffix} missing closedby="any"`);
+        }
+      }
+
+      const searchTriggers = [...doc.querySelectorAll('[data-search-trigger]')];
+      if (searchTriggers.length === 0) {
+        errors.push(`${route}: missing [data-search-trigger] button`);
+      } else {
+        for (const trigger of searchTriggers) {
+          if (
+            trigger.getAttribute('aria-haspopup') !== 'dialog' ||
+            trigger.getAttribute('aria-controls') !== 'site-search-dialog'
+          ) {
+            errors.push(
+              `${route}: [data-search-trigger] missing aria-haspopup="dialog" or aria-controls="site-search-dialog"`,
+            );
+          }
+        }
+      }
+
       if (doc.querySelectorAll('main script').length > 0) {
         errors.push(`${route}: unexpected inline/page <script> inside <main>`);
       }
@@ -405,7 +681,17 @@ export function verifyBuiltSite(options: VerifyBuiltSiteOptions): SiteContractRe
       for (const el of doc.querySelectorAll('script[src], link[href]')) {
         const attr = el.hasAttribute('src') ? 'src' : 'href';
         const ref = el.getAttribute(attr)?.trim() ?? '';
-        if (ref.startsWith('http://') || ref.startsWith('https://') || ref.startsWith('//')) {
+        if (/^(?:https?:)?\/\//i.test(ref)) {
+          const isCanonicalLink =
+            el.tagName.toLowerCase() === 'link' &&
+            (el.getAttribute('rel') ?? '')
+              .trim()
+              .toLowerCase()
+              .split(/\s+/)
+              .includes('canonical');
+          if (isCanonicalLink && ref.startsWith(`${SITE_ORIGIN}${SITE_BASE}/`)) {
+            continue;
+          }
           errors.push(`${route}: disallowed third-party asset reference (${ref})`);
         }
       }
@@ -416,6 +702,14 @@ export function verifyBuiltSite(options: VerifyBuiltSiteOptions): SiteContractRe
         const height = img.getAttribute('height')?.trim() ?? '';
         if (!POSITIVE_INT_RE.test(width) || !POSITIVE_INT_RE.test(height)) {
           errors.push(`${route}: <img> missing explicit positive integer width/height (${src || 'unnamed'})`);
+        }
+
+        const fetchPriority = img.getAttribute('fetchpriority')?.trim().toLowerCase() ?? '';
+        const loading = img.getAttribute('loading')?.trim().toLowerCase() ?? '';
+        if (fetchPriority === 'high' && loading === 'lazy') {
+          errors.push(
+            `${route}: <img> cannot combine fetchpriority="high" with loading="lazy" (${src || 'unnamed'})`,
+          );
         }
 
         if (!src || !resolveDistFile(distDir, src)) {
@@ -473,6 +767,10 @@ export function verifyBuiltSite(options: VerifyBuiltSiteOptions): SiteContractRe
           continue;
         }
         verifiedLinks += 1;
+      }
+
+      for (const pre of doc.querySelectorAll('pre.mermaid')) {
+        checkMermaidSource(`${route} (<pre class="mermaid">)`, pre.textContent ?? '', errors);
       }
 
       if (NON_MERMAID_ROUTES.has(route)) {
@@ -627,6 +925,18 @@ export function verifyBuiltSite(options: VerifyBuiltSiteOptions): SiteContractRe
     // 8. Verify root README.md relative paths and live GitHub Pages links when enabled.
     if (options.verifyReadme) {
       errors.push(...verifyReadmeLinks(repoRoot, distDir, parsedDocs));
+    }
+
+    // 9. Verify static Mermaid guardrails on existing allowlisted Markdown source fences.
+    for (const relMd of ALLOWLISTED_MARKDOWN_FILES) {
+      const absMd = path.join(repoRoot, relMd);
+      if (!fs.existsSync(absMd) || !fs.statSync(absMd).isFile()) {
+        continue;
+      }
+      const mdText = fs.readFileSync(absMd, 'utf8').replace(/\r\n/g, '\n');
+      for (const match of mdText.matchAll(/^```mermaid[^\n]*\n([\s\S]*?)^```/gm)) {
+        checkMermaidSource(relMd, match[1] ?? '', errors);
+      }
     }
   } finally {
     for (const { win } of parsedDocs.values()) {
