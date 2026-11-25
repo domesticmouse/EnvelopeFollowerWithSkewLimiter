@@ -11,6 +11,15 @@ export const SITE_URL = `${SITE_ORIGIN}${SITE_BASE}/`;
 export const GITHUB_REPO_URL =
   'https://github.com/domesticmouse/EnvelopeFollowerWithSkewLimiter';
 
+/** Original HAGIWO/ハギヲ Module No. 43 build writeup URL on Note.com. */
+export const HAGIWO_NOTE_URL = 'https://note.com/solder_state/n/n110e9ba066b3?hl=en';
+
+/** Companion 9-stage ENV / SKEW Build Tutorial repository URL. */
+export const TUTORIAL_REPO_URL = 'https://github.com/domesticmouse/EnvelopeFollower';
+
+/** Live published companion 9-stage ENV / SKEW Build Tutorial site URL. */
+export const TUTORIAL_SITE_URL = 'https://domesticmouse.github.io/EnvelopeFollower/';
+
 /** Audience-ordered top-level navigation descriptor. */
 export interface NavItem {
   label: string;
