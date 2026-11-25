@@ -10,7 +10,7 @@ export interface HydrateMermaidOptions {
   loadMermaid?: () => Promise<MermaidRuntime>;
 }
 
-/** Matte Black FR4 + ENIG Gold Mermaid base theme configuration. */
+/** Matte Black FR4 + ENIG Gold + Silk Ink Mermaid dark-studio theme configuration. */
 export const MERMAID_THEME_CONFIG = {
   startOnLoad: false,
   securityLevel: 'strict' as const,
@@ -61,7 +61,11 @@ export async function hydrateMermaidDiagrams(
     return 0;
   }
 
-  const blocks = [...root.querySelectorAll<HTMLElement>('.mermaid:not([data-mermaid-rendered="true"])')];
+  const blocks = [
+    ...root.querySelectorAll<HTMLElement>(
+      '.mermaid:not([data-mermaid-rendered="true"]):not([data-mermaid-error="true"])',
+    ),
+  ];
   if (blocks.length === 0) {
     return 0;
   }
@@ -86,14 +90,22 @@ export async function hydrateMermaidDiagrams(
       const container = ownerDoc.createElement('div');
       container.className = 'mermaid mermaid-svg';
       container.setAttribute('data-mermaid-rendered', 'true');
+      const label = block.getAttribute('data-mermaid-label')?.trim() || 'Diagram';
       container.setAttribute('role', 'img');
-      container.setAttribute('aria-label', 'Circuit signal flow diagram');
+      container.setAttribute('aria-label', label);
       container.innerHTML = svg;
       block.replaceWith(container);
       renderedCount += 1;
     } catch {
       // Leave readable monospace diagram source visible on unexpected syntax failure
       block.setAttribute('data-mermaid-error', 'true');
+      if (!block.previousElementSibling?.classList.contains('mermaid-error-note')) {
+        const notice = ownerDoc.createElement('p');
+        notice.className = 'mermaid-error-note';
+        notice.setAttribute('role', 'status');
+        notice.textContent = 'Diagram preview unavailable; showing Mermaid source.';
+        block.before(notice);
+      }
     }
   }
 

@@ -859,6 +859,13 @@ dialog.search-dialog[open] {
   border-radius: 2px;
 }
 
+.mermaid-error-note {
+  margin: 0 0 0.65rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--led-amber);
+}
+
 /* ============================================================================
  * AUTOMATIC PRINT STYLESHEET (@media print)
  * ============================================================================ */
