@@ -2,6 +2,7 @@
 import {
   GITHUB_REPO_URL,
   PRIMARY_NAV_ITEMS,
+  TUTORIAL_SITE_URL,
   isNavSectionActive,
   withBase,
 } from '../lib/routes.ts';
@@ -13,7 +14,7 @@ interface Props {
 const { currentPath } = Astro.props;
 ---
 
-<header class="site-header">
+<header class="site-header" data-pagefind-ignore>
   <div class="site-header-inner">
     <div class="brand-group">
       <button
@@ -83,7 +84,13 @@ const { currentPath } = Astro.props;
   </div>
 </header>
 
-<dialog id="mobile-nav-drawer" class="nav-drawer" closedby="any" aria-labelledby="mobile-nav-title">
+<dialog
+  id="mobile-nav-drawer"
+  class="nav-drawer"
+  data-pagefind-ignore
+  closedby="any"
+  aria-labelledby="mobile-nav-title"
+>
   <div class="nav-drawer-head">
     <h2 id="mobile-nav-title" class="nav-drawer-title">ENV / SKEW</h2>
     <form method="dialog">
@@ -124,6 +131,17 @@ const { currentPath } = Astro.props;
           aria-current={isNavSectionActive(currentPath, '/specs/') ? 'page' : undefined}
         >
           <span>Reference Specs</span>
+        </a>
+      </li>
+      <li>
+        <a
+          href={TUTORIAL_SITE_URL}
+          class="nav-drawer-link"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span>Build Tutorial</span>
+          <span aria-hidden="true">↗</span>
         </a>
       </li>
       <li>
