@@ -265,7 +265,7 @@ flowchart LR
       expect(doc.querySelectorAll('ul.formula-grid')).toHaveLength(1);
 
       const mermaidPre = doc.querySelector(
-        'figure.mermaid-card > div.mermaid-scroll[tabindex="0"][role="region"] > pre.mermaid',
+        'figure.mermaid-card > div.mermaid-scroll[tabindex="0"][role="region"][aria-label="Signal flow diagram"] > pre.mermaid[data-mermaid-label="Circuit signal flow diagram"]',
       );
       expect(mermaidPre).not.toBeNull();
       expect(mermaidPre?.textContent).toContain('flowchart LR');
