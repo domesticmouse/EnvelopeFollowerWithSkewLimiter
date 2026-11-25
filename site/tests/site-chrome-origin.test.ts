@@ -57,11 +57,11 @@ describe('SiteHeader chrome invariants (#36)', () => {
     );
     expect(desktopTutorialLinks).toHaveLength(0);
 
-    // Do not alter [data-search-trigger] attributes (handled by #35)
+    // Verify [data-search-trigger] dialog ARIA attributes from #35 remain intact
     const searchTrigger = header!.querySelector('[data-search-trigger]');
     expect(searchTrigger).not.toBeNull();
-    expect(searchTrigger!.getAttribute('aria-haspopup')).toBeNull();
-    expect(searchTrigger!.getAttribute('aria-controls')).toBeNull();
+    expect(searchTrigger!.getAttribute('aria-haspopup')).toBe('dialog');
+    expect(searchTrigger!.getAttribute('aria-controls')).toBe('site-search-dialog');
 
     // Mobile nav drawer is ignored by Pagefind and includes Build Tutorial ↗ alongside GitHub Repository ↗
     const drawer = doc.querySelector('dialog#mobile-nav-drawer');
