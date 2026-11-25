@@ -260,7 +260,13 @@ function transformMermaidFences(tree: Root): void {
             role: 'region',
             ariaLabel: 'Signal flow diagram',
           },
-          [h('pre', { className: ['mermaid'] }, [{ type: 'text', value: diagramSource }])],
+          [
+            h(
+              'pre',
+              { className: ['mermaid'], dataMermaidLabel: 'Circuit signal flow diagram' },
+              [{ type: 'text', value: diagramSource }],
+            ),
+          ],
         ),
       ],
     );
