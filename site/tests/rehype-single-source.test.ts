@@ -265,7 +265,7 @@ flowchart LR
       expect(doc.querySelectorAll('ul.formula-grid')).toHaveLength(1);
 
       const mermaidPre = doc.querySelector(
-        'figure.mermaid-card > div.mermaid-scroll[tabindex="0"][role="region"] > pre.mermaid',
+        'figure.mermaid-card > div.mermaid-scroll[tabindex="0"][role="region"][aria-label="Signal flow diagram"] > pre.mermaid[data-mermaid-label="Circuit signal flow diagram"]',
       );
       expect(mermaidPre).not.toBeNull();
       expect(mermaidPre?.textContent).toContain('flowchart LR');
@@ -322,6 +322,7 @@ flowchart LR
     const md = fs.readFileSync(path.join(REPO_ROOT, 'patches/README.md'), 'utf8');
     const { doc, cleanup } = await renderMarkdown(md, 'patches/README.md');
     try {
+      expect(doc.querySelectorAll('h1')).toHaveLength(0);
       expect(doc.getElementById('two-modules-in-6-hp')).not.toBeNull();
       expect(doc.getElementById('front-panel-control-reference')).not.toBeNull();
       expect(doc.getElementById('timing-quick-reference')).not.toBeNull();

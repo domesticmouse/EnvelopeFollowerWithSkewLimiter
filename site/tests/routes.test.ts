@@ -1,9 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
   CANONICAL_ROUTES,
+  HAGIWO_NOTE_URL,
   PRIMARY_NAV_ITEMS,
   SITE_BASE,
   SITE_ORIGIN,
+  TUTORIAL_REPO_URL,
+  TUTORIAL_SITE_URL,
   isNavSectionActive,
   normalizeRoutePath,
   withBase,
@@ -13,6 +16,12 @@ describe('routes registry and base-path helpers', () => {
   it('defines the locked GitHub Pages origin and base path', () => {
     expect(SITE_ORIGIN).toBe('https://domesticmouse.github.io');
     expect(SITE_BASE).toBe('/EnvelopeFollowerWithSkewLimiter');
+  });
+
+  it('exports canonical external lineage and companion Build Tutorial URLs', () => {
+    expect(HAGIWO_NOTE_URL).toBe('https://note.com/solder_state/n/n110e9ba066b3?hl=en');
+    expect(TUTORIAL_REPO_URL).toBe('https://github.com/domesticmouse/EnvelopeFollower');
+    expect(TUTORIAL_SITE_URL).toBe('https://domesticmouse.github.io/EnvelopeFollower/');
   });
 
   it('prefixes internal paths and passthrough assets with SITE_BASE while preserving hashes', () => {

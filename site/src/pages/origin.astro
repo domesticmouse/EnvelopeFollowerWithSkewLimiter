@@ -5,7 +5,13 @@ import '../styles/curated.css';
 import SiteLayout from '../layouts/SiteLayout.astro';
 import { readImageDimensions } from '../lib/image-dimensions.ts';
 import { resolveRepoRoot } from '../lib/repo-files.ts';
-import { GITHUB_REPO_URL, withBase } from '../lib/routes.ts';
+import {
+  GITHUB_REPO_URL,
+  HAGIWO_NOTE_URL,
+  TUTORIAL_REPO_URL,
+  TUTORIAL_SITE_URL,
+  withBase,
+} from '../lib/routes.ts';
 
 const repoRoot = resolveRepoRoot();
 const plateDims = readImageDimensions(path.join(repoRoot, 'EnvelopeFollower.webp')) ?? {
@@ -97,7 +103,7 @@ const evolutionRows = [
 
 <SiteLayout
   title="Origin Story — From HAGIWO No. 43 to ENV / SKEW · ENV / SKEW"
-  description="Lineage and engineering evolution from HAGIWO/ハギヲ's Eurorack Envelope Follower No. 43 (Jan 2022) and domesticmouse/EnvelopeFollower through ENV / SKEW."
+  description="Lineage and engineering evolution from HAGIWO/ハギヲ's Eurorack Envelope Follower No. 43 (Jan 2022) and the companion domesticmouse/EnvelopeFollower Build Tutorial through ENV / SKEW."
   currentPath="/origin/"
 >
   <div class="curated-shell">
@@ -107,9 +113,9 @@ const evolutionRows = [
       <p class="curated-lead">
         <strong>ENV / SKEW</strong> builds directly on{' '}
         <strong>HAGIWO/ハギヲ</strong>’s (<code>@solder_state</code>) open-source DIY Eurorack
-        Envelope Follower No. 43, evolving through extracted circuit documentation in{' '}
-        <code>domesticmouse/EnvelopeFollower</code> into a production 2-layer SMT/THT Eurorack
-        module with an independent bipolar Skew Limiter mode.
+        Envelope Follower No. 43, evolving alongside the live 9-stage{' '}
+        <code>domesticmouse/EnvelopeFollower</code> Build Tutorial into a production 2-layer SMT/THT
+        Eurorack module with an independent bipolar Asymmetric Skew Limiter Mode.
       </p>
     </header>
 
@@ -150,7 +156,7 @@ const evolutionRows = [
 
         <div class="curated-cards-stack">
           <a
-            href="https://note.com/solder_state/n/n110e9ba066b3?hl=en"
+            href={HAGIWO_NOTE_URL}
             target="_blank"
             rel="noopener noreferrer"
             class="curated-link-card"
@@ -190,30 +196,30 @@ const evolutionRows = [
           </a>
 
           <a
-            href="https://github.com/domesticmouse/EnvelopeFollower"
+            href={TUTORIAL_REPO_URL}
             target="_blank"
             rel="noopener noreferrer"
             class="curated-link-card"
           >
-            <span class="curated-card-kicker">Archival Extraction Repo · 2026-11-18 ↗</span>
+            <span class="curated-card-kicker">Build Tutorial Repo · GitHub ↗</span>
             <span class="curated-card-title">domesticmouse/EnvelopeFollower</span>
             <span class="curated-card-meta">
-              Preserved extraction &amp; KiCad baseline (submodule <code>4a02c46</code>, 16 documented
-              build prompts).
+              Live 9-stage <strong>ENV / SKEW</strong> Build Tutorial repository covering circuit
+              extraction, KiCad hardware design, and companion site engineering.
             </span>
           </a>
 
           <a
-            href="https://domesticmouse.github.io/EnvelopeFollower/"
+            href={TUTORIAL_SITE_URL}
             target="_blank"
             rel="noopener noreferrer"
             class="curated-link-card"
           >
-            <span class="curated-card-kicker">Live Extraction Docs · GitHub Pages ↗</span>
-            <span class="curated-card-title">domesticmouse.github.io/EnvelopeFollower</span>
+            <span class="curated-card-kicker">Live Build Tutorial · GitHub Pages ↗</span>
+            <span class="curated-card-title">ENV / SKEW Build Tutorial</span>
             <span class="curated-card-meta">
-              Published web baseline showcasing HAGIWO No. 43 schematic extraction and initial
-              KiCad simulation findings.
+              Published interactive 9-stage hardware-and-site Build Tutorial guiding you from
+              HAGIWO No. 43 analysis through PCB/panel fabrication and web documentation.
             </span>
           </a>
         </div>

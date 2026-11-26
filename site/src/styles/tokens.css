@@ -23,10 +23,15 @@
   --led-red-bg: #2c1416;        /* −V / Danger (● RED / ▲ ABORT) */
   --led-dark: #c5cad4;
   --led-dark-bg: #1e2128;       /* 0 V (○ DARK) */
+  --led-amber: #fbbf24;
+  --led-amber-bg: #291e09;      /* Caution / Warning (● AMBER) */
+  --scrollbar-thumb: #7b8294;
+  --scrollbar-track: #141518;
   accent-color: var(--accent-gold);
-  scrollbar-color: #7b8294 #141518; /* Never transition/animate scrollbar-color */
+  /* Never transition or animate scrollbar-color */
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 
-  --font-slab: 'Barlow Condensed', 'DIN Condensed', system-ui, sans-serif;
+  --font-slab: 'Barlow Condensed', 'DIN Condensed', 'Arial Narrow', system-ui, sans-serif;
   --font-display: 'Space Grotesk', system-ui, -apple-system, sans-serif;
   --font-body: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;

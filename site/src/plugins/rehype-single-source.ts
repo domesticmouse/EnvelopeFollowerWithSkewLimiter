@@ -260,7 +260,13 @@ function transformMermaidFences(tree: Root): void {
             role: 'region',
             ariaLabel: 'Signal flow diagram',
           },
-          [h('pre', { className: ['mermaid'] }, [{ type: 'text', value: diagramSource }])],
+          [
+            h(
+              'pre',
+              { className: ['mermaid'], dataMermaidLabel: 'Circuit signal flow diagram' },
+              [{ type: 'text', value: diagramSource }],
+            ),
+          ],
         ),
       ],
     );
@@ -593,6 +599,16 @@ function tagPatchSettingsTables(tree: Root): void {
           }
         }
       }
+    }
+  }
+}
+
+function stripLeadingH1(tree: Root): void {
+  const firstElementIdx = tree.children.findIndex((node) => node.type === 'element');
+  if (firstElementIdx !== -1) {
+    const firstEl = tree.children[firstElementIdx];
+    if (firstEl?.type === 'element' && firstEl.tagName === 'h1') {
+      tree.children.splice(firstElementIdx, 1);
     }
   }
 }
@@ -971,6 +987,7 @@ export const rehypeSingleSource: Plugin<[SingleSourceRehypeOptions], Root> = (op
 
     assignHeadingIds(tree);
     if (sourceRepoPath === 'patches/README.md') {
+      stripLeadingH1(tree);
       suppressSectionByHeading(tree, 'patch-guides-index');
     } else if (sourceRepoPath === 'checklists/README.md') {
       suppressSectionByHeading(tree, 'workflow-order');

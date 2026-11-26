@@ -86,6 +86,40 @@ export function describeSweepArc(
   return `M ${p1.x.toFixed(3)} ${p1.y.toFixed(3)} A ${r} ${r} 0 ${largeArc} 1 ${p2.x.toFixed(3)} ${p2.y.toFixed(3)}`;
 }
 
+function findBalancedTagSpan(
+  svgText: string,
+  tagName: string,
+  openMatch: RegExpExecArray,
+): { start: number; end: number } | null {
+  const start = openMatch.index;
+  if (openMatch[0].trimEnd().endsWith('/>')) {
+    return { start, end: start + openMatch[0].length };
+  }
+
+  const escapedTag = tagName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const tagRe = new RegExp(`<(\\/?)${escapedTag}\\b([^>]*)>`, 'g');
+  tagRe.lastIndex = start;
+
+  let depth = 0;
+  let tagMatch: RegExpExecArray | null;
+  while ((tagMatch = tagRe.exec(svgText)) !== null) {
+    const isClosing = tagMatch[1] === '/';
+    const attrs = tagMatch[2] ?? '';
+    const isSelfClosing = !isClosing && attrs.trimEnd().endsWith('/');
+
+    if (isClosing) {
+      depth -= 1;
+      if (depth === 0) {
+        return { start, end: tagRe.lastIndex };
+      }
+    } else if (!isSelfClosing) {
+      depth += 1;
+    }
+  }
+
+  return null;
+}
+
 function extractGroupById(
   svgText: string,
   groupId: string,
@@ -101,34 +135,52 @@ function extractGroupById(
     throw new Error(`Missing <g id="${groupId}"> layer in ${sourceFile}`);
   }
 
-  const startIndex = openMatch.index;
-  const tagRe = /<(\/?)g\b([^>]*)>/g;
-  tagRe.lastIndex = startIndex;
-
-  let depth = 0;
-  let tagMatch: RegExpExecArray | null;
-  while ((tagMatch = tagRe.exec(svgText)) !== null) {
-    const isClosing = tagMatch[1] === '/';
-    const attrs = tagMatch[2] ?? '';
-    const isSelfClosing = !isClosing && attrs.trimEnd().endsWith('/');
-
-    if (isClosing) {
-      depth -= 1;
-      if (depth === 0) {
-        return svgText.slice(startIndex, tagRe.lastIndex);
-      }
-    } else if (!isSelfClosing) {
-      depth += 1;
-    }
+  const span = findBalancedTagSpan(svgText, 'g', openMatch);
+  if (!span) {
+    throw new Error(`Unclosed <g id="${groupId}"> layer in ${sourceFile}`);
   }
-
-  throw new Error(`Unclosed <g id="${groupId}"> layer in ${sourceFile}`);
+  return svgText.slice(span.start, span.end);
 }
 
 function recolorGroupSvg(groupSvg: string, hexColor: string): string {
   return groupSvg
     .replace(/\bfill="(?!none")[^"]*"/g, `fill="${hexColor}"`)
     .replace(/\bstroke="(?!none")[^"]*"/g, `stroke="${hexColor}"`);
+}
+
+function stripElementById(
+  svgText: string,
+  elementId: string,
+  tagNamePattern = '[A-Za-z_][\\w:.-]*',
+): string {
+  const openRe = new RegExp(
+    `<(${tagNamePattern})\\b[^>]*\\bid=["']${elementId}["'][^>]*>`,
+    'g',
+  );
+  let result = svgText;
+  let openMatch: RegExpExecArray | null;
+
+  while ((openMatch = openRe.exec(result)) !== null) {
+    const tagName = openMatch[1];
+    if (!tagName) {
+      break;
+    }
+    const span = findBalancedTagSpan(result, tagName, openMatch);
+    if (!span) {
+      continue;
+    }
+    result = `${result.slice(0, span.start)}${result.slice(span.end)}`;
+    openRe.lastIndex = span.start;
+  }
+
+  return result;
+}
+
+function stripRegistrationFrame(svgText: string): string {
+  return stripElementById(
+    stripElementById(svgText, '_03_Registration_Frame', 'g'),
+    'registration_frame',
+  );
 }
 
 function tagNormalArrow(goldGroupSvg: string): string {
@@ -143,15 +195,11 @@ export function parseFaceplateLayersFromStrings(
   maskText: string,
   silkText: string,
 ): FaceplateLayerMarkup {
-  const rawGoldGroup = extractGroupById(
-    maskText,
-    '_01_F_Mask_Gold',
-    'panel_art/front_soldermask.svg',
+  const rawGoldGroup = stripRegistrationFrame(
+    extractGroupById(maskText, '_01_F_Mask_Gold', 'panel_art/front_soldermask.svg'),
   );
-  const rawSilkGroup = extractGroupById(
-    silkText,
-    '_02_F_SilkS_White',
-    'panel_art/front_silkscreen.svg',
+  const rawSilkGroup = stripRegistrationFrame(
+    extractGroupById(silkText, '_02_F_SilkS_White', 'panel_art/front_silkscreen.svg'),
   );
   const rawRegGroup = extractGroupById(
     maskText,

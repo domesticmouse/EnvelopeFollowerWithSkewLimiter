@@ -1,8 +1,15 @@
 ---
-import { GITHUB_REPO_URL, PRIMARY_NAV_ITEMS, withBase } from '../lib/routes.ts';
+import {
+  GITHUB_REPO_URL,
+  HAGIWO_NOTE_URL,
+  PRIMARY_NAV_ITEMS,
+  TUTORIAL_REPO_URL,
+  TUTORIAL_SITE_URL,
+  withBase,
+} from '../lib/routes.ts';
 ---
 
-<footer class="site-footer">
+<footer class="site-footer" data-pagefind-ignore>
   <div class="site-footer-inner">
     <nav class="footer-nav" aria-label="Footer navigation">
       <a href={withBase('/')}>Overview</a>
@@ -12,6 +19,7 @@ import { GITHUB_REPO_URL, PRIMARY_NAV_ITEMS, withBase } from '../lib/routes.ts';
         ))
       }
       <a href={withBase('/specs/')}>Reference Specs</a>
+      <a href={TUTORIAL_SITE_URL} target="_blank" rel="noopener noreferrer">Build Tutorial ↗</a>
       <a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer">GitHub ↗</a>
     </nav>
 
@@ -20,7 +28,7 @@ import { GITHUB_REPO_URL, PRIMARY_NAV_ITEMS, withBase } from '../lib/routes.ts';
         <strong>ENV / SKEW</strong> · 6 HP Eurorack Envelope Follower &amp; Asymmetric Skew Limiter ·
         Inspired by{' '}
         <a
-          href="https://note.com/solder_state/n/n110e9ba066b3?hl=en"
+          href={HAGIWO_NOTE_URL}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -28,7 +36,7 @@ import { GITHUB_REPO_URL, PRIMARY_NAV_ITEMS, withBase } from '../lib/routes.ts';
         </a>{' '}
         and{' '}
         <a
-          href="https://github.com/domesticmouse/EnvelopeFollower"
+          href={TUTORIAL_REPO_URL}
           target="_blank"
           rel="noopener noreferrer"
         >

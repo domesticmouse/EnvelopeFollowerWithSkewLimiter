@@ -513,9 +513,9 @@ dialog::backdrop {
 }
 
 .led-pill[data-led='amber'] {
-  background: #291e09;
-  color: #fbbf24;
-  border-color: #fbbf24;
+  background: var(--led-amber-bg);
+  color: var(--led-amber);
+  border-color: var(--led-amber);
 }
 
 .spec-chip {
@@ -859,6 +859,13 @@ dialog.search-dialog[open] {
   border-radius: 2px;
 }
 
+.mermaid-error-note {
+  margin: 0 0 0.65rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--led-amber);
+}
+
 /* ============================================================================
  * AUTOMATIC PRINT STYLESHEET (@media print)
  * ============================================================================ */
@@ -867,6 +874,7 @@ dialog.search-dialog[open] {
   html,
   body,
   body[data-canvas='void'] {
+    color-scheme: light !important;
     background: #ffffff !important;
     color: #000000 !important;
     --bg-void: #ffffff;
@@ -891,6 +899,8 @@ dialog.search-dialog[open] {
     --led-red-bg: #ffffff;
     --led-dark: #000000;
     --led-dark-bg: #ffffff;
+    --led-amber: #000000;
+    --led-amber-bg: #ffffff;
   }
 
   .site-header,

@@ -3,6 +3,7 @@
   class="search-dialog"
   data-search-dialog
   data-managed-dialog
+  data-pagefind-ignore
   closedby="any"
   aria-labelledby="site-search-title"
 >
@@ -22,6 +23,10 @@
         id="site-search-input"
         type="text"
         inputmode="search"
+        role="combobox"
+        aria-autocomplete="list"
+        aria-expanded="false"
+        aria-controls="site-search-results"
         class="search-input"
         data-search-input
         placeholder="Search specs, patches, steps (e.g. TP7, BAT54S, A-1076)…"
@@ -35,6 +40,7 @@
     </p>
 
     <ul
+      id="site-search-results"
       class="search-results"
       data-search-results
       role="listbox"
