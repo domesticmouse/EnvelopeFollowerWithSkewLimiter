@@ -188,12 +188,16 @@ export function initSearchModal(options: SearchModalOptions = {}): () => void {
     return pagefindPromise;
   };
 
+  const clearSelection = (): void => {
+    activeIndex = -1;
+    input.removeAttribute('aria-activedescendant');
+    input.setAttribute('aria-expanded', 'false');
+  };
+
   const updateSelection = (nextIdx: number): void => {
     const items = [...resultsEl.querySelectorAll<HTMLElement>('[data-search-result]')];
     if (items.length === 0) {
-      activeIndex = -1;
-      input.removeAttribute('aria-activedescendant');
-      input.setAttribute('aria-expanded', 'false');
+      clearSelection();
       return;
     }
     const clamped = ((nextIdx % items.length) + items.length) % items.length;
@@ -219,9 +223,7 @@ export function initSearchModal(options: SearchModalOptions = {}): () => void {
     const token = ++latestQueryToken;
     const trimmed = query.trim();
     resultsEl.textContent = '';
-    activeIndex = -1;
-    input.removeAttribute('aria-activedescendant');
-    input.setAttribute('aria-expanded', 'false');
+    clearSelection();
 
     if (!trimmed) {
       statusEl.textContent = 'Type to search specs, patches, checklist steps, or components (TP7, BAT54S, A-1076).';
