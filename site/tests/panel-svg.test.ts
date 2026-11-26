@@ -138,4 +138,72 @@ describe('panel-svg faceplate layer extractor and geometry', () => {
     expect(describeSweepArc(15, 21.25, 5.65, 0, 10)).toContain('A 5.65 5.65 0 1 1');
     expect(describeSweepArc(15, 21.25, 5.65, 5, 5)).toBe('');
   });
+
+  it('strips nested <g> elements inside _03_Registration_Frame and non-self-closing id="registration_frame" elements without leaving dangling closing tags', () => {
+    const maskWithNestedAndPairedFrames = `
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30.00 128.50">
+        <g id="_01_F_Mask_Gold">
+          <polygon points="13.45,95.47 15.45,95.47 16.55,95.75" fill="#C89B3C" />
+          <g id="_03_Registration_Frame">
+            <g class="frame-outer">
+              <g class="frame-inner"><path d="M0 0 L30 0" fill="#C89B3C" /></g>
+            </g>
+          </g>
+          <rect id="registration_frame" x="0" y="0" width="30" height="128.5" fill="#C89B3C"></rect>
+          <circle cx="15" cy="21.25" r="3.5" fill="#C89B3C" />
+        </g>
+      </svg>
+    `;
+    const silkWithPairedGroupFrame = `
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30.00 128.50">
+        <g id="_02_F_SilkS_White">
+          <rect x="1.6" y="12.03" width="26.8" height="0.24" fill="#000000" />
+          <g id="registration_frame">
+            <g class="silk-frame-child"><path d="M0 0 L30 128.5" fill="#000000" /></g>
+          </g>
+          <text x="15" y="10" fill="#000000">ENV</text>
+        </g>
+      </svg>
+    `;
+
+    const layers = parseFaceplateLayersFromStrings(
+      maskWithNestedAndPairedFrames,
+      silkWithPairedGroupFrame,
+    );
+
+    expect(layers.goldLayerSvg).toContain('data-normal-arrow="true"');
+    expect(layers.goldLayerSvg).toContain('<circle cx="15" cy="21.25" r="3.5" fill="#D8B154" />');
+    expect(layers.goldLayerSvg).not.toContain('_03_Registration_Frame');
+    expect(layers.goldLayerSvg).not.toContain('frame-outer');
+    expect(layers.goldLayerSvg).not.toContain('frame-inner');
+    expect(layers.goldLayerSvg).not.toContain('registration_frame');
+    expect(layers.goldLayerSvg).not.toContain('</rect>');
+    expect(layers.goldLayerSvg.match(/<g\b/g)?.length).toBe(1);
+    expect(layers.goldLayerSvg.match(/<\/g>/g)?.length).toBe(1);
+
+    expect(layers.silkLayerSvg).toContain('<text x="15" y="10" fill="#F4F5F7">ENV</text>');
+    expect(layers.silkLayerSvg).not.toContain('registration_frame');
+    expect(layers.silkLayerSvg).not.toContain('silk-frame-child');
+    expect(layers.silkLayerSvg.match(/<g\b/g)?.length).toBe(1);
+    expect(layers.silkLayerSvg.match(/<\/g>/g)?.length).toBe(1);
+
+    const maskWithStandaloneNestedFrame = `
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30.00 128.50">
+        <g id="_01_F_Mask_Gold">
+          <polygon points="13.45,95.47 15.45,95.47 16.55,95.75" fill="#C89B3C" />
+        </g>
+        <g id="_03_Registration_Frame">
+          <g class="standalone-frame"><path d="M0 128.5 L30 128.5" fill="#C89B3C" /></g>
+        </g>
+      </svg>
+    `;
+    const standaloneLayers = parseFaceplateLayersFromStrings(
+      maskWithStandaloneNestedFrame,
+      silkWithPairedGroupFrame,
+    );
+    expect(standaloneLayers.goldLayerSvg).toContain('data-normal-arrow="true"');
+    expect(standaloneLayers.registrationFrameSvg).toContain('id="_03_Registration_Frame"');
+    expect(standaloneLayers.registrationFrameSvg).toContain('class="standalone-frame"');
+    expect(standaloneLayers.registrationFrameSvg).toContain('fill="#4ADE80"');
+  });
 });
