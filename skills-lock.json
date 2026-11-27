@@ -64,6 +64,13 @@
       "skillPath": "skills/engineering/domain-modeling/SKILL.md",
       "computedHash": "b78689833404148c769077355e12dbe5ad996a158a1e21e58ddf169e439d9d8c"
     },
+    "eurorack-brutalist-panel": {
+      "source": "domesticmouse/skills",
+      "commit": "93058c718437ebf4dc976607058bccda51ce2e6c",
+      "sourceType": "github",
+      "skillPath": "packs/hardware/eurorack-brutalist-panel/SKILL.md",
+      "computedHash": "5753e6375b6cbb1107ef9204a8598969dc1b847d312265a7571df347bfd360cc"
+    },
     "eurorack-panel": {
       "source": "domesticmouse/skills",
       "commit": "fefa623f98d8bf6ca90511341cc5176cbaaafb3a",

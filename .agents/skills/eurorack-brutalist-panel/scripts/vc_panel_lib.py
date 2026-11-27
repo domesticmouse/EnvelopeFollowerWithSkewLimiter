@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Reusable VectorCraft batch builders for Dark Techno / Brutalist Eurorack panels."""
 
 from __future__ import annotations
@@ -12,7 +11,9 @@ from typing import Any
 MM_TO_PT = 72.0 / 25.4
 PT_TO_MM = 25.4 / 72.0
 
-# Visual palette
+# Visual palette (draw 01_F_Mask_Gold and 02_F_SilkS_White in Preview Hex;
+# _audit_*.png renders on a black background, and audit_panel_svgs.py remaps
+# fills to Fab Hex during 1:1 mm normalization).
 COLOR_FR4_BG = "#141518"
 COLOR_FR4_RIM = "#2a2d34"
 COLOR_DRILL_FILL = "#07080a"
@@ -293,6 +294,12 @@ class StepBuilder:
         )
         return f"${idx}.ids[0]"
 
+    def write_commands(self, path: Path) -> Path:
+        """Write accumulated batch steps as UTF-8 JSON, creating parent dirs."""
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(self.steps, indent=2) + "\n", encoding="utf-8")
+        return path
+
 
 def chamfer_rect_points(
     x0: float,
@@ -305,30 +312,55 @@ def chamfer_rect_points(
     bl: float = 0.0,
 ) -> list[tuple[float, float]]:
     """Return clockwise polygon vertices for a chamfered rectangle."""
+    w = x1 - x0
+    h = y1 - y0
+    if w <= 0.0 or h <= 0.0:
+        raise ValueError(
+            f"Rectangle bounds must have positive size: ({x0}, {y0}) -> ({x1}, {y1})"
+        )
+    if min(tl, tr, br, bl) < 0.0:
+        raise ValueError("Chamfer sizes must be non-negative")
+    if tl + tr > w or bl + br > w or tl + bl > h or tr + br > h:
+        raise ValueError(
+            f"Chamfers exceed rectangle dimensions ({w}x{h}): "
+            f"tl={tl}, tr={tr}, br={br}, bl={bl}"
+        )
+
     pts: list[tuple[float, float]] = []
-    if tl > 0:
+    if tl > 0.0:
         pts.extend([(x0, y0 + tl), (x0 + tl, y0)])
     else:
         pts.append((x0, y0))
-    if tr > 0:
+    if tr > 0.0:
         pts.extend([(x1 - tr, y0), (x1, y0 + tr)])
     else:
         pts.append((x1, y0))
-    if br > 0:
+    if br > 0.0:
         pts.extend([(x1, y1 - br), (x1 - br, y1)])
     else:
         pts.append((x1, y1))
-    if bl > 0:
+    if bl > 0.0:
         pts.extend([(x0 + bl, y1), (x0, y1 - bl)])
     else:
         pts.append((x0, y1))
-    return pts
+
+    deduped: list[tuple[float, float]] = []
+    for p in pts:
+        if not deduped or p != deduped[-1]:
+            deduped.append(p)
+    if len(deduped) > 1 and deduped[-1] == deduped[0]:
+        deduped.pop()
+    return deduped
 
 
 def regular_polygon_points(
     cx: float, cy: float, radius: float, sides: int, rot_deg: float = 0.0
 ) -> list[tuple[float, float]]:
     """Return vertices for a regular polygon centered at (cx, cy)."""
+    if sides < 3:
+        raise ValueError(f"Regular polygon requires at least 3 sides, got {sides}")
+    if radius <= 0.0:
+        raise ValueError(f"Regular polygon radius must be positive, got {radius}")
     pts: list[tuple[float, float]] = []
     for k in range(sides):
         ang = math.radians(rot_deg + k * (360.0 / sides))
@@ -379,7 +411,7 @@ def populate_mockup_layer(
         0.0, 0.0, width_mm, height_mm, 0.18, COLOR_FR4_RIM, align="inside"
     )
 
-    for slot in spec["mounting_slots"]:
+    for slot in spec.get("mounting_slots", []):
         sw, sh = float(slot["width_mm"]), float(slot["height_mm"])
         sx = float(slot["local_x"]) - sw / 2.0
         sy = float(slot["local_y"]) - sh / 2.0
@@ -395,7 +427,7 @@ def populate_mockup_layer(
             radius_mm=sh / 2.0,
         )
 
-    for comp in spec["components"]:
+    for comp in spec.get("components", []):
         cx = float(comp["local_x"])
         cy = float(comp["local_y"])
         drill = float(comp["drill_mm"])
@@ -443,7 +475,7 @@ def populate_keepout_layer(
 
     sb.set_current_layer(lyr_keepout)
 
-    for band in canvas["rail_keepout_y_mm"].values():
+    for band in canvas.get("rail_keepout_y_mm", {}).values():
         y0, y1 = float(band[0]), float(band[1])
         sb.rect_stroke_keepout(
             0.0,
@@ -456,7 +488,7 @@ def populate_keepout_layer(
             opacity=80,
         )
 
-    for slot in spec["mounting_slots"]:
+    for slot in spec.get("mounting_slots", []):
         hx = float(slot["local_x"])
         hy = float(slot["local_y"])
         sw = float(slot["width_mm"])
@@ -486,7 +518,7 @@ def populate_keepout_layer(
         opacity=75,
     )
 
-    for comp in spec["components"]:
+    for comp in spec.get("components", []):
         cx = float(comp["local_x"])
         cy = float(comp["local_y"])
         drill = float(comp["drill_mm"])
@@ -530,6 +562,9 @@ def append_standard_exports(
     lyr_reg = layers["reg"]
     lyr_keepout = layers["keepout"]
 
+    sb.set_layer_visible(lyr_mockup, True)
+    sb.set_layer_visible(lyr_mask, True)
+    sb.set_layer_visible(lyr_silks, True)
     sb.set_layer_visible(lyr_reg, False)
     sb.set_layer_visible(lyr_keepout, False)
     sb.add(
