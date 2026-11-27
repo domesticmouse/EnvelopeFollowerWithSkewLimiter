@@ -1,3 +1,6 @@
+# Ignore claude skills stuff
+/.claude/
+
 .venv/
 __pycache__/
 *.pyc

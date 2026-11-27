@@ -17,10 +17,10 @@
     },
     "chief-of-staff": {
       "source": "mattpocock/skills",
-      "commit": "abeeaf95660ba9e8b7c753eb38f441ca707a8823",
+      "commit": "bbadaa631c37af594e5a05c9cefacd9956136b18",
       "sourceType": "github",
       "skillPath": "skills/in-progress/chief-of-staff/SKILL.md",
-      "computedHash": "dc3348d0f641956ea78dafa037aea745154c516a286ed4156b0c2ec0cbcf581b"
+      "computedHash": "a429ec90dfd59d2fc00d1d6ebae34a315068856b5b4b64a9e2f6a1c9c86e7e0f"
     },
     "claude-handoff": {
       "source": "mattpocock/skills",
@@ -59,10 +59,10 @@
     },
     "domain-modeling": {
       "source": "mattpocock/skills",
-      "commit": "abeeaf95660ba9e8b7c753eb38f441ca707a8823",
+      "commit": "bbadaa631c37af594e5a05c9cefacd9956136b18",
       "sourceType": "github",
       "skillPath": "skills/engineering/domain-modeling/SKILL.md",
-      "computedHash": "b78689833404148c769077355e12dbe5ad996a158a1e21e58ddf169e439d9d8c"
+      "computedHash": "7d4453f798d7785c945972abe0871493caf884fa3ee82725cc71e783de6176ea"
     },
     "eurorack-brutalist-panel": {
       "source": "domesticmouse/skills",
@@ -73,10 +73,10 @@
     },
     "eurorack-panel": {
       "source": "domesticmouse/skills",
-      "commit": "fefa623f98d8bf6ca90511341cc5176cbaaafb3a",
+      "commit": "93058c718437ebf4dc976607058bccda51ce2e6c",
       "sourceType": "github",
       "skillPath": "packs/hardware/eurorack-panel/SKILL.md",
-      "computedHash": "57aad5bb20f920631bcb30632d99e2f5aba815b4341f8735bfe05f1e4d0cbbb1"
+      "computedHash": "4e3d2aefe05e6600e5af328875dccb1e4b3c841fdf83292bf46b7fdd36ccc42e"
     },
     "git-guardrails-claude-code": {
       "source": "mattpocock/skills",
@@ -150,17 +150,17 @@
     },
     "kicad-pcbnew-layout": {
       "source": "domesticmouse/skills",
-      "commit": "2056762863f699720041aff1f4dbf3a77b71fd2e",
+      "commit": "93058c718437ebf4dc976607058bccda51ce2e6c",
       "sourceType": "github",
       "skillPath": "packs/hardware/kicad-pcbnew-layout/SKILL.md",
-      "computedHash": "ab432ed89028011c2512efd2196cee9d8cd1201b202cc5866f1967562728a286"
+      "computedHash": "555d9cc9d2d1ecb4bf07ba314205b41069c523b4373326875ce72530dcc5f3f1"
     },
     "kicad-silkscreen-markup": {
       "source": "domesticmouse/skills",
-      "commit": "2056762863f699720041aff1f4dbf3a77b71fd2e",
+      "commit": "93058c718437ebf4dc976607058bccda51ce2e6c",
       "sourceType": "github",
       "skillPath": "packs/hardware/kicad-silkscreen-markup/SKILL.md",
-      "computedHash": "8ddaed7a721f6408983be20017d0c7e38ea487b0027009540a0353c9bb7d1c45"
+      "computedHash": "b6fce4037232472cc609c9be604f50a2c7d677edc2b7f290fdaeda104f1daeae"
     },
     "lcsc": {
       "source": "aklofas/kicad-happy",
@@ -241,10 +241,10 @@
     },
     "skidl": {
       "source": "domesticmouse/skills",
-      "commit": "2056762863f699720041aff1f4dbf3a77b71fd2e",
+      "commit": "93058c718437ebf4dc976607058bccda51ce2e6c",
       "sourceType": "github",
       "skillPath": "packs/hardware/skidl/SKILL.md",
-      "computedHash": "2f42bb3e6049f242f56c07fc97cf6fe46cec857efe852ee05d70491c1f22f783"
+      "computedHash": "6b66ee896fa6ed7857107783a334911333e17b1ac64ff30446b17decf756c1e8"
     },
     "software-factory": {
       "source": "mattpocock/skills",
@@ -283,10 +283,10 @@
     },
     "to-tickets": {
       "source": "mattpocock/skills",
-      "commit": "abeeaf95660ba9e8b7c753eb38f441ca707a8823",
+      "commit": "bbadaa631c37af594e5a05c9cefacd9956136b18",
       "sourceType": "github",
       "skillPath": "skills/engineering/to-tickets/SKILL.md",
-      "computedHash": "17496514c92954f68eacdf2b1221e2ddb39fa231b83f03c70bc7d4422f704b2d"
+      "computedHash": "be8bbacaa75f05ab8ca5fb62df61dce00b46b336088ffcc5eb29545b6e6f0768"
     },
     "triage": {
       "source": "mattpocock/skills",
