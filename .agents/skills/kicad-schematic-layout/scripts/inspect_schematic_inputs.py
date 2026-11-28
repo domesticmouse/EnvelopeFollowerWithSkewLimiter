@@ -44,15 +44,19 @@ def _resolve_extends_chain(lib_path: Path, sym_name: str) -> list[str]:
     return chain
 
 
-def _inspect_symbol(lib_name: str, sym_name: str, symbol_dir: Path) -> None:
+def _inspect_symbol(lib_name: str, sym_name: str, symbol_dir: Path) -> bool:
     """Print resolved extends chain, pins, and graphic bounding box for a KiCad 10 symbol."""
     lib_path = symbol_dir / f"{lib_name}.kicad_sym"
     if not lib_path.exists():
         print(f"MISSING LIB: {lib_path}", file=sys.stderr)
-        return
+        return False
 
-    chain = _resolve_extends_chain(lib_path, sym_name)
-    flat, _ = sb.load_kicad10_symbol(lib_name, sym_name, symbol_dir=symbol_dir)
+    try:
+        chain = _resolve_extends_chain(lib_path, sym_name)
+        flat, _ = sb.load_kicad10_symbol(lib_name, sym_name, symbol_dir=symbol_dir)
+    except (KeyError, ValueError) as exc:
+        print(f"MISSING SYMBOL {lib_name}:{sym_name}: {exc}", file=sys.stderr)
+        return False
 
     xs: list[float] = []
     ys: list[float] = []
@@ -108,6 +112,7 @@ def _inspect_symbol(lib_name: str, sym_name: str, symbol_dir: Path) -> None:
             f"  u{unit_idx} pin {pnum:>3s} ({pname:6s}) {ptype:10s} "
             f"at=({px:6.2f}, {py:6.2f}) ang={pang:3.0f} len={plen:.3f}"
         )
+    return True
 
 
 def _print_netlist_summary(net_path: Path) -> set[str]:
@@ -217,19 +222,28 @@ def main() -> int:
         if args.symbols_from_net:
             lib_ids.extend(sorted(net_lib_ids))
 
+    exit_code = 0
     if lib_ids:
         print("\n=== KICAD 10 SYMBOL PINOUTS ===")
         seen: set[str] = set()
         for item in lib_ids:
-            if item in seen or ":" not in item:
+            if ":" not in item:
+                print(
+                    f"INVALID SYMBOL SPEC {item!r}: expected Lib:Symbol",
+                    file=sys.stderr,
+                )
+                exit_code = 1
+                continue
+            if item in seen:
                 continue
             seen.add(item)
             lib_name, sym_name = item.split(":", 1)
-            _inspect_symbol(lib_name, sym_name, args.symbol_dir)
+            if not _inspect_symbol(lib_name, sym_name, args.symbol_dir):
+                exit_code = 1
 
     if not args.net and not lib_ids:
         parser.print_help()
-    return 0
+    return exit_code
 
 
 if __name__ == "__main__":

@@ -8,6 +8,7 @@ import json
 import os
 import re
 import subprocess
+import sys
 import tempfile
 import uuid
 from dataclasses import dataclass, field
@@ -81,6 +82,7 @@ class PartMetadata:
     dnp: bool = False
     exclude_from_bom: bool = False
     exclude_from_pos_files: bool = False
+    exclude_from_board: bool = False
     datasheet: str = ""
     description: str = ""
 
@@ -230,23 +232,10 @@ def _extract_raw_symbol_sexp(lib_path: Path, sym_name: str) -> list[Any]:
     """Extract and parse a top-level `(symbol "<sym_name>" ...)` from a `.kicad_sym` file."""
     text = lib_path.read_text(encoding="utf-8")
     target = f'(symbol "{sym_name}"'
-    pos = 0
-    idx = -1
-    while True:
-        found = text.find(target, pos)
-        if found == -1:
-            break
-        # Must be top-level symbol inside kicad_symbol_lib (depth 1)
-        if found > 0 and text[found - 1] in ("\t", "\n", " "):
-            idx = found
-            break
-        pos = found + len(target)
-    if idx == -1:
-        raise KeyError(f"Symbol {sym_name!r} not found in {lib_path}")
-
     depth = 0
     in_quote = False
-    i = idx
+    idx = -1
+    i = 0
     n = len(text)
     while i < n:
         ch = text[i]
@@ -260,14 +249,20 @@ def _extract_raw_symbol_sexp(lib_path: Path, sym_name: str) -> list[Any]:
             if ch == '"':
                 in_quote = True
             elif ch == "(":
+                if idx == -1 and depth == 1 and text.startswith(target, i):
+                    idx = i
                 depth += 1
             elif ch == ")":
                 depth -= 1
-                if depth == 0:
+                if idx != -1 and depth == 1:
                     parsed = _parse_sexp(text[idx : i + 1])
                     return parsed[0]
         i += 1
-    raise ValueError(f"Unterminated symbol S-expression for {sym_name!r} in {lib_path}")
+    if idx != -1:
+        raise ValueError(
+            f"Unterminated symbol S-expression for {sym_name!r} in {lib_path}"
+        )
+    raise KeyError(f"Symbol {sym_name!r} not found in {lib_path}")
 
 
 def _rename_subsymbol(sub: list[Any], old_prefix: str, new_prefix: str) -> list[Any]:
@@ -722,7 +717,7 @@ class SchematicBuilder:
         self._texts: list[list[Any]] = []
         self._pwr_idx = 0
         self._flg_idx = 0
-        self._pin_counts: dict[tuple[int, int], int] = {}
+        self._pin_points: set[tuple[int, int]] = set()
 
     def _ensure_symbol(self, lib_id: str) -> tuple[list[Any], dict[int, list[PinDef]]]:
         """Load and cache a KiCad 10 symbol definition."""
@@ -777,7 +772,7 @@ class SchematicBuilder:
             if p.name:
                 by_name.setdefault(p.name, []).append(p.number)
             pk = _pt_key((wx, wy))
-            self._pin_counts[pk] = self._pin_counts.get(pk, 0) + 1
+            self._pin_points.add(pk)
             pin_sexps.append(
                 [
                     "pin",
@@ -816,7 +811,7 @@ class SchematicBuilder:
                 ["unit", str(unit)],
                 ["exclude_from_sim", "no"],
                 ["in_bom", "no" if meta.exclude_from_bom else "yes"],
-                ["on_board", "no" if meta.exclude_from_pos_files else "yes"],
+                ["on_board", "no" if meta.exclude_from_board else "yes"],
                 ["dnp", "yes" if meta.dnp else "no"],
                 ["uuid", sym_uuid],
                 _prop_sexp(
@@ -849,7 +844,7 @@ class SchematicBuilder:
             ]
         )
         for fk, fv in meta.fields.items():
-            if fk.lower() not in _RESERVED_PROP_NAMES:
+            if fk.lower() not in _IGNORED_NETLIST_PROP_NAMES:
                 node.append(_prop_sexp(fk, fv, sx, sy, hide=True))
         node.extend(pin_sexps)
         node.append(
@@ -925,7 +920,7 @@ class SchematicBuilder:
         fref = f"#FLG{self._flg_idx:02d}"
         fuuid = _det_uuid(f"flg:{fref}:{fx}:{fy}")
         pk = _pt_key((fx, fy))
-        self._pin_counts[pk] = self._pin_counts.get(pk, 0) + 1
+        self._pin_points.add(pk)
         fnode: list[Any] = [
             "symbol",
             ["lib_id", Quoted("power:PWR_FLAG")],
@@ -984,7 +979,7 @@ class SchematicBuilder:
         ref = f"#PWR{self._pwr_idx:03d}"
         sym_uuid = _det_uuid(f"pwr:{ref}:{sx}:{sy}")
         pk = _pt_key((sx, sy))
-        self._pin_counts[pk] = self._pin_counts.get(pk, 0) + 1
+        self._pin_points.add(pk)
 
         if val_offset is None:
             if angle == 0:
@@ -1213,10 +1208,10 @@ class SchematicBuilder:
 
         junction_keys: set[tuple[int, int]] = set()
         for k, cnt in endpoint_counts.items():
-            if cnt + self._pin_counts.get(k, 0) >= 3:
+            if cnt + (1 if k in self._pin_points else 0) >= 3:
                 junction_keys.add(k)
 
-        test_points = set(endpoint_counts.keys()) | set(self._pin_counts.keys())
+        test_points = set(endpoint_counts.keys()) | self._pin_points
         for k1, k2 in segs:
             x1, y1 = k1
             x2, y2 = k2
@@ -1333,13 +1328,13 @@ def _is_unconnected_net(name: str) -> bool:
 def _parse_netlist_graph(
     net_path: Path,
 ) -> tuple[
-    dict[str, tuple[str, str, bool, bool, bool]],
+    dict[str, tuple[str, str, bool, bool]],
     dict[frozenset[tuple[str, str]], str],
     dict[tuple[str, str], str],
 ]:
     """Parse a KiCad netlist into `(comps, multi_pin_nets, single_pin_nets)`."""
     tree = _parse_sexp(net_path.read_text(encoding="utf-8"))[0]
-    comps: dict[str, tuple[str, str, bool, bool, bool]] = {}
+    comps: dict[str, tuple[str, str, bool, bool]] = {}
     comps_node = _find_child(tree, "components")
     if comps_node:
         for comp in _find_children(comps_node, "comp"):
@@ -1351,13 +1346,12 @@ def _parse_netlist_graph(
             ref = str(ref_n[1])
             if ref.startswith("#"):
                 continue
-            dnp, ex_bom, ex_pos = _extract_comp_flags(comp)
+            dnp, ex_bom, _ex_pos = _extract_comp_flags(comp)
             comps[ref] = (
                 str(val_n[1]),
                 str(fp_n[1]) if fp_n else "",
                 dnp,
                 ex_bom,
-                ex_pos,
             )
 
     multi_nets: dict[frozenset[tuple[str, str]], str] = {}
@@ -1398,11 +1392,11 @@ def verify_schematic(
     exp_net = Path(expected_net_path).resolve()
     cli = Path(kicad_cli) if kicad_cli else _default_kicad_cli()
 
-    env = os.environ.copy()
-    env.setdefault("XDG_DATA_HOME", "/tmp/xdg_data")
-
     with tempfile.TemporaryDirectory() as tmpdir:
         tmp = Path(tmpdir)
+        env = os.environ.copy()
+        if sys.platform == "darwin":
+            env.setdefault("XDG_DATA_HOME", str(tmp / "xdg_data"))
         erc_json = tmp / "erc.json"
         sch_net = tmp / "exported.net"
 

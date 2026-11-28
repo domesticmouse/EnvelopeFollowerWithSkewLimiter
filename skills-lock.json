@@ -157,10 +157,10 @@
     },
     "kicad-schematic-layout": {
       "source": "domesticmouse/skills",
-      "commit": "5513e03cccfb6911114f00189477f12a00417324",
+      "commit": "85292b542a95ccca69349c00401e3fc4d9042852",
       "sourceType": "github",
       "skillPath": "packs/hardware/kicad-schematic-layout/SKILL.md",
-      "computedHash": "15e044f7a3d796cd596809825cb4e3c854eb1363639d106f24d67c3b9ea198c8"
+      "computedHash": "d3d1dfb7c7678523f71edbad912159229187fca3dd56d63cc977d6b2ba829574"
     },
     "kicad-silkscreen-markup": {
       "source": "domesticmouse/skills",

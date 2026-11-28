@@ -9,7 +9,7 @@ description: >-
 
 # KiCad 10 Single-Sheet Schematic Layout
 
-Generate a publication-grade, single-sheet wired KiCad 10 `.kicad_sch` backed by the circuit's authoritative metadata (`envelope_follower.net` / SKiDL), verified **100%** for ERC, netlist connectivity, DNP flags, and visual legibility.
+Generate a publication-grade, single-sheet wired KiCad 10 `.kicad_sch` backed by the circuit's authoritative metadata (`.net` / SKiDL), verified **100%** for ERC, netlist connectivity, DNP flags, and visual legibility.
 
 ## Workflow Steps
 
@@ -44,7 +44,7 @@ Generate a publication-grade, single-sheet wired KiCad 10 `.kicad_sch` backed by
    ```bash
    grep -c "PWR_FLAG" path/to/module.net path/to/module_bom.xml path/to/jlcpcb_bom.csv || true
    ```
-   If `--verify` reports `unconfigured-lib notices > 0`, also run `kicad-cli sch erc --severity-all path/to/module.kicad_sch` with global KiCad library tables accessible so `lib_symbol_issues` cannot mask `lib_symbol_mismatch`. Optionally run [analyze_schematic.py](../../kicad/scripts/analyze_schematic.py) if available.
+   If `--verify` reports `unconfigured-lib notices > 0`, also run `kicad-cli sch erc --severity-all path/to/module.kicad_sch` with global KiCad library tables accessible so `lib_symbol_issues` cannot mask `lib_symbol_mismatch`. Optionally run `.agents/skills/kicad/scripts/analyze_schematic.py` when the external `aklofas/kicad-happy` skill is installed.
    *Done when*: KiCad ERC reports `0` errors and `0` electrical/symbol-mismatch warnings (`0` `unconnected_wire_endpoint`, `0` `lib_symbol_mismatch`), every component (`value`, `footprint`, `dnp`, `exclude_from_bom`) and net pin-set matches `.net` 100%, and `PWR_FLAG` count is `0` across `.net`/BOM files.
 
 5. **Visual PDF and zoomed crop inspection (hard gate)**:
