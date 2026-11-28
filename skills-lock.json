@@ -155,6 +155,13 @@
       "skillPath": "packs/hardware/kicad-pcbnew-layout/SKILL.md",
       "computedHash": "555d9cc9d2d1ecb4bf07ba314205b41069c523b4373326875ce72530dcc5f3f1"
     },
+    "kicad-schematic-layout": {
+      "source": "domesticmouse/skills",
+      "commit": "5513e03cccfb6911114f00189477f12a00417324",
+      "sourceType": "github",
+      "skillPath": "packs/hardware/kicad-schematic-layout/SKILL.md",
+      "computedHash": "15e044f7a3d796cd596809825cb4e3c854eb1363639d106f24d67c3b9ea198c8"
+    },
     "kicad-silkscreen-markup": {
       "source": "domesticmouse/skills",
       "commit": "93058c718437ebf4dc976607058bccda51ce2e6c",
@@ -241,10 +248,10 @@
     },
     "skidl": {
       "source": "domesticmouse/skills",
-      "commit": "93058c718437ebf4dc976607058bccda51ce2e6c",
+      "commit": "5513e03cccfb6911114f00189477f12a00417324",
       "sourceType": "github",
       "skillPath": "packs/hardware/skidl/SKILL.md",
-      "computedHash": "6b66ee896fa6ed7857107783a334911333e17b1ac64ff30446b17decf756c1e8"
+      "computedHash": "db5ad7bcb8f5b8658677ad737b3945ffb4e493ce3591f6af2a4f0b8a4288824b"
     },
     "software-factory": {
       "source": "mattpocock/skills",
