@@ -122,7 +122,16 @@ def _print_netlist_summary(net_path: Path) -> set[str]:
         meta = parts[ref]
         if meta.lib_id:
             lib_ids.add(meta.lib_id)
-        print(f"  {ref:8s} | {meta.value:18s} | {meta.lib_id:34s} | {meta.footprint}")
+        flags: list[str] = []
+        if meta.dnp:
+            flags.append("DNP")
+        if meta.exclude_from_bom:
+            flags.append("NO-BOM")
+        flag_str = f" [{' '.join(flags)}]" if flags else ""
+        print(
+            f"  {ref:8s} | {meta.value:18s} | {meta.lib_id:34s} | "
+            f"{meta.footprint}{flag_str}"
+        )
 
     total_nets = len(multi_nets) + len(single_nets)
     print(f"\n=== NETS ({total_nets}) ===")
@@ -137,7 +146,9 @@ def _print_netlist_summary(net_path: Path) -> set[str]:
 def _verify_schematic(sch_path: Path, net_path: Path, kicad_cli: Path) -> int:
     """Run KiCad 10 ERC and compare schematic netlist against `.net`. Returns exit code."""
     try:
-        summary = sb.verify_schematic(sch_path, net_path, kicad_cli=kicad_cli)
+        summary = sb.verify_schematic(
+            sch_path, net_path, kicad_cli=kicad_cli, quiet=True
+        )
     except (RuntimeError, ValueError, OSError) as exc:
         print(f"FAIL: {exc}", file=sys.stderr)
         return 1
@@ -148,6 +159,13 @@ def _verify_schematic(sch_path: Path, net_path: Path, kicad_cli: Path) -> int:
         f"{summary['components']} components & {summary['total_nets']} nets "
         f"match {summary['netlist']} 100%."
     )
+    if summary["lib_notices"] > 0:
+        print(
+            "NOTE: unconfigured-lib notices were emitted because global KiCad "
+            "sym-lib-table/fp-lib-table could not be read in this environment; "
+            "re-run `kicad-cli sch erc --severity-all` with global library tables "
+            "accessible to confirm 0 `lib_symbol_mismatch` warnings."
+        )
     return 0
 
 
